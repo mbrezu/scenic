@@ -1,5 +1,10 @@
 
 A simple scene renderer/GUI.
 
-Based on LISPBUILDER.
+         "Hamill: How was the road in?
+          Miller: Scenic."
+                 from "Saving Private Ryan"
+
+Uses SDL via LISPBUILDER to define a sane way to draw 2D scenes and
+graphical user interfaces.
 
