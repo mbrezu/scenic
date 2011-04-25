@@ -5,5 +5,6 @@
 (load "sdl-patch.lisp")
 (load "packages.lisp")
 (load "scenic.lisp")
+(load "scenic-test.lisp")
 
 
