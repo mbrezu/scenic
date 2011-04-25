@@ -19,7 +19,12 @@
            key-event key
            layer layers
            scene layers
-           bg border layer scene spc pad upad vbox))
+           filler))
+
+(defpackage :scenic-macros
+  (:use :cl :scenic)
+  (:export bg border layer scene spc pad upad vbox flr stk))
 
 (defpackage :scenic-test
-  (:use :cl))
+  (:use :cl :scenic-macros))
+
