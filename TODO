@@ -1,0 +1,15 @@
+
+* TODO fillers with multipliers are used by the vertical and horizontal boxes;
+* TODO button widget (events, mouse clicks, states);
+* TODO slider;
+* TODO scrollbar;
+* TODO grid layout;
+* TODO scroll view;
+* TODO min/max controls (they force the min/max width/height for their child)
+* TODO text box;
+* TODO popups/dialogs;
+* TODO menubar/menu;
+* TODO combo box;
+* TODO checkbox/radio box;
+* TODO themes/widget factories;
+
