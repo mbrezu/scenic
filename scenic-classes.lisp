@@ -69,6 +69,27 @@
       (incf running-top (+ (measured-height widget) (space-between-cells object)))))
   (call-next-method object left top width height))
 
+;;; HORIZONTAL-BOX class.
+
+(defclass horizontal-box (container)
+  ((space-between-cells :accessor space-between-cells :initarg :space-between-cells :initform 0)))
+
+(defmethod measure ((object horizontal-box) available-width available-height)
+  (let* ((child-sizes (mapcar #'(lambda (widget) (measure widget available-width available-height))
+                              (children object)))
+         (horizontal-size (+ (* (1- (length child-sizes))
+                                (space-between-cells object))
+                             (reduce #'+ (mapcar #'first child-sizes))))
+         (vertical-size (apply #'max (mapcar #'second child-sizes))))
+    (call-next-method object horizontal-size vertical-size)))
+
+(defmethod layout ((object horizontal-box) left top width height)
+  (let ((running-left left))
+    (dolist (widget (children object))
+      (layout widget running-left top (measured-width widget) (measured-height widget))
+      (incf running-left (+ (measured-width widget) (space-between-cells object)))))
+  (call-next-method object left top width height))
+
 ;;; STACK class.
 
 (defclass stack (container)
@@ -248,3 +269,44 @@
 
 (defclass filler (widget)
   ())
+
+;;; LABEL class.
+
+(defclass label (widget)
+  ((text :accessor text :initarg :text :initform "")
+   (font-face :accessor font-face :initarg :font-face :initform "Arial")
+   (font-size :accessor font-size :initarg :font-size :initform 12)
+   (font-color :accessor font-color :initarg :font-color :initform (list 0.0 0.0 0.0))
+   (font-slant :accessor font-slant :initarg :font-slant :initform :normal)
+   (font-weight :accessor font-weight :initarg :font-weight :initform :normal)))
+
+(defmethod measure ((object label) available-width available-height)
+  (cl-cairo2:set-font-size (font-size object))
+  (cl-cairo2:select-font-face (font-face object)
+                              (font-slant object)
+                              (font-weight object))
+  (multiple-value-bind
+        (x_bearing y_bearing width height x_advance y_advance) (cl-cairo2:text-extents
+                                                                (text object))
+    (declare (ignore x_bearing y_bearing x_advance y_advance height))
+    (let* ((extents (cl-cairo2:get-font-extents))
+           (ascent (cl-cairo2:font-ascent extents)))
+      (list (min width available-width)
+            (min ascent available-height)))))
+
+(defmethod layout ((object label) left top width height)
+  (call-next-method object left top (measured-width object) (measured-height object)))
+
+(defmethod paint ((object label))
+  (cl-cairo2:set-font-size (font-size object))
+  (cl-cairo2:select-font-face (font-face object)
+                              (font-slant object)
+                              (font-weight object))
+  (apply #'cl-cairo2:set-source-rgb (font-color object))
+
+  (let* ((extents (cl-cairo2:get-font-extents))
+           (ascent (cl-cairo2:font-ascent extents))
+           (descent (cl-cairo2:font-descent extents)))
+      (cl-cairo2:move-to (layout-left object) (- (+ (layout-top object) ascent 0.5) descent))
+      (cl-cairo2:show-text (text object))))
+

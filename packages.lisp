@@ -19,11 +19,13 @@
            key-event key
            layer layers
            scene layers
-           filler))
+           filler
+           label text font-face font-size font-color font-slant font-weight
+           horizontal-box))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)
-  (:export bg border layer scene spc pad upad vbox flr stk))
+  (:export bg border layer scene spc pad upad vbox flr stk lbl hbox))
 
 (defpackage :scenic-test
   (:use :cl :scenic-macros))

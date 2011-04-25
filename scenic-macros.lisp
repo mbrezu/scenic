@@ -37,12 +37,14 @@
                   :child ,(first child)))
 
 (defmacro upad (padding &body child)
-  `(make-instance 'padding
-                  :left-padding ,padding
-                  :top-padding ,padding
-                  :right-padding ,padding
-                  :bottom-padding ,padding
-                  :child ,(first child)))
+  (let ((g-padding (gensym "padding")))
+    `(let ((,g-padding ,padding))
+       (make-instance 'padding
+                      :left-padding ,g-padding
+                      :top-padding ,g-padding
+                      :right-padding ,g-padding
+                      :bottom-padding ,g-padding
+                      :child ,(first child)))))
 
 (defmacro vbox (space &body children)
   `(make-instance 'vertical-box
@@ -55,3 +57,19 @@
 
 (defmacro flr ()
   `(make-instance 'filler))
+
+(defmacro lbl (text &key
+               (face "Arial") (size 12) (color '(list 0 0 0)) (slant :normal) (weight :normal))
+  `(make-instance 'label
+                  :text ,text
+                  :font-face ,face
+                  :font-size ,size
+                  :font-color ,color
+                  :font-slant ,slant
+                  :font-weight ,weight))
+
+(defmacro hbox (space &body children)
+  `(make-instance 'horizontal-box
+                  :space-between-cells ,space
+                  :children (list ,@children)))
+

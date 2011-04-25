@@ -8,3 +8,5 @@ A simple scene renderer/GUI.
 Uses SDL via LISPBUILDER to define a sane way to draw 2D scenes and
 graphical user interfaces.
 
+Drawing is done using Cairo.
+

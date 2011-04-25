@@ -39,19 +39,16 @@
           (multiple-value-list (cl-cairo2:text-extents text))
           '(x_bearing y_bearing width height x_advance y_advance)))
 
-;; (defclass label (widget)
-;;   ((text :accessor text :initarg :text :initform "")))
-
 ;; (defclass button (widget)
 ;;   ((text :accessor text :initarg :text :initform "")
 ;;    (event-click :accessor event-click :initarg :event-click :initform nil)))
 
 (defun render-scene (scene)
   (let ((from-cairo nil))
-    (measure scene (width scene) (height scene))
-    (layout scene 0 0 (width scene) (height scene))
     (setf from-cairo
           (draw-with-cairo (sdl:create-surface (width scene) (height scene))
+            (measure scene (width scene) (height scene))
+            (layout scene 0 0 (width scene) (height scene))
             (paint scene)))
     (sdl:blit-surface from-cairo)
     (sdl:free from-cairo)
