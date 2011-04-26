@@ -15,17 +15,20 @@
            background fill-color
            placeholder width height
            event handled
-           mouse-event mouse-x mouse-y mouse-button modifiers
+           mouse-event mouse-x mouse-y mouse-button modifiers mouse-move-event
+           mouse-rel-x mouse-rel-y mouse-button-event
            key-event key
            layer layers
            scene layers
            filler
            label text font-face font-size font-color font-slant font-weight
-           horizontal-box))
+           horizontal-box
+           button
+           add-mouse-move))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)
-  (:export bg border layer scene spc pad upad vbox flr stk lbl hbox))
+  (:export bg border layer scene spc pad upad vbox flr stk lbl hbox btn btntxt))
 
 (defpackage :scenic-test
   (:use :cl :scenic-macros))

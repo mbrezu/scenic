@@ -28,21 +28,6 @@
        (cl-cairo2:destroy cl-cairo2:*context*)
        ,g-sdl-surface)))
 
-(defun font-extents ()
-  (let ((extents (cl-cairo2:get-font-extents)))
-    `((ascent . ,(cl-cairo2:font-ascent extents))
-      (descent . ,(cl-cairo2:font-descent extents)))))
-
-(defun text-extents (text)
-  (mapcar #'(lambda (name dim)
-              (cons name dim))
-          (multiple-value-list (cl-cairo2:text-extents text))
-          '(x_bearing y_bearing width height x_advance y_advance)))
-
-;; (defclass button (widget)
-;;   ((text :accessor text :initarg :text :initform "")
-;;    (event-click :accessor event-click :initarg :event-click :initform nil)))
-
 (defun render-scene (scene)
   (let ((from-cairo nil))
     (setf from-cairo
@@ -65,5 +50,13 @@
                        (when (sdl:key= key :sdl-key-escape)
                          (sdl:push-quit-event)))
       ;; (:idle (render-scene scene))
+      (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
+                           (declare (ignore state))
+                           (on-mouse-move scene
+                                          (make-instance 'mouse-move-event
+                                                         :mouse-x x
+                                                         :mouse-y y
+                                                         :mouse-rel-x x-rel
+                                                         :mouse-rel-y y-rel)))
       (:video-expose-event () (sdl:update-display)))))
 

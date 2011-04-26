@@ -73,3 +73,12 @@
                   :space-between-cells ,space
                   :children (list ,@children)))
 
+(defmacro btn (child)
+  `(make-instance 'button
+                  :child ,child))
+
+(defmacro btntxt (text)
+  `(btn (border (list 0.2 0.2 0.2)
+                1
+                (bg (list 0.7 0.7 0.7)
+                    (upad 2 (lbl ,text :size 12))))))

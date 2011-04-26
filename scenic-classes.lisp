@@ -1,11 +1,17 @@
 
 (in-package :scenic)
 
-(defgeneric measure (widget available-width available-height))
+(declaim (optimize (debug 3)))
 
-(defgeneric layout (widget left top width height))
+(defgeneric measure (object available-width available-height))
+
+(defgeneric layout (object left top width height))
 
 (defgeneric paint (object))
+
+(defgeneric on-mouse-move (object event))
+
+(defgeneric add-mouse-move (object handler))
 
 ;;; WIDGET class.
 
@@ -27,6 +33,22 @@
    (event-got-focus :accessor event-got-focus :initarg :event-got-focus :initform nil)
    (event-lost-focus :accessor event-lost-focus :initarg :event-lost-focus :initform nil)))
 
+(defun in-widget (x y widget)
+  (and (<= (layout-left widget) x)
+       (< x (+ (layout-left widget) (layout-width widget)))
+       (<= (layout-top widget) y)
+       (< y (+ (layout-top widget) (layout-height widget)))))
+
+(defun call-widget-event-handlers (widget widget-events event)
+  (dolist (handler widget-events)
+    (when (handled event)
+      (return-from call-widget-event-handlers))
+    (funcall handler widget event)))
+
+(defmethod on-mouse-move ((object widget) mouse-event)
+  (when (in-widget (mouse-x mouse-event) (mouse-y mouse-event) object)
+    (call-widget-event-handlers object (event-mouse-move object) mouse-event)))
+
 (defmethod measure ((object widget) available-width available-height)
   (setf (measured-width object) available-width)
   (setf (measured-height object) available-height)
@@ -40,6 +62,9 @@
 
 (defmethod paint ((object widget)))
 
+(defmethod add-mouse-move ((object widget) handler)
+  (push handler (event-mouse-move object)))
+
 ;;; CONTAINER class.
 
 (defclass container (widget)
@@ -47,6 +72,12 @@
 
 (defmethod paint ((object container))
   (mapc #'paint (children object)))
+
+(defmethod on-mouse-move ((object container) mouse-event)
+  (call-next-method object mouse-event)
+  (when (not (handled mouse-event))
+    (mapc (lambda (child) (on-mouse-move child mouse-event))
+          (children object))))
 
 ;;; VERTICAL-BOX class.
 
@@ -107,17 +138,24 @@
         (children object))
   (call-next-method object left top width height))
 
+;;; CONTAINER1 class.
+(defclass container1 (widget)
+  ((child :accessor child :initarg :child :initform nil)))
+
+(defmethod paint ((object container1))
+  (paint (child object)))
+
+(defmethod on-mouse-move ((object container1) mouse-event)
+  (call-next-method object mouse-event)
+  (on-mouse-move (child object) mouse-event))
+
 ;;; PADDING class.
 
-(defclass padding (widget)
+(defclass padding (container1)
   ((left-padding :accessor left-padding :initarg :left-padding :initform 0)
    (top-padding :accessor top-padding :initarg :top-padding :initform 0)
    (right-padding :accessor right-padding :initarg :right-padding :initform 0)
-   (bottom-padding :accessor bottom-padding :initarg :bottom-padding :initform 0)
-   (child :accessor child :initarg :child :initform nil)))
-
-(defmethod paint ((object padding))
-  (paint (child object)))
+   (bottom-padding :accessor bottom-padding :initarg :bottom-padding :initform 0)))
 
 (defmethod measure ((object padding) available-width available-height)
   (let* ((size (measure (child object) available-width available-height))
@@ -135,25 +173,19 @@
 
 ;;; BORDER class.
 
-(defclass border (widget)
+(defclass border (container1)
   ((stroke-color :accessor stroke-color :initarg :stroke-color :initform 0)
-   (stroke-width :accessor stroke-width :initarg :stroke-width :initform 0)
-   (child :accessor child :initarg :child :initform nil)))
+   (stroke-width :accessor stroke-width :initarg :stroke-width :initform 0)))
 
 (defmethod paint ((object border))
-  (if (> (stroke-width object) 1)
-      (cl-cairo2:rectangle (+ (/ (stroke-width object) 2) (layout-left object))
-                           (+ (/ (stroke-width object) 2) (layout-top object))
-                           (- (layout-width object) (stroke-width object))
-                           (- (layout-height object) (stroke-width object)))
-      (cl-cairo2:rectangle (+ 0.5 (layout-left object))
-                           (+ 0.5 (layout-top object))
-                           (- (layout-width object) 1)
-                           (- (layout-height object) 1)))
+  (cl-cairo2:rectangle (+ (/ (stroke-width object) 2) (layout-left object))
+                       (+ (/ (stroke-width object) 2) (layout-top object))
+                       (- (layout-width object) (stroke-width object))
+                       (- (layout-height object) (stroke-width object)))
   (apply #'cl-cairo2:set-source-rgb (stroke-color object))
   (cl-cairo2:set-line-width (stroke-width object))
   (cl-cairo2:stroke)
-  (paint (child object)))
+  (call-next-method))
 
 (defmethod measure ((object border) available-width available-height)
   (let* ((size (measure (child object) available-width available-height))
@@ -171,9 +203,8 @@
 
 ;;; BACKGROUND class.
 
-(defclass background (widget)
-  ((fill-color :accessor fill-color :initarg :fill-color :initform 0)
-   (child :accessor child :initarg :child :initform nil)))
+(defclass background (container1)
+  ((fill-color :accessor fill-color :initarg :fill-color :initform 0)))
 
 (defmethod paint ((object background))
   (cl-cairo2:rectangle (layout-left object)
@@ -182,7 +213,7 @@
                        (layout-height object))
   (apply #'cl-cairo2:set-source-rgb (fill-color object))
   (cl-cairo2:fill-path)
-  (paint (child object)))
+  (call-next-method))
 
 (defmethod measure ((object background) available-width available-height)
   (apply #'call-next-method
@@ -207,8 +238,14 @@
 (defclass mouse-event (event)
   ((mouse-x :accessor mouse-x :initarg :mouse-x :initform nil)
    (mouse-y :accessor mouse-y :initarg :mouse-y :initform nil)
-   (mouse-button :accessor mouse-button :initarg :mouse-button :initform nil)
    (modifiers :accessor modifiers :initarg :modifiers :initform nil)))
+
+(defclass mouse-move-event (mouse-event)
+  ((mouse-rel-x :accessor mouse-rel-x :initarg :mouse-rel-x :initform nil)
+   (mouse-rel-y :accessor mouse-rel-y :initarg :mouse-rel-y :initform nil)))
+
+(defclass mouse-button-event (mouse-event)
+  ((mouse-button :accessor mouse-button :initarg :mouse-button :initform nil)))
 
 ;;; KEY-EVENT class.
 
@@ -236,6 +273,11 @@
   (mapc #'(lambda (layer) (layout layer left top width height))
         (children object)))
 
+(defmethod on-mouse-move ((object layer) mouse-event)
+  (on-mouse-move (widget object) mouse-event)
+  (mapc (lambda (layer) (on-mouse-move layer mouse-event))
+        (children object)))
+
 ;;; SCENE class.
 
 (defclass scene ()
@@ -252,6 +294,10 @@
 
 (defmethod layout ((object scene) left top width height)
   (mapc #'(lambda (layer) (layout layer left top width height))
+        (layers object)))
+
+(defmethod on-mouse-move ((object scene) mouse-event)
+  (mapc (lambda (layer) (on-mouse-move layer mouse-event))
         (layers object)))
 
 ;;; PLACEHOLDER class.
@@ -291,8 +337,9 @@
     (declare (ignore x_bearing y_bearing x_advance y_advance height))
     (let* ((extents (cl-cairo2:get-font-extents))
            (ascent (cl-cairo2:font-ascent extents)))
-      (list (min width available-width)
-            (min ascent available-height)))))
+      (call-next-method object
+                        (min width available-width)
+                        (min ascent available-height)))))
 
 (defmethod layout ((object label) left top width height)
   (call-next-method object left top (measured-width object) (measured-height object)))
@@ -303,10 +350,23 @@
                               (font-slant object)
                               (font-weight object))
   (apply #'cl-cairo2:set-source-rgb (font-color object))
-
   (let* ((extents (cl-cairo2:get-font-extents))
-           (ascent (cl-cairo2:font-ascent extents))
-           (descent (cl-cairo2:font-descent extents)))
-      (cl-cairo2:move-to (layout-left object) (- (+ (layout-top object) ascent 0.5) descent))
-      (cl-cairo2:show-text (text object))))
+         (ascent (cl-cairo2:font-ascent extents))
+         (descent (cl-cairo2:font-descent extents)))
+    (cl-cairo2:move-to (layout-left object) (- (+ (layout-top object) ascent 0.5) descent))
+    (cl-cairo2:show-text (text object))))
+
+;;; BUTTON class.
+
+(defclass button (container1)
+  ((text :accessor text :initarg :text :initform "")
+   (event-click :accessor event-click :initarg :event-click :initform nil)))
+
+(defmethod measure ((object button) available-width available-height)
+  (let ((child-size (measure (child object) available-width available-height)))
+    (call-next-method object (first child-size) (second child-size))))
+
+(defmethod layout ((object button) left top width height)
+  (layout (child object) left top width height)
+  (call-next-method))
 
