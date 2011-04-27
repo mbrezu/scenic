@@ -8,7 +8,7 @@
            parent
            event-mouse-down event-mouse-up event-mouse-enter event-mouse-move event-mouse-leave
            event-key-down event-key-up event-got-focus event-lost-focus
-           measure layout paint
+           measure layout paint-scene
            container vertical-box stack children space-between-cells
            padding left-padding top-padding right-padding bottom-padding child
            border stroke-color stroke-width

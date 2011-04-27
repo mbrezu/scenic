@@ -34,7 +34,7 @@
           (draw-with-cairo (sdl:create-surface (width scene) (height scene))
             (measure scene (width scene) (height scene))
             (layout scene 0 0 (width scene) (height scene))
-            (paint scene)))
+            (paint-scene scene)))
     (sdl:blit-surface from-cairo)
     (sdl:free from-cairo)
     (sdl:update-display)))

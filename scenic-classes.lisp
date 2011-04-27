@@ -13,7 +13,7 @@
 
 (defgeneric add-mouse-move (object handler))
 
-(defgeneric hit-test (object x y hits))
+(defgeneric paint-order-walk (object callback))
 
 ;;; WIDGET class.
 
@@ -75,18 +75,13 @@
 (defmethod add-mouse-move ((object widget) handler)
   (push handler (event-mouse-move object)))
 
-(defmethod hit-test ((object widget) x y hits)
-  (if (in-widget x y object)
-      (cons object hits)
-      hits))
+(defmethod paint-order-walk ((object widget) callback)
+  (funcall callback object))
 
 ;;; CONTAINER class.
 
 (defclass container (widget)
   ((children :accessor children :initarg :children)))
-
-(defmethod paint ((object container))
-  (mapc #'paint (children object)))
 
 (defmethod initialize-instance :after ((instance container) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
@@ -94,12 +89,10 @@
           (setf (parent widget) instance))
         (children instance)))
 
-(defmethod hit-test ((object container) x y hits)
-  (when (in-widget x y object)
-    (push object hits)
-    (dolist (widget (children object))
-      (setf hits (hit-test widget x y hits))))
-  hits)
+(defmethod paint-order-walk ((object container) callback)
+  (when (funcall callback object)
+    (mapc (lambda (child) (paint-order-walk child callback))
+          (children object))))
 
 ;;; VERTICAL-BOX class.
 
@@ -165,123 +158,13 @@
 (defclass container1 (widget)
   ((child :accessor child :initarg :child :initform nil)))
 
-(defmethod paint ((object container1))
-  (paint (child object)))
-
 (defmethod initialize-instance :after ((instance container1) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
   (setf (parent (child instance)) instance))
 
-(defmethod hit-test ((object container1) x y hits)
-  (when (in-widget x y object)
-    (push object hits)
-    (setf hits (hit-test (child object) x y hits)))
-  hits)
-
-;;; PADDING class.
-
-(defclass padding (container1)
-  ((left-padding :accessor left-padding :initarg :left-padding :initform 0)
-   (top-padding :accessor top-padding :initarg :top-padding :initform 0)
-   (right-padding :accessor right-padding :initarg :right-padding :initform 0)
-   (bottom-padding :accessor bottom-padding :initarg :bottom-padding :initform 0)))
-
-(defmethod measure ((object padding) available-width available-height)
-  (let* ((size (measure (child object) available-width available-height))
-         (width (+ (left-padding object) (right-padding object) (first size)))
-         (height (+ (top-padding object) (bottom-padding object) (second size))))
-    (call-next-method object width height)))
-
-(defmethod layout ((object padding) left top width height)
-  (layout (child object)
-          (+ left (left-padding object))
-          (+ top (top-padding object))
-          (- width (+ (left-padding object) (right-padding object)))
-          (- height (+ (top-padding object) (bottom-padding object))))
-  (call-next-method object left top width height))
-
-;;; BORDER class.
-
-(defclass border (container1)
-  ((stroke-color :accessor stroke-color :initarg :stroke-color :initform 0)
-   (stroke-width :accessor stroke-width :initarg :stroke-width :initform 0)))
-
-(defmethod paint ((object border))
-  (cl-cairo2:rectangle (+ (/ (stroke-width object) 2) (layout-left object))
-                       (+ (/ (stroke-width object) 2) (layout-top object))
-                       (- (layout-width object) (stroke-width object))
-                       (- (layout-height object) (stroke-width object)))
-  (apply #'cl-cairo2:set-source-rgb (stroke-color object))
-  (cl-cairo2:set-line-width (stroke-width object))
-  (cl-cairo2:stroke)
-  (call-next-method))
-
-(defmethod measure ((object border) available-width available-height)
-  (let* ((size (measure (child object) available-width available-height))
-         (width (+ (* 2 (stroke-width object)) (first size)))
-         (height (+ (* 2 (stroke-width object)) (second size))))
-    (call-next-method object width height)))
-
-(defmethod layout ((object border) left top width height)
-  (layout (child object)
-          (+ left (stroke-width object))
-          (+ top (stroke-width object))
-          (measured-width (child object))
-          (measured-height (child object)))
-  (call-next-method object left top (measured-width object) (measured-height object)))
-
-;;; BACKGROUND class.
-
-(defclass background (container1)
-  ((fill-color :accessor fill-color :initarg :fill-color :initform 0)))
-
-(defmethod paint ((object background))
-  (cl-cairo2:rectangle (layout-left object)
-                       (layout-top object)
-                       (layout-width object)
-                       (layout-height object))
-  (apply #'cl-cairo2:set-source-rgb (fill-color object))
-  (cl-cairo2:fill-path)
-  (call-next-method))
-
-(defmethod measure ((object background) available-width available-height)
-  (apply #'call-next-method
-         object
-         (measure (child object) available-width available-height)))
-
-(defmethod layout ((object background) left top width height)
-  (layout (child object)
-          left
-          top
-          (measured-width (child object))
-          (measured-height (child object)))
-  (call-next-method object left top (measured-width object) (measured-height object)))
-
-;;; EVENT class.
-
-(defclass event ()
-  ((handled :accessor handled :initarg :handled :initform nil)
-   (widget-list :accessor widget-list :initarg :widget-list :initform nil)))
-
-;;; MOUSE-event class.
-
-(defclass mouse-event (event)
-  ((mouse-x :accessor mouse-x :initarg :mouse-x :initform nil)
-   (mouse-y :accessor mouse-y :initarg :mouse-y :initform nil)
-   (modifiers :accessor modifiers :initarg :modifiers :initform nil)))
-
-(defclass mouse-move-event (mouse-event)
-  ((mouse-rel-x :accessor mouse-rel-x :initarg :mouse-rel-x :initform nil)
-   (mouse-rel-y :accessor mouse-rel-y :initarg :mouse-rel-y :initform nil)))
-
-(defclass mouse-button-event (mouse-event)
-  ((mouse-button :accessor mouse-button :initarg :mouse-button :initform nil)))
-
-;;; KEY-EVENT class.
-
-(defclass key-event (event)
-  ((key :accessor key :initarg :key :initform nil)
-   (modifiers :accessor modifiers :initarg :modifiers :initform nil)))
+(defmethod paint-order-walk ((object container1) callback)
+  (when (funcall callback object)
+    (paint-order-walk (child object) callback)))
 
 ;;; SCENE class.
 
@@ -290,8 +173,11 @@
    (width :accessor width :initarg :width :initform 1024)
    (height :accessor height :initarg :height :initform 768)))
 
-(defmethod paint ((object scene))
-  (paint (widget object)))
+(defun paint-scene (scene)
+  (paint-order-walk (widget scene)
+                    (lambda (scene)
+                      (paint scene)
+                      t)))
 
 (defmethod measure ((object scene) available-width available-height)
   (measure (widget object) available-width available-height))
@@ -308,11 +194,18 @@
                                     widget-chain))
             widget-chain))))
 
+(defun hit-test (widget x y)
+  (let (result)
+    (paint-order-walk widget
+                      (lambda (object)
+                        (if (in-widget x y object)
+                            (setf result object))))
+    result))
+
 (defmethod on-mouse-move ((object scene) mouse-event)
-  (let ((widget-chain (get-widget-chain (list (first (hit-test (widget object)
-                                                               (mouse-x mouse-event)
-                                                               (mouse-y mouse-event)
-                                                               nil))))))
+  (let ((widget-chain (get-widget-chain (list (hit-test (widget object)
+                                                        (mouse-x mouse-event)
+                                                        (mouse-y mouse-event))))))
     ;; cascade events (propagate from parent to child)
     (dolist (widget widget-chain)
       (on-mouse-move widget mouse-event)
