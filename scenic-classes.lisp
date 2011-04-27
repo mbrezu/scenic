@@ -9,10 +9,6 @@
 
 (defgeneric paint (object))
 
-(defgeneric on-mouse-move (object event))
-
-(defgeneric add-mouse-move (object handler))
-
 (defgeneric paint-order-walk (object callback))
 
 ;;; WIDGET class.
@@ -50,14 +46,21 @@
        (<= (layout-top widget) y)
        (< y (+ (layout-top widget) (layout-height widget)))))
 
-(defun call-widget-event-handlers (widget widget-events event)
+(defun call-widget-event-handlers (widget widget-events event propagation)
   (dolist (handler widget-events)
-    (when (handled event)
-      (return-from call-widget-event-handlers))
-    (funcall handler widget event)))
+    (when (eq (cdr handler) propagation)
+      (funcall (car handler) widget event)
+      (when (handled event)
+        (return-from call-widget-event-handlers)))))
 
-(defmethod on-mouse-move ((object widget) mouse-event)
-  (call-widget-event-handlers object (event-mouse-move object) mouse-event))
+(defun widget-on-mouse-move (object mouse-event propagation)
+  (call-widget-event-handlers object (event-mouse-move object) mouse-event propagation))
+
+(defun widget-on-mouse-enter (object mouse-event propagation)
+  (call-widget-event-handlers object (event-mouse-enter object) mouse-event propagation))
+
+(defun widget-on-mouse-leave (object mouse-event propagation)
+  (call-widget-event-handlers object (event-mouse-leave object) mouse-event propagation))
 
 (defmethod measure ((object widget) available-width available-height)
   (setf (measured-width object) available-width)
@@ -72,8 +75,14 @@
 
 (defmethod paint ((object widget)))
 
-(defmethod add-mouse-move ((object widget) handler)
-  (push handler (event-mouse-move object)))
+(defun add-mouse-move (object handler propagation)
+  (push (cons handler propagation) (event-mouse-move object)))
+
+(defun add-mouse-enter (object handler propagation)
+  (push (cons handler propagation) (event-mouse-enter object)))
+
+(defun add-mouse-leave (object handler propagation)
+  (push (cons handler propagation) (event-mouse-leave object)))
 
 (defmethod paint-order-walk ((object widget) callback)
   (funcall callback object))
@@ -171,7 +180,8 @@
 (defclass scene ()
   ((widget :accessor widget :initarg :widget :initform nil)
    (width :accessor width :initarg :width :initform 1024)
-   (height :accessor height :initarg :height :initform 768)))
+   (height :accessor height :initarg :height :initform 768)
+   (last-widget-chain :accessor last-widget-chain :initarg :last-widget-chain :initform nil)))
 
 (defun paint-scene (scene)
   (paint-order-walk (widget scene)
@@ -202,17 +212,45 @@
                             (setf result object))))
     result))
 
-(defmethod on-mouse-move ((object scene) mouse-event)
-  (let ((widget-chain (get-widget-chain (list (hit-test (widget object)
-                                                        (mouse-x mouse-event)
-                                                        (mouse-y mouse-event))))))
-    ;; cascade events (propagate from parent to child)
-    (dolist (widget widget-chain)
-      (on-mouse-move widget mouse-event)
-      (when (handled mouse-event)
-        (return)))
-    ;; bubbling events (propagate from child to parent) (not yet implemented)
-    ))
+(defun cascade-then-bubble (widget-chain event-handler event-arg)
+  (dolist (widget widget-chain)
+    (funcall event-handler widget event-arg :cascade)
+    (when (handled event-arg)
+      (return)))
+  ;; then mouse-move bubble;
+  (unless (handled event-arg)
+    (dolist (widget (reverse widget-chain))
+      (funcall event-handler widget event-arg :bubble)
+      (when (handled event-arg)
+        (return)))))
+
+(defun branch-diff (branch1 branch2)
+  (cond ((null branch1) nil)
+        ((null branch2) branch1)
+        ((eq (first branch1) (first branch2)) (branch-diff (rest branch1)
+                                                           (rest branch2)))
+        (t branch1)))
+
+(defun calculate-mouse-leave (old-chain new-chain)
+  (branch-diff old-chain new-chain))
+
+(defun calculate-mouse-enter (old-chain new-chain)
+  (branch-diff new-chain old-chain))
+
+(defun scene-on-mouse-move (scene mouse-event)
+  (let* ((widget-chain (get-widget-chain (list (hit-test (widget scene)
+                                                         (mouse-x mouse-event)
+                                                         (mouse-y mouse-event)))))
+         (mouse-leave-widgets (calculate-mouse-leave (last-widget-chain scene)
+                                                     widget-chain))
+         (mouse-enter-widgets (calculate-mouse-enter (last-widget-chain scene)
+                                                     widget-chain)))
+    (setf (last-widget-chain scene) widget-chain)
+    (cascade-then-bubble mouse-leave-widgets #'widget-on-mouse-leave mouse-event)
+    (setf (handled mouse-event) nil)
+    (cascade-then-bubble mouse-enter-widgets #'widget-on-mouse-enter mouse-event)
+    (setf (handled mouse-event) nil)
+    (cascade-then-bubble widget-chain #'widget-on-mouse-move mouse-event)))
 
 (defmethod initialize-instance :after ((instance scene) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))

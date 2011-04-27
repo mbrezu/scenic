@@ -24,7 +24,7 @@
            label text font-face font-size font-color font-slant font-weight
            horizontal-box
            button
-           add-mouse-move))
+           add-mouse-move add-mouse-enter add-mouse-leave))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)

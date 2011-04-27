@@ -52,11 +52,11 @@
       ;; (:idle (render-scene scene))
       (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
                            (declare (ignore state))
-                           (on-mouse-move scene
-                                          (make-instance 'mouse-move-event
-                                                         :mouse-x x
-                                                         :mouse-y y
-                                                         :mouse-rel-x x-rel
-                                                         :mouse-rel-y y-rel)))
+                           (scene-on-mouse-move scene
+                                                (make-instance 'mouse-move-event
+                                                               :mouse-x x
+                                                               :mouse-y y
+                                                               :mouse-rel-x x-rel
+                                                               :mouse-rel-y y-rel)))
       (:video-expose-event () (sdl:update-display)))))
 
