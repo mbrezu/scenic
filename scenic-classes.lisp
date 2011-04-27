@@ -62,6 +62,12 @@
 (defun widget-on-mouse-leave (object mouse-event propagation)
   (call-widget-event-handlers object (event-mouse-leave object) mouse-event propagation))
 
+(defun widget-on-mouse-down (object mouse-event propagation)
+  (call-widget-event-handlers object (event-mouse-down object) mouse-event propagation))
+
+(defun widget-on-mouse-up (object mouse-event propagation)
+  (call-widget-event-handlers object (event-mouse-up object) mouse-event propagation))
+
 (defmethod measure ((object widget) available-width available-height)
   (setf (measured-width object) available-width)
   (setf (measured-height object) available-height)
@@ -83,6 +89,12 @@
 
 (defun add-mouse-leave (object handler propagation)
   (push (cons handler propagation) (event-mouse-leave object)))
+
+(defun add-mouse-button-down (object handler propagation)
+  (push (cons handler propagation) (event-mouse-down object)))
+
+(defun add-mouse-button-up (object handler propagation)
+  (push (cons handler propagation) (event-mouse-up object)))
 
 (defmethod paint-order-walk ((object widget) callback)
   (funcall callback object))
@@ -252,6 +264,12 @@
     (setf (handled mouse-event) nil)
     (cascade-then-bubble widget-chain #'widget-on-mouse-move mouse-event)))
 
+(defun scene-on-mouse-updown (scene mouse-event handler)
+  (let ((widget-chain (get-widget-chain (list (hit-test (widget scene)
+                                                        (mouse-x mouse-event)
+                                                        (mouse-y mouse-event))))))
+    (cascade-then-bubble widget-chain handler mouse-event)))
+
 (defmethod initialize-instance :after ((instance scene) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
   (setf (parent (widget instance)) instance))
@@ -325,4 +343,5 @@
 (defmethod layout ((object button) left top width height)
   (layout (child object) left top width height)
   (call-next-method))
+
 

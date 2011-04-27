@@ -49,13 +49,13 @@
                              (format t "text1 move: ~a ~a~%" object event))
                            :bubble)
     (scenic:add-mouse-enter text1
-                           (lambda (object event)
-                             (format t "text1 enter: ~a ~a~%" object event))
-                           :bubble)
+                            (lambda (object event)
+                              (format t "text1 enter: ~a ~a~%" object event))
+                            :bubble)
     (scenic:add-mouse-leave text1
-                           (lambda (object event)
-                             (format t "text1 leave: ~a ~a~%" object event))
-                           :bubble)
+                            (lambda (object event)
+                              (format t "text1 leave: ~a ~a~%" object event))
+                            :bubble)
     (scenic:add-mouse-move text2
                            (lambda (object event)
                              (format t "text2 move: ~a ~a~%" object event))
@@ -66,16 +66,24 @@
                            :cascade)
     (scenic:add-mouse-move button
                            (lambda (object event)
-                                    (format t "button move: ~a ~a~%" object event))
+                             (format t "button move: ~a ~a~%" object event))
                            :cascade)
     (scenic:add-mouse-enter button
-                           (lambda (object event)
-                                    (format t "button enter: ~a ~a~%" object event))
-                           :cascade)
+                            (lambda (object event)
+                              (format t "button enter: ~a ~a~%" object event))
+                            :cascade)
     (scenic:add-mouse-leave button
-                           (lambda (object event)
-                                    (format t "button leave: ~a ~a~%" object event))
-                           :cascade)
+                            (lambda (object event)
+                              (format t "button leave: ~a ~a~%" object event))
+                            :cascade)
+    (scenic:add-mouse-button-down button
+                                  (lambda (object event)
+                                    (format t "button down: ~a ~a~%" object event))
+                                  :cascade)
+    (scenic:add-mouse-button-up button
+                                  (lambda (object event)
+                                    (format t "button up: ~a ~a~%" object event))
+                                  :cascade)
     scn))
 
 

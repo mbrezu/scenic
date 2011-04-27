@@ -1,6 +1,4 @@
 
-(declaim (optimize (debug 3) (speed 0) (safety 3)))
-
 (ql:quickload "lispbuilder-sdl")
 (ql:quickload "cl-cairo2")
 
