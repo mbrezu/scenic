@@ -334,6 +334,7 @@
 
 (defclass button (container1)
   ((text :accessor text :initarg :text :initform "")
+   (state :accessor state :initarg :state :initform :neutral)
    (event-click :accessor event-click :initarg :event-click :initform nil)))
 
 (defmethod measure ((object button) available-width available-height)
@@ -344,4 +345,34 @@
   (layout (child object) left top width height)
   (call-next-method))
 
+(defmethod initialize-instance :after ((instance button) &rest initargs &key &allow-other-keys)
+  (declare (ignore initargs))
+  (add-mouse-button-down instance
+                         (lambda (object event)
+                           (declare (ignore event))
+                           (setf (state object) :down))
+                         :bubble)
+  (add-mouse-enter instance
+                   (lambda (object event)
+                     (declare (ignore event))
+                     (setf (state object) :neutral))
+                   :bubble)
+  (add-mouse-leave instance
+                   (lambda (object event)
+                     (declare (ignore event))
+                     (setf (state object) :neutral))
+                   :bubble)
+  (add-mouse-button-up instance
+                       (lambda (button event)
+                         (declare (ignore event))
+                         (when (eql :down (state button))
+                           (call-widget-event-handlers button
+                                                       (event-click button)
+                                                       (make-instance 'event)
+                                                       :bubble)
+                           (setf (state button) :neutral)))
+                       :bubble))
+
+(defun add-button-click (button handler)
+  (push (cons handler :bubble) (event-click button)))
 

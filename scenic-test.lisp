@@ -81,9 +81,13 @@
                                     (format t "button down: ~a ~a~%" object event))
                                   :cascade)
     (scenic:add-mouse-button-up button
-                                  (lambda (object event)
-                                    (format t "button up: ~a ~a~%" object event))
-                                  :cascade)
+                                (lambda (object event)
+                                  (format t "button up: ~a ~a~%" object event))
+                                :cascade)
+    (scenic:add-button-click button
+                             (lambda (object event)
+                               (declare (ignore object event))
+                               (format t "button click~%")))
     scn))
 
 

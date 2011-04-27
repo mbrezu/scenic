@@ -25,7 +25,8 @@
            horizontal-box
            button
            add-mouse-move add-mouse-enter add-mouse-leave
-           add-mouse-button-down add-mouse-button-up))
+           add-mouse-button-down add-mouse-button-up
+           add-button-click))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)
