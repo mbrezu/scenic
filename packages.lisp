@@ -17,9 +17,9 @@
            event handled
            mouse-event mouse-x mouse-y mouse-button modifiers mouse-move-event
            mouse-rel-x mouse-rel-y mouse-button-event
+           widget-list
            key-event key
-           layer layers
-           scene layers
+           scene
            filler
            label text font-face font-size font-color font-slant font-weight
            horizontal-box
@@ -28,7 +28,7 @@
 
 (defpackage :scenic-macros
   (:use :cl :scenic)
-  (:export bg border layer scene spc pad upad vbox flr stk lbl hbox btn btntxt))
+  (:export bg border scene spc pad upad vbox flr stk lbl hbox btn btntxt))
 
 (defpackage :scenic-test
   (:use :cl :scenic-macros))

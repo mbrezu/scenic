@@ -5,8 +5,7 @@
   (let (text1 text2 text3 button scn)
     (setf scn
           (scene 800 800
-            (layer
-                (stk
+            (stk
                   (bg (list 1.0 1.0 1.0)
                       (flr))
                   (upad 3
@@ -44,7 +43,7 @@
                                     (bg (list 0.7 0.7 0.7)
                                         (upad 3 (setf text3
                                                       (lbl "on." :size 20 :weight :bold))))))
-                          (setf button (btntxt "Gigel")))))))))
+                          (setf button (btntxt "Gigel"))))))))
     (scenic:add-mouse-move text1 (lambda (object event)
                                    (format t "text1: ~a ~a~%" object event)))
     (scenic:add-mouse-move text2 (lambda (object event)

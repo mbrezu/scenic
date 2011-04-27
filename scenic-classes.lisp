@@ -13,6 +13,8 @@
 
 (defgeneric add-mouse-move (object handler))
 
+(defgeneric hit-test (object x y hits))
+
 ;;; WIDGET class.
 
 (defclass widget ()
@@ -33,6 +35,15 @@
    (event-got-focus :accessor event-got-focus :initarg :event-got-focus :initform nil)
    (event-lost-focus :accessor event-lost-focus :initarg :event-lost-focus :initform nil)))
 
+(defmethod print-object ((object widget) stream)
+  (format stream
+          "~a (~a,~a,~a,~a)"
+          (type-of object)
+          (layout-left object)
+          (layout-top object)
+          (layout-width object)
+          (layout-height object)))
+
 (defun in-widget (x y widget)
   (and (<= (layout-left widget) x)
        (< x (+ (layout-left widget) (layout-width widget)))
@@ -46,8 +57,7 @@
     (funcall handler widget event)))
 
 (defmethod on-mouse-move ((object widget) mouse-event)
-  (when (in-widget (mouse-x mouse-event) (mouse-y mouse-event) object)
-    (call-widget-event-handlers object (event-mouse-move object) mouse-event)))
+  (call-widget-event-handlers object (event-mouse-move object) mouse-event))
 
 (defmethod measure ((object widget) available-width available-height)
   (setf (measured-width object) available-width)
@@ -65,6 +75,11 @@
 (defmethod add-mouse-move ((object widget) handler)
   (push handler (event-mouse-move object)))
 
+(defmethod hit-test ((object widget) x y hits)
+  (if (in-widget x y object)
+      (cons object hits)
+      hits))
+
 ;;; CONTAINER class.
 
 (defclass container (widget)
@@ -73,11 +88,18 @@
 (defmethod paint ((object container))
   (mapc #'paint (children object)))
 
-(defmethod on-mouse-move ((object container) mouse-event)
-  (call-next-method object mouse-event)
-  (when (not (handled mouse-event))
-    (mapc (lambda (child) (on-mouse-move child mouse-event))
-          (children object))))
+(defmethod initialize-instance :after ((instance container) &rest initargs &key &allow-other-keys)
+  (declare (ignore initargs))
+  (mapc (lambda (widget)
+          (setf (parent widget) instance))
+        (children instance)))
+
+(defmethod hit-test ((object container) x y hits)
+  (when (in-widget x y object)
+    (push object hits)
+    (dolist (widget (children object))
+      (setf hits (hit-test widget x y hits))))
+  hits)
 
 ;;; VERTICAL-BOX class.
 
@@ -139,15 +161,22 @@
   (call-next-method object left top width height))
 
 ;;; CONTAINER1 class.
+
 (defclass container1 (widget)
   ((child :accessor child :initarg :child :initform nil)))
 
 (defmethod paint ((object container1))
   (paint (child object)))
 
-(defmethod on-mouse-move ((object container1) mouse-event)
-  (call-next-method object mouse-event)
-  (on-mouse-move (child object) mouse-event))
+(defmethod initialize-instance :after ((instance container1) &rest initargs &key &allow-other-keys)
+  (declare (ignore initargs))
+  (setf (parent (child instance)) instance))
+
+(defmethod hit-test ((object container1) x y hits)
+  (when (in-widget x y object)
+    (push object hits)
+    (setf hits (hit-test (child object) x y hits)))
+  hits)
 
 ;;; PADDING class.
 
@@ -231,7 +260,8 @@
 ;;; EVENT class.
 
 (defclass event ()
-  ((handled :accessor handled :initarg :handled :initform nil)))
+  ((handled :accessor handled :initarg :handled :initform nil)
+   (widget-list :accessor widget-list :initarg :widget-list :initform nil)))
 
 ;;; MOUSE-event class.
 
@@ -253,52 +283,47 @@
   ((key :accessor key :initarg :key :initform nil)
    (modifiers :accessor modifiers :initarg :modifiers :initform nil)))
 
-;;; LAYER class.
-
-(defclass layer ()
-  ((widget :accessor widget :initarg :widget :initform nil)
-   (children :accessor children :initarg :children :initform nil)))
-
-(defmethod paint ((object layer))
-  (paint (widget object))
-  (mapc #'paint (children object)))
-
-(defmethod measure ((object layer) available-width available-height)
-  (max-box (cons (measure (widget object) available-width available-height)
-                 (mapcar #'(lambda (layer) (measure layer available-width available-height))
-                         (children object)))))
-
-(defmethod layout ((object layer) left top width height)
-  (layout (widget object) left top width height)
-  (mapc #'(lambda (layer) (layout layer left top width height))
-        (children object)))
-
-(defmethod on-mouse-move ((object layer) mouse-event)
-  (on-mouse-move (widget object) mouse-event)
-  (mapc (lambda (layer) (on-mouse-move layer mouse-event))
-        (children object)))
-
 ;;; SCENE class.
 
 (defclass scene ()
-  ((layers :accessor layers :initarg :layers :initform nil)
+  ((widget :accessor widget :initarg :widget :initform nil)
    (width :accessor width :initarg :width :initform 1024)
    (height :accessor height :initarg :height :initform 768)))
 
 (defmethod paint ((object scene))
-  (mapc #'paint (layers object)))
+  (paint (widget object)))
 
 (defmethod measure ((object scene) available-width available-height)
-  (max-box (mapcar #'(lambda (layer) (measure layer available-width available-height))
-                   (layers object))))
+  (measure (widget object) available-width available-height))
 
 (defmethod layout ((object scene) left top width height)
-  (mapc #'(lambda (layer) (layout layer left top width height))
-        (layers object)))
+  (layout (widget object) left top width height))
+
+(defun get-widget-chain (widget-chain)
+  (if (null widget-chain)
+      nil
+      (let ((parent-of-first (parent (first widget-chain))))
+        (if (and parent-of-first (not (eql (type-of parent-of-first) 'scene)))
+            (get-widget-chain (cons parent-of-first
+                                    widget-chain))
+            widget-chain))))
 
 (defmethod on-mouse-move ((object scene) mouse-event)
-  (mapc (lambda (layer) (on-mouse-move layer mouse-event))
-        (layers object)))
+  (let ((widget-chain (get-widget-chain (list (first (hit-test (widget object)
+                                                               (mouse-x mouse-event)
+                                                               (mouse-y mouse-event)
+                                                               nil))))))
+    ;; cascade events (propagate from parent to child)
+    (dolist (widget widget-chain)
+      (on-mouse-move widget mouse-event)
+      (when (handled mouse-event)
+        (return)))
+    ;; bubbling events (propagate from child to parent) (not yet implemented)
+    ))
+
+(defmethod initialize-instance :after ((instance scene) &rest initargs &key &allow-other-keys)
+  (declare (ignore initargs))
+  (setf (parent (widget instance)) instance))
 
 ;;; PLACEHOLDER class.
 

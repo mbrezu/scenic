@@ -12,16 +12,11 @@
                   :stroke-width ,width
                   :child ,child))
 
-(defmacro layer (widget &body children)
-  `(make-instance 'layer
-                  :widget ,widget
-                  :children ,children))
-
-(defmacro scene (width height &body layers)
+(defmacro scene (width height widget)
   `(make-instance 'scene
                   :width ,width
                   :height ,height
-                  :layers (list ,@layers)))
+                  :widget ,widget))
 
 (defmacro spc (width height)
   `(make-instance 'placeholder
