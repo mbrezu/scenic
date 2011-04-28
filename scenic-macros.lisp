@@ -74,3 +74,8 @@
 
 (defmacro btntxt (text)
   `(btn (upad 2 (lbl ,text :size 18))))
+
+(defmacro toggle (text)
+  `(make-instance 'toggle-button
+                  :state nil
+                  :child (upad 2 (lbl ,text :size 18))))

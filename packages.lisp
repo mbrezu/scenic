@@ -26,11 +26,14 @@
            button
            add-mouse-move add-mouse-enter add-mouse-leave
            add-mouse-button-down add-mouse-button-up
-           add-button-click))
+           add-click-handler
+           clickable
+           stateful state
+           toggle-button))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)
-  (:export bg border scene spc pad upad vbox flr stk lbl hbox btn btntxt))
+  (:export bg border scene spc pad upad vbox flr stk lbl hbox btn btntxt toggle))
 
 (defpackage :scenic-test
   (:use :cl :scenic-macros))

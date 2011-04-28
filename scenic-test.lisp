@@ -43,7 +43,9 @@
                                      (bg (list 0.7 0.7 0.7)
                                          (upad 3 (setf text3
                                                        (lbl "on." :size 20 :weight :bold))))))
-                           (setf button (btntxt "Gigel"))))))))
+                           (hbox 10
+                             (setf button (btntxt "Gigel"))
+                             (toggle "Titel"))))))))
     (scenic:add-mouse-move text1
                            (lambda (object event)
                              (format t "text1 move: ~a ~a~%" object event))
@@ -84,7 +86,7 @@
                                 (lambda (object event)
                                   (format t "button up: ~a ~a~%" object event))
                                 :cascade)
-    (scenic:add-button-click button
+    (scenic:add-click-handler button
                              (lambda (object event)
                                (declare (ignore object event))
                                (format t "button click~%")))
