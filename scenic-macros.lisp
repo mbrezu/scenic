@@ -73,7 +73,4 @@
                   :child ,child))
 
 (defmacro btntxt (text)
-  `(btn (border (list 0.2 0.2 0.2)
-                1
-                (bg (list 0.7 0.7 0.7)
-                    (upad 2 (lbl ,text :size 12))))))
+  `(btn (upad 2 (lbl ,text :size 18))))

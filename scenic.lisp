@@ -57,7 +57,8 @@
                                                                :mouse-x x
                                                                :mouse-y y
                                                                :mouse-rel-x x-rel
-                                                               :mouse-rel-y y-rel)))
+                                                               :mouse-rel-y y-rel))
+                           (render-scene scene))
       (:mouse-button-down-event (:button button :state state :x x :y y)
                                 (declare (ignore state))
                                 (scene-on-mouse-updown scene
@@ -65,7 +66,8 @@
                                                                       :mouse-x x
                                                                       :mouse-y y
                                                                       :mouse-button button)
-                                                       #'widget-on-mouse-down))
+                                                       #'widget-on-mouse-down)
+                                (render-scene scene))
       (:mouse-button-up-event (:button button :state state :x x :y y)
                               (declare (ignore state))
                               (scene-on-mouse-updown scene
@@ -73,6 +75,7 @@
                                                                     :mouse-x x
                                                                     :mouse-y y
                                                                     :mouse-button button)
-                                                     #'widget-on-mouse-up))
+                                                     #'widget-on-mouse-up)
+                              (render-scene scene))
       (:video-expose-event () (sdl:update-display)))))
 

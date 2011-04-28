@@ -339,28 +339,88 @@
 
 (defmethod measure ((object button) available-width available-height)
   (let ((child-size (measure (child object) available-width available-height)))
-    (call-next-method object (first child-size) (second child-size))))
+    (call-next-method object (+ 5 (first child-size)) (+ 5 (second child-size)))))
 
 (defmethod layout ((object button) left top width height)
-  (layout (child object) left top width height)
+  (case (state object)
+    (:neutral (layout (child object)
+                      (+ 2 left) (+ 2 top)
+                      (- width 5) (- height 5)))
+    (:down (layout (child object)
+                   (+ 3 left) (+ 3 top)
+                   (- width 5) (- height 5))))
   (call-next-method))
+
+(defmethod paint ((object button))
+  ;; draw the outer border
+  (cl-cairo2:rectangle (+ 0.5 (layout-left object))
+                       (+ 0.5 (layout-top object))
+                       (- (layout-width object) 1)
+                       (- (layout-height object) 1))
+  (cl-cairo2:set-source-rgb 0 0 0)
+  (cl-cairo2:set-line-width 1)
+  (cl-cairo2:stroke)
+  ;; draw the inner borders
+  ;; left border
+  (cl-cairo2:move-to (+ 1.5 (layout-left object))
+                     (+ 1.5 (layout-top object)))
+  (cl-cairo2:line-to (+ 1.5 (layout-left object))
+                     (- (+ (layout-top object) (layout-height object)) 2))
+  ;; upper border
+  (cl-cairo2:move-to (+ 1 (layout-left object))
+                     (+ 1.5 (layout-top object)))
+  (cl-cairo2:line-to (- (+ (layout-left object) (layout-width object)) 2)
+                     (+ 1.5 (layout-top object)))
+  ;; draw
+  (cl-cairo2:set-line-width 1)
+  (case (state object)
+    (:neutral (cl-cairo2:set-source-rgb 0.9 0.9 0.9))
+    (:down (cl-cairo2:set-source-rgb 0.3 0.3 0.3)))
+  (cl-cairo2:stroke)
+  ;; lower border
+  (cl-cairo2:move-to (+ 2 (layout-left object))
+                     (- (+ (layout-top object) (layout-height object)) 1.5))
+  (cl-cairo2:line-to (- (+ (layout-left object) (layout-width object)) 1)
+                     (- (+ (layout-top object) (layout-height object)) 1.5))
+  ;; right border
+  (cl-cairo2:move-to (- (+ (layout-left object) (layout-width object)) 1.5)
+                     (+ 2 (layout-top object)))
+  (cl-cairo2:line-to (- (+ (layout-left object) (layout-width object)) 1.5)
+                     (- (+ (layout-top object) (layout-height object)) 2))
+  ;; draw
+  (cl-cairo2:set-line-width 1)
+  (case (state object)
+    (:neutral (cl-cairo2:set-source-rgb 0.3 0.3 0.3))
+    (:down (cl-cairo2:set-source-rgb 0.9 0.9 0.9)))
+  (cl-cairo2:stroke)
+  ;; draw the background
+  (cl-cairo2:rectangle (+ 2 (layout-left object)) (+ 2 (layout-top object))
+                       (- (layout-width object) 4) (- (layout-height object) 4))
+  (cl-cairo2:set-source-rgb 0.8 0.8 0.8)
+  (cl-cairo2:fill-path))
+
+(defun change-button-state (button new-state)
+  (setf (state button) new-state)
+  (layout button
+          (layout-left button) (layout-top button)
+          (layout-width button) (layout-height button)))
 
 (defmethod initialize-instance :after ((instance button) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
   (add-mouse-button-down instance
-                         (lambda (object event)
+                         (lambda (button event)
                            (declare (ignore event))
-                           (setf (state object) :down))
+                           (change-button-state button :down))
                          :bubble)
   (add-mouse-enter instance
-                   (lambda (object event)
+                   (lambda (button event)
                      (declare (ignore event))
-                     (setf (state object) :neutral))
+                     (change-button-state button :neutral))
                    :bubble)
   (add-mouse-leave instance
-                   (lambda (object event)
+                   (lambda (button event)
                      (declare (ignore event))
-                     (setf (state object) :neutral))
+                     (change-button-state button :neutral))
                    :bubble)
   (add-mouse-button-up instance
                        (lambda (button event)
@@ -370,7 +430,7 @@
                                                        (event-click button)
                                                        (make-instance 'event)
                                                        :bubble)
-                           (setf (state button) :neutral)))
+                           (change-button-state button :neutral)))
                        :bubble))
 
 (defun add-button-click (button handler)
