@@ -29,11 +29,13 @@
            add-click-handler
            clickable
            stateful state
-           toggle-button))
+           toggle-button
+           horizontal-slider min-value max-value page-size current-min-position
+           sizer min-width min-height max-width max-height))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)
-  (:export bg border scene spc pad upad vbox flr stk lbl hbox btn btntxt toggle))
+  (:export bg border scene spc pad upad vbox flr stk lbl hbox btn btntxt toggle hslider szr))
 
 (defpackage :scenic-test
   (:use :cl :scenic-macros))

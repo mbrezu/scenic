@@ -78,3 +78,30 @@
           (measured-height (child object)))
   (call-next-method object left top (measured-width object) (measured-height object)))
 
+;;; SIZER class.
+
+(defclass sizer (container1)
+  ((min-width :accessor min-width :initarg :min-width :initform nil)
+   (min-height :accessor min-height :initarg :min-height :initform nil)
+   (max-width :accessor max-width :initarg :max-width :initform nil)
+   (max-height :accessor max-height :initarg :max-height :initform nil)))
+
+(defmethod measure ((object sizer) available-width available-height)
+  (let* ((size (measure (child object)
+                        (if (null (max-width object))
+                            available-width
+                            (min available-width (max-width object)))
+                        (if (null (max-height object))
+                            available-height
+                            (min available-height (max-height object)))))
+         (width (first size))
+         (height (second size)))
+    (when (not (null (min-width object)))
+      (setf width (max (width (min-width object)))))
+    (when (not (null (min-height object)))
+      (setf height (max (height (min-height object)))))
+    (call-next-method object width height)))
+
+(defmethod layout ((object sizer) left top width height)
+  (layout (child object) left top width height)
+  (call-next-method))

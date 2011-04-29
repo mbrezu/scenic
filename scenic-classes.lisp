@@ -396,18 +396,18 @@
                          (- width 3) (- height 3))))
   (call-next-method))
 
-(defun draw-button (button pressed)
+(defun draw-button-raw (left top width height pressed)
   ;; draw the inner borders (for the 3d illusion)
   ;; left border
-  (cl-cairo2:move-to (+ 0.5 (layout-left button))
-                     (+ 0.5 (layout-top button)))
-  (cl-cairo2:line-to (+ 0.5 (layout-left button))
-                     (+ (layout-top button) (layout-height button)))
+  (cl-cairo2:move-to (+ 0.5 left)
+                     (+ 0.5 top))
+  (cl-cairo2:line-to (+ 0.5 left)
+                     (+ top height))
   ;; upper border
-  (cl-cairo2:move-to (layout-left button)
-                     (+ 0.5 (layout-top button)))
-  (cl-cairo2:line-to (+ (layout-left button) (layout-width button))
-                     (+ 0.5 (layout-top button)))
+  (cl-cairo2:move-to left
+                     (+ 0.5 top))
+  (cl-cairo2:line-to (+ left width)
+                     (+ 0.5 top))
   ;; draw
   (cl-cairo2:set-line-width 1)
   (if pressed
@@ -415,15 +415,15 @@
       (cl-cairo2:set-source-rgb 0.9 0.9 0.9))
   (cl-cairo2:stroke)
   ;; lower border
-  (cl-cairo2:move-to (+ 1 (layout-left button))
-                     (- (+ (layout-top button) (layout-height button)) 0.5))
-  (cl-cairo2:line-to (+ (layout-left button) (layout-width button))
-                     (- (+ (layout-top button) (layout-height button)) 0.5))
+  (cl-cairo2:move-to (+ 1 left)
+                     (- (+ top height) 0.5))
+  (cl-cairo2:line-to (+ left width)
+                     (- (+ top height) 0.5))
   ;; right border
-  (cl-cairo2:move-to (- (+ (layout-left button) (layout-width button)) 0.5)
-                     (+ 1 (layout-top button)))
-  (cl-cairo2:line-to (- (+ (layout-left button) (layout-width button)) 0.5)
-                     (- (+ (layout-top button) (layout-height button)) 1))
+  (cl-cairo2:move-to (- (+ left width) 0.5)
+                     (+ 1 top))
+  (cl-cairo2:line-to (- (+ left width) 0.5)
+                     (- (+ top height) 1))
   ;; draw
   (cl-cairo2:set-line-width 1)
   (if pressed
@@ -431,10 +431,17 @@
       (cl-cairo2:set-source-rgb 0.3 0.3 0.3))
   (cl-cairo2:stroke)
   ;; draw the background
-  (cl-cairo2:rectangle (+ 1 (layout-left button)) (+ 1 (layout-top button))
-                       (- (layout-width button) 3) (- (layout-height button) 3))
+  (cl-cairo2:rectangle (+ 1 left) (+ 1 top)
+                       (- width 2) (- height 2))
   (cl-cairo2:set-source-rgb 0.8 0.8 0.8)
   (cl-cairo2:fill-path))
+
+(defun draw-button (button pressed)
+  (draw-button-raw (layout-left button)
+                   (layout-top button)
+                   (layout-width button)
+                   (layout-height button)
+                   pressed))
 
 (defmethod paint ((object button))
   (draw-button object (eql (click-state object) :half-click)))
@@ -461,3 +468,27 @@
 (defmethod paint ((object toggle-button))
   (draw-button object (or (state object)
                           (eql :half-click (click-state object)))))
+
+;;; HORIZONTAL-SLIDER class.
+
+(defclass horizontal-slider (widget)
+  ((min-value :accessor min-value :initarg :min-value :initform nil)
+   (max-value :accessor max-value :initarg :max-value :initform nil)
+   (page-size :accessor page-size :initarg :page-size :initform nil)
+   (current-min-position :accessor current-min-position
+                         :initarg :current-min-position :initform nil)))
+
+(defmethod paint ((object horizontal-slider))
+  (cl-cairo2:rectangle (layout-left object) (layout-top object)
+                       (layout-width object)
+                       (layout-height object))
+  (cl-cairo2:set-source-rgb 0.6 0.6 0.6)
+  (cl-cairo2:fill-path)
+  (let* ((extent (1+ (- (max-value object) (min-value object))))
+         (rel-page-size (/ (page-size object) extent))
+         (walker-width (max 10 (floor (* rel-page-size (layout-width object)))))
+         (rel-position (/ (- (current-min-position object) (min-value object)) extent))
+         (position (floor (* rel-position (layout-width object)))))
+    (draw-button-raw (+ (layout-left object) position) (layout-top object)
+                     walker-width (layout-height object)
+                     nil)))

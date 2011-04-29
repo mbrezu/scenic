@@ -45,7 +45,10 @@
                                                        (lbl "on." :size 20 :weight :bold))))))
                            (hbox 10
                              (border (list 0 0 0) 1 (setf button (btntxt "Gigel")))
-                             (border (list 0 0 0) 1 (toggle "Titel")))))))))
+                             (border (list 0 0 0) 1 (toggle "Titel"))
+                             (szr (hslider 0 10 1)
+                                    :max-width 200
+                                    :max-height 20))))))))
     (scenic:add-mouse-move text1
                            (lambda (object event)
                              (format t "text1 move: ~a ~a~%" object event))
@@ -87,9 +90,9 @@
                                   (format t "button up: ~a ~a~%" object event))
                                 :cascade)
     (scenic:add-click-handler button
-                             (lambda (object event)
-                               (declare (ignore object event))
-                               (format t "button click~%")))
+                              (lambda (object event)
+                                (declare (ignore object event))
+                                (format t "button click~%")))
     scn))
 
 

@@ -79,3 +79,20 @@
   `(make-instance 'toggle-button
                   :state nil
                   :child (upad 2 (lbl ,text :size 18))))
+
+(defmacro hslider (min max page)
+  (let ((g-min (gensym "min")))
+    `(let ((,g-min ,min))
+       (make-instance 'horizontal-slider
+                      :min-value ,g-min
+                      :max-value ,max
+                      :page-size ,page
+                      :current-min-position ,g-min))))
+
+(defmacro szr (child &key (min-width nil) (min-height nil) (max-width nil) (max-height nil))
+  `(make-instance 'sizer
+                  :child ,child
+                  :min-width ,min-width
+                  :min-height ,min-height
+                  :max-width ,max-width
+                  :max-height ,max-height))
