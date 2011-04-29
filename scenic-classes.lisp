@@ -11,6 +11,8 @@
 
 (defgeneric paint-order-walk (object callback))
 
+(defgeneric in-widget (x y widget))
+
 ;;; WIDGET class.
 
 (defclass widget ()
@@ -40,7 +42,7 @@
           (layout-width object)
           (layout-height object)))
 
-(defun in-widget (x y widget)
+(defmethod in-widget (x y (widget widget))
   (and (<= (layout-left widget) x)
        (< x (+ (layout-left widget) (layout-width widget)))
        (<= (layout-top widget) y)
@@ -382,38 +384,30 @@
 
 (defmethod measure ((object button) available-width available-height)
   (let ((child-size (measure (child object) available-width available-height)))
-    (call-next-method object (+ 5 (first child-size)) (+ 5 (second child-size)))))
+    (call-next-method object (+ 3 (first child-size)) (+ 3 (second child-size)))))
 
 (defmethod layout ((object button) left top width height)
   (case (click-state object)
     (:neutral (layout (child object)
-                      (+ 2 left) (+ 2 top)
-                      (- width 5) (- height 5)))
+                      (+ 1 left) (+ 1 top)
+                      (- width 3) (- height 3)))
     (:half-click (layout (child object)
-                         (+ 3 left) (+ 3 top)
-                         (- width 5) (- height 5))))
+                         (+ 2 left) (+ 2 top)
+                         (- width 3) (- height 3))))
   (call-next-method))
 
 (defun draw-button (button pressed)
-  ;; draw the outer border
-  (cl-cairo2:rectangle (+ 0.5 (layout-left button))
-                       (+ 0.5 (layout-top button))
-                       (- (layout-width button) 1)
-                       (- (layout-height button) 1))
-  (cl-cairo2:set-source-rgb 0 0 0)
-  (cl-cairo2:set-line-width 1)
-  (cl-cairo2:stroke)
-  ;; draw the inner borders
+  ;; draw the inner borders (for the 3d illusion)
   ;; left border
-  (cl-cairo2:move-to (+ 1.5 (layout-left button))
-                     (+ 1.5 (layout-top button)))
-  (cl-cairo2:line-to (+ 1.5 (layout-left button))
-                     (- (+ (layout-top button) (layout-height button)) 1))
+  (cl-cairo2:move-to (+ 0.5 (layout-left button))
+                     (+ 0.5 (layout-top button)))
+  (cl-cairo2:line-to (+ 0.5 (layout-left button))
+                     (+ (layout-top button) (layout-height button)))
   ;; upper border
-  (cl-cairo2:move-to (+ 1 (layout-left button))
-                     (+ 1.5 (layout-top button)))
-  (cl-cairo2:line-to (- (+ (layout-left button) (layout-width button)) 1)
-                     (+ 1.5 (layout-top button)))
+  (cl-cairo2:move-to (layout-left button)
+                     (+ 0.5 (layout-top button)))
+  (cl-cairo2:line-to (+ (layout-left button) (layout-width button))
+                     (+ 0.5 (layout-top button)))
   ;; draw
   (cl-cairo2:set-line-width 1)
   (if pressed
@@ -421,15 +415,15 @@
       (cl-cairo2:set-source-rgb 0.9 0.9 0.9))
   (cl-cairo2:stroke)
   ;; lower border
-  (cl-cairo2:move-to (+ 2 (layout-left button))
-                     (- (+ (layout-top button) (layout-height button)) 1.5))
-  (cl-cairo2:line-to (- (+ (layout-left button) (layout-width button)) 1)
-                     (- (+ (layout-top button) (layout-height button)) 1.5))
+  (cl-cairo2:move-to (+ 1 (layout-left button))
+                     (- (+ (layout-top button) (layout-height button)) 0.5))
+  (cl-cairo2:line-to (+ (layout-left button) (layout-width button))
+                     (- (+ (layout-top button) (layout-height button)) 0.5))
   ;; right border
-  (cl-cairo2:move-to (- (+ (layout-left button) (layout-width button)) 1.5)
-                     (+ 2 (layout-top button)))
-  (cl-cairo2:line-to (- (+ (layout-left button) (layout-width button)) 1.5)
-                     (- (+ (layout-top button) (layout-height button)) 2))
+  (cl-cairo2:move-to (- (+ (layout-left button) (layout-width button)) 0.5)
+                     (+ 1 (layout-top button)))
+  (cl-cairo2:line-to (- (+ (layout-left button) (layout-width button)) 0.5)
+                     (- (+ (layout-top button) (layout-height button)) 1))
   ;; draw
   (cl-cairo2:set-line-width 1)
   (if pressed
@@ -437,8 +431,8 @@
       (cl-cairo2:set-source-rgb 0.3 0.3 0.3))
   (cl-cairo2:stroke)
   ;; draw the background
-  (cl-cairo2:rectangle (+ 2 (layout-left button)) (+ 2 (layout-top button))
-                       (- (layout-width button) 4) (- (layout-height button) 4))
+  (cl-cairo2:rectangle (+ 1 (layout-left button)) (+ 1 (layout-top button))
+                       (- (layout-width button) 3) (- (layout-height button) 3))
   (cl-cairo2:set-source-rgb 0.8 0.8 0.8)
   (cl-cairo2:fill-path))
 

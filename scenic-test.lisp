@@ -44,8 +44,8 @@
                                          (upad 3 (setf text3
                                                        (lbl "on." :size 20 :weight :bold))))))
                            (hbox 10
-                             (setf button (btntxt "Gigel"))
-                             (toggle "Titel"))))))))
+                             (border (list 0 0 0) 1 (setf button (btntxt "Gigel")))
+                             (border (list 0 0 0) 1 (toggle "Titel")))))))))
     (scenic:add-mouse-move text1
                            (lambda (object event)
                              (format t "text1 move: ~a ~a~%" object event))
