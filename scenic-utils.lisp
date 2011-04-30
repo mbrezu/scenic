@@ -12,3 +12,49 @@
                            (format str "~~a")
                            (format str "~%")))))
     `(format ,stream ,format-string ,@exprs)))
+
+(defun draw-button-raw (left top width height pressed)
+  ;; draw the inner borders (for the 3d illusion)
+  ;; left border
+  (cl-cairo2:move-to (+ 0.5 left)
+                     (+ 0.5 top))
+  (cl-cairo2:line-to (+ 0.5 left)
+                     (+ top height))
+  ;; upper border
+  (cl-cairo2:move-to left
+                     (+ 0.5 top))
+  (cl-cairo2:line-to (+ left width)
+                     (+ 0.5 top))
+  ;; draw
+  (cl-cairo2:set-line-width 1)
+  (if pressed
+      (cl-cairo2:set-source-rgb 0.3 0.3 0.3)
+      (cl-cairo2:set-source-rgb 0.9 0.9 0.9))
+  (cl-cairo2:stroke)
+  ;; lower border
+  (cl-cairo2:move-to (+ 1 left)
+                     (- (+ top height) 0.5))
+  (cl-cairo2:line-to (+ left width)
+                     (- (+ top height) 0.5))
+  ;; right border
+  (cl-cairo2:move-to (- (+ left width) 0.5)
+                     (+ 1 top))
+  (cl-cairo2:line-to (- (+ left width) 0.5)
+                     (- (+ top height) 1))
+  ;; draw
+  (cl-cairo2:set-line-width 1)
+  (if pressed
+      (cl-cairo2:set-source-rgb 0.9 0.9 0.9)
+      (cl-cairo2:set-source-rgb 0.3 0.3 0.3))
+  (cl-cairo2:stroke)
+  ;; draw the background
+  (cl-cairo2:rectangle (+ 1 left) (+ 1 top)
+                       (- width 2) (- height 2))
+  (cl-cairo2:set-source-rgb 0.8 0.8 0.8)
+  (cl-cairo2:fill-path))
+
+(defmacro pass-to-child (class child-slot property-slot)
+  `(defmethod (setf ,property-slot) :after (value (instance ,class))
+     (when (not (= (,property-slot (,child-slot instance)) (,property-slot instance)))
+       (setf (,property-slot (,child-slot instance)) (,property-slot instance))
+       (invalidate (,child-slot instance)))))

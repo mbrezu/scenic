@@ -30,12 +30,6 @@
 
 (defvar *scenic-sdl-surface* nil)
 
-(defun measure-layout (scene)
-  (unless (layedout scene)
-    (measure scene (width scene) (height scene))
-    (layout scene 0 0 (width scene) (height scene))
-    (setf (layedout scene) t)))
-
 (defun render-scene (scene)
   (when (null *scenic-sdl-surface*)
     (setf *scenic-sdl-surface*
