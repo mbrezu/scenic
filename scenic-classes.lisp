@@ -17,6 +17,8 @@
 
 (defgeneric on-event (object event event-args propagation))
 
+(defgeneric intersect (object1 object2))
+
 ;;; EVENTFUL class.
 
 (defclass eventful ()
@@ -45,7 +47,8 @@
    (layout-top :accessor layout-top :initarg :layout-top :initform 0)
    (layout-width :accessor layout-width :initarg :layout-width :initform nil)
    (layout-height :accessor layout-height :initarg :layout-height :initform nil)
-   (parent :accessor parent :initarg :parent :initform nil)))
+   (parent :accessor parent :initarg :parent :initform nil)
+   (paint-order-number :accessor paint-order-number :initarg :paint-order-number :initform -1)))
 
 (defmethod print-object ((object widget) stream)
   (format stream
@@ -179,7 +182,9 @@
    (height :accessor height :initarg :height :initform 768)
    (last-widget-chain :accessor last-widget-chain :initarg :last-widget-chain :initform nil)
    (mouse-captors :accessor mouse-captors :initarg :mouse-captors :initform nil)
-   (dirty :accessor dirty :initarg :dirty :initform t)))
+   (dirty :accessor dirty :initarg :dirty :initform t)
+   (dirty-list :accessor dirty-list :initarg :dirty-list :initform nil)
+   (rectangle-to-redraw :accessor rectangle-to-redraw :initarg :rectangle-to-redraw :initform nil)))
 
 (defun get-scene (widget)
   (if (eql (type-of widget) 'scene)
@@ -197,13 +202,70 @@
           (remove widget (mouse-captors scene)))))
 
 (defun invalidate (widget)
-  (setf (dirty (get-scene widget)) t))
+  (let ((scene (get-scene widget)))
+    (setf (dirty scene) t)
+    (push widget (dirty-list scene))))
+
+(defun corners-of-widget (widget)
+  (list (list (layout-left widget)
+              (layout-top widget))
+        (list (1- (+ (layout-left widget) (layout-width widget)))
+              (layout-top widget))
+        (list (layout-left widget)
+              (1- (+ (layout-top widget) (layout-height widget))))
+        (list (1- (+ (layout-left widget) (layout-width widget)))
+              (1- (+ (layout-top widget) (layout-height widget))))))
+
+(defmethod intersect ((object1 widget) (object2 widget))
+  (dolist (corner (corners-of-widget object1))
+    (if (in-widget (first corner) (second corner) object2)
+        (return-from intersect t))))
+
+(defun widget-paint-member (object list)
+  (cond ((null list)
+         nil)
+        ((or (eq object (first list))
+             (and (intersect object (first list))
+                  (> (paint-order-number object)
+                     (paint-order-number (first list)))))
+         t)
+        (t (widget-paint-member object (rest list)))))
+
+(defun bounding-box (widget)
+  (list (layout-left widget)
+        (layout-top widget)
+        (1- (+ (layout-left widget) (layout-width widget)))
+        (1- (+ (layout-top widget) (layout-height widget)))))
+
+(defun common-bounding-box (bbox1 bbox2)
+  (list (min (first bbox1) (first bbox2))
+        (min (second bbox1) (second bbox2))
+        (max (third bbox1) (third bbox2))
+        (max (fourth bbox1) (fourth bbox2))))
 
 (defun paint-scene (scene)
-  (paint-order-walk (widget scene)
-                    (lambda (scene)
-                      (paint scene)
-                      t)))
+  (if (null (dirty-list scene))
+      (paint-order-walk (widget scene)
+                        (lambda (object)
+                          (paint object)
+                          t))
+      (progn
+        (let ((number 0))
+          (paint-order-walk (widget scene)
+                            (lambda (object)
+                              (setf (paint-order-number object) number)
+                              (incf number)
+                              t)))
+        (paint-order-walk (widget scene)
+                          (lambda (object)
+                            (when (widget-paint-member object (dirty-list scene))
+                              (paint object)
+                              (push object (dirty-list scene)))
+                            t))
+        (setf (rectangle-to-redraw scene)
+              (reduce #'common-bounding-box
+                      (mapcar #'bounding-box (dirty-list scene))))))
+  (setf (dirty-list scene) nil))
 
 (defmethod measure ((object scene) available-width available-height)
   (measure (widget object) available-width available-height))

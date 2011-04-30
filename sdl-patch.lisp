@@ -19,12 +19,12 @@
           (if (lispbuilder-sdl-base::is-valid-ptr surface)
               (error "shouldn't happen")
               (setf surf (sdl-cffi::SDL-Create-RGB-Surface (lispbuilder-sdl-base::set-flags flags)
-                                                               width height
-                                                               ;; bpp Rmask Gmask Bmask Amask
-                                                               32
-                                                               #x00ff0000
-                                                               #x0000ff00
-                                                               #x000000ff
-                                                               0)))
+                                                           width height
+                                                           ;; bpp Rmask Gmask Bmask Amask
+                                                           32
+                                                           #x00ff0000
+                                                           #x0000ff00
+                                                           #x000000ff
+                                                           0)))
           surf)))
 
