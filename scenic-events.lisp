@@ -4,8 +4,7 @@
 ;;; EVENT class.
 
 (defclass event ()
-  ((handled :accessor handled :initarg :handled :initform nil)
-   (widget-list :accessor widget-list :initarg :widget-list :initform nil)))
+  ((handled :accessor handled :initarg :handled :initform nil)))
 
 ;;; MOUSE-EVENT class.
 

@@ -2,7 +2,7 @@
 (in-package :scenic-test)
 
 (defun make-scene ()
-  (let (text1 text2 text3 button scn)
+  (let (text1 text2 text3 button scn hslider)
     (setf scn
           (scene 800 800
                  (stk
@@ -48,7 +48,7 @@
                                   (hbox 10
                                         (border (list 0 0 0) 1 (setf button (btntxt "Gigel")))
                                         (border (list 0 0 0) 1 (toggle "Titel"))
-                                        (szr (hslider 0 10 1)
+                                        (szr (setf hslider (hslider 0 50 1))
                                              :max-width 200
                                              :max-height 20))))))))
     ;; text1 events
@@ -104,6 +104,14 @@
                               (lambda (object event)
                                 (declare (ignore object event))
                                 (format t "button click~%")))
+    (scenic:add-event-handler hslider :position-changed :bubble
+                              (lambda (object event)
+                                (declare (ignore event))
+                                (scenic:print-all t
+                                           (scenic:current-min-position object)
+                                           (scenic:page-size object)
+                                           (scenic:min-value object)
+                                           (scenic:max-value object))))
     scn))
 
 
