@@ -89,7 +89,7 @@
 ;;; CONTAINER class.
 
 (defclass container (widget)
-  ((children :accessor children :initarg :children)))
+  ((children :accessor children :initarg :children :initform nil)))
 
 (defmethod initialize-instance :after ((instance container) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
@@ -101,6 +101,10 @@
   (when (funcall callback object)
     (mapc (lambda (child) (paint-order-walk child callback))
           (children object))))
+
+(defmethod (setf children) :after (value (instance container))
+  (mapc (lambda (child) (setf (parent child) instance))
+        (children instance)))
 
 ;;; VERTICAL-BOX class.
 
@@ -174,6 +178,9 @@
   (when (funcall callback object)
     (paint-order-walk (child object) callback)))
 
+(defmethod (setf child) :after (value (instance container1))
+  (setf (parent value) instance))
+
 ;;; SCENE class.
 
 (defclass scene ()
@@ -184,6 +191,7 @@
    (mouse-captors :accessor mouse-captors :initarg :mouse-captors :initform nil)
    (dirty :accessor dirty :initarg :dirty :initform t)
    (dirty-list :accessor dirty-list :initarg :dirty-list :initform nil)
+   (layedout :accessor layedout :initarg :layedout :initform nil)
    (rectangle-to-redraw :accessor rectangle-to-redraw :initarg :rectangle-to-redraw :initform nil)))
 
 (defun get-scene (widget)
@@ -612,3 +620,100 @@
                                (on-event instance
                                          :position-changed
                                          (make-instance 'event) nil))))))))
+
+;;; ARROW class.
+
+(defclass arrow (widget)
+  ((direction :accessor direction :initarg :direction :initform nil)))
+
+(defmethod measure ((object arrow) available-width available-height)
+  (call-next-method object 16 16))
+
+(defmethod layout ((object arrow) left top width height)
+  (call-next-method object left top 16 16))
+
+(defmethod paint ((object arrow))
+  (case (direction object)
+    (:left
+     (cl-cairo2:move-to (+ (layout-left object) 5) (+ (layout-top object) 8))
+     (cl-cairo2:line-to (+ (layout-left object) 11) (+ (layout-top object) 2))
+     (cl-cairo2:line-to (+ (layout-left object) 11) (+ (layout-top object) 13))
+     (cl-cairo2:set-source-rgb 0 0 0)
+     (cl-cairo2:fill-path))
+    (:right
+     (cl-cairo2:move-to (+ (layout-left object) 11) (+ (layout-top object) 8))
+     (cl-cairo2:line-to (+ (layout-left object) 5) (+ (layout-top object) 2))
+     (cl-cairo2:line-to (+ (layout-left object) 5) (+ (layout-top object) 13))
+     (cl-cairo2:set-source-rgb 0 0 0)
+     (cl-cairo2:fill-path))))
+
+;;; HORIZONTAL-SCROLLBAR class.
+
+(defclass horizontal-scrollbar (horizontal-box)
+  ((min-value :accessor min-value :initarg :min-value :initform nil)
+   (max-value :accessor max-value :initarg :max-value :initform nil)
+   (page-size :accessor page-size :initarg :page-size :initform nil)
+   (current-min-position :accessor current-min-position
+                         :initarg :current-min-position :initform nil)
+   (slider :accessor slider :initarg :slider :initform nil)))
+
+(defun set-slider-pos (hsbar new-pos)
+  (with-slots (slider) hsbar
+    (when (not (= new-pos (current-min-position hsbar)))
+      (setf (current-min-position hsbar) new-pos)
+      (invalidate hsbar)
+      (on-event hsbar :position-changed (make-instance 'event) nil))))
+
+(defmethod initialize-instance :after ((instance horizontal-scrollbar)
+                                       &rest initargs &key &allow-other-keys)
+  (declare (ignore initargs))
+  (let (slider btn-left btn-right)
+    (setf (space-between-cells instance) 0)
+    (setf (children instance)
+          (list (setf btn-left (make-instance 'button
+                                              :child (make-instance 'arrow :direction :left)))
+                (make-instance 'sizer
+                               :max-height 19
+                               :child (setf slider
+                                            (make-instance
+                                             'horizontal-slider
+                                             :min-value (min-value instance)
+                                             :max-value (max-value instance)
+                                             :page-size (page-size instance)
+                                             :current-min-position
+                                             (current-min-position instance))))
+                (setf btn-right (make-instance 'button
+                                               :child (make-instance 'arrow :direction :right)))))
+    (setf (slider instance) slider)
+    (add-event-handler slider :position-changed :bubble
+                       (lambda (object event)
+                         (setf (current-min-position instance)
+                               (current-min-position object))
+                         (on-event instance :position-changed event nil)))
+    (add-event-handler btn-left :click :bubble
+                       (lambda (object event)
+                         (declare (ignore object event))
+                         (let ((new-pos (max (min-value slider)
+                                             (- (current-min-position slider)
+                                                (page-size slider)))))
+                           (set-slider-pos instance new-pos))))
+    (add-event-handler btn-right :click :bubble
+                       (lambda (object event)
+                         (declare (ignore object event))
+                         (let ((new-pos (min (- (max-value slider) (page-size slider))
+                                             (+ (current-min-position slider)
+                                                (page-size instance)))))
+                           (set-slider-pos instance new-pos))))))
+
+(defmacro pass-to-child (class child-slot property-slot)
+  `(defmethod (setf ,property-slot) :after (value (instance ,class))
+     (when (not (= (,property-slot (,child-slot instance)) (,property-slot instance)))
+       (setf (,property-slot (,child-slot instance)) (,property-slot instance))
+       (invalidate (,child-slot instance)))))
+
+(pass-to-child horizontal-scrollbar slider min-value)
+(pass-to-child horizontal-scrollbar slider max-value)
+(pass-to-child horizontal-scrollbar slider page-size)
+(pass-to-child horizontal-scrollbar slider current-min-position)
+
+

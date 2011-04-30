@@ -30,11 +30,14 @@
            sizer min-width min-height max-width max-height
            capture-mouse release-mouse
            invalidate
-           print-all))
+           print-all
+           arrow direction
+           horizontal-scrollbar))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)
-  (:export bg border scene spc pad upad vbox flr stk lbl hbox btn btntxt toggle hslider szr))
+  (:export bg border scene spc pad upad vbox flr stk lbl hbox
+           btn btntxt toggle hslider szr arr hsbar))
 
 (defpackage :scenic-test
   (:use :cl :scenic-macros))

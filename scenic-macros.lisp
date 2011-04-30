@@ -96,3 +96,15 @@
                   :min-height ,min-height
                   :max-width ,max-width
                   :max-height ,max-height))
+
+(defmacro arr (direction)
+  `(make-instance 'arrow :direction ,direction))
+
+(defmacro hsbar (min max page)
+  (let ((g-min (gensym "min")))
+    `(let ((,g-min ,min))
+       (make-instance 'horizontal-scrollbar
+                      :min-value ,g-min
+                      :max-value ,max
+                      :page-size ,page
+                      :current-min-position ,g-min))))

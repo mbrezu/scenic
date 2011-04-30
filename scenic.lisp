@@ -30,6 +30,12 @@
 
 (defvar *scenic-sdl-surface* nil)
 
+(defun measure-layout (scene)
+  (unless (layedout scene)
+    (measure scene (width scene) (height scene))
+    (layout scene 0 0 (width scene) (height scene))
+    (setf (layedout scene) t)))
+
 (defun render-scene (scene)
   (when (null *scenic-sdl-surface*)
     (setf *scenic-sdl-surface*
@@ -37,8 +43,7 @@
   (when (dirty scene)
     (setf (dirty scene) nil)
     (draw-with-cairo *scenic-sdl-surface*
-      (measure scene (width scene) (height scene))
-      (layout scene 0 0 (width scene) (height scene))
+      (measure-layout scene)
       (paint-scene scene))
     (sdl:set-point-* *scenic-sdl-surface* :x 0 :y 0)
     (if (rectangle-to-redraw scene)
@@ -65,6 +70,7 @@
     (render-scene scene)
     (sdl:with-events ()
       (:quit-event () t)
+      (:idle () (render-scene scene))
       (:key-down-event (:key key)
                        (when (sdl:key= key :sdl-key-escape)
                          (sdl:push-quit-event)))
