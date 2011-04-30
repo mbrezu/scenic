@@ -61,21 +61,21 @@
                            (render-scene scene))
       (:mouse-button-down-event (:button button :state state :x x :y y)
                                 (declare (ignore state))
-                                (scene-on-mouse-updown scene
+                                (scene-on-mouse-button scene
+                                                       :mouse-button-down
                                                        (make-instance 'mouse-button-event
                                                                       :mouse-x x
                                                                       :mouse-y y
-                                                                      :mouse-button button)
-                                                       :mouse-button-down)
+                                                                      :mouse-button button))
                                 (render-scene scene))
       (:mouse-button-up-event (:button button :state state :x x :y y)
                               (declare (ignore state))
-                              (scene-on-mouse-updown scene
+                              (scene-on-mouse-button scene
+                                                     :mouse-button-up
                                                      (make-instance 'mouse-button-event
                                                                     :mouse-x x
                                                                     :mouse-y y
-                                                                    :mouse-button button)
-                                                     :mouse-button-up)
+                                                                    :mouse-button button))
                               (render-scene scene))
       (:video-expose-event () (sdl:update-display)))))
 

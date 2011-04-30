@@ -11,3 +11,7 @@
 (load (compile-file "scenic-macros.lisp"))
 (load (compile-file "scenic.lisp"))
 (load (compile-file "scenic-test.lisp"))
+
+;; to test (after loading this file)
+;; (in-package :scenic-test)
+;; (scenic:run-scene (make-scene))

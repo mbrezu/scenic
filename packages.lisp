@@ -27,7 +27,9 @@
            stateful state
            toggle-button
            horizontal-slider min-value max-value page-size current-min-position
-           sizer min-width min-height max-width max-height))
+           sizer min-width min-height max-width max-height
+           capture-mouse release-mouse
+           ))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)

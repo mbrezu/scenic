@@ -172,7 +172,23 @@
   ((widget :accessor widget :initarg :widget :initform nil)
    (width :accessor width :initarg :width :initform 1024)
    (height :accessor height :initarg :height :initform 768)
-   (last-widget-chain :accessor last-widget-chain :initarg :last-widget-chain :initform nil)))
+   (last-widget-chain :accessor last-widget-chain :initarg :last-widget-chain :initform nil)
+   (mouse-captors :accessor mouse-captors :initarg :mouse-captors :initform nil)))
+
+(defun get-scene (widget)
+  (if (eql (type-of widget) 'scene)
+      widget
+      (get-scene (parent widget))))
+
+(defun capture-mouse (widget)
+  (let ((scene (get-scene widget)))
+    (if (not (member widget (mouse-captors scene)))
+        (push widget (mouse-captors scene)))))
+
+(defun release-mouse (widget)
+  (let ((scene (get-scene widget)))
+    (setf (mouse-captors scene)
+          (remove widget (mouse-captors scene)))))
 
 (defun paint-scene (scene)
   (paint-order-walk (widget scene)
@@ -228,6 +244,11 @@
 (defun calculate-mouse-enter (old-chain new-chain)
   (branch-diff new-chain old-chain))
 
+(defun scene-handle-mouse-captors (scene event mouse-event)
+  (dolist (captor (mouse-captors scene))
+    (setf (handled mouse-event) nil)
+    (on-event captor event mouse-event nil)))
+
 (defun scene-on-mouse-move (scene mouse-event)
   (let* ((widget-chain (get-widget-chain (list (hit-test (widget scene)
                                                          (mouse-x mouse-event)
@@ -241,13 +262,16 @@
     (setf (handled mouse-event) nil)
     (cascade-then-bubble mouse-enter-widgets :mouse-enter mouse-event)
     (setf (handled mouse-event) nil)
-    (cascade-then-bubble widget-chain :mouse-move mouse-event)))
+    (cascade-then-bubble widget-chain :mouse-move mouse-event)
+    (setf (handled mouse-event) nil)
+    (scene-handle-mouse-captors scene :mouse-move mouse-event)))
 
-(defun scene-on-mouse-updown (scene mouse-event handler)
+(defun scene-on-mouse-button (scene event mouse-event)
   (let ((widget-chain (get-widget-chain (list (hit-test (widget scene)
                                                         (mouse-x mouse-event)
                                                         (mouse-y mouse-event))))))
-    (cascade-then-bubble widget-chain handler mouse-event)))
+    (cascade-then-bubble widget-chain event mouse-event)
+    (scene-handle-mouse-captors scene event mouse-event)))
 
 (defmethod initialize-instance :after ((instance scene) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
@@ -319,24 +343,30 @@
 
 (defmethod initialize-instance :after ((instance clickable) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
-  (add-event-handler instance :mouse-button-down :bubble
-                     (lambda (clickable event)
-                       (declare (ignore event))
-                       (change-clickable-state clickable :half-click)))
-  (add-event-handler instance :mouse-enter :bubble
-                     (lambda (clickable event)
-                       (declare (ignore event))
-                       (change-clickable-state clickable :neutral)))
-  (add-event-handler instance :mouse-leave :bubble
-                     (lambda (clickable event)
-                       (declare (ignore event))
-                       (change-clickable-state clickable :neutral)))
-  (add-event-handler instance :mouse-button-up :bubble
-                     (lambda (clickable event)
-                       (declare (ignore event))
-                       (when (eql :half-click (click-state clickable))
-                         (on-event clickable :click (make-instance 'event) nil)
-                         (change-clickable-state clickable :neutral)))))
+  (let ((is-inside nil))
+    (add-event-handler instance :mouse-button-down :bubble
+                       (lambda (clickable event)
+                         (declare (ignore))
+                         (when (= 1 (mouse-button event))
+                           (change-clickable-state clickable :half-click)
+                           (capture-mouse instance))))
+    (add-event-handler instance :mouse-enter :bubble
+                       (lambda (clickable event)
+                         (declare (ignore clickable event))
+                         (setf is-inside t)))
+    (add-event-handler instance :mouse-leave :bubble
+                       (lambda (clickable event)
+                         (declare (ignore clickable event))
+                         (setf is-inside nil)))
+    (add-event-handler instance :mouse-button-up :bubble
+                       (lambda (clickable event)
+                         (declare (ignore))
+                         (when (= 1 (mouse-button event))
+                           (release-mouse instance)
+                           (when (and (eql :half-click (click-state clickable))
+                                      is-inside)
+                             (on-event clickable :click (make-instance 'event) nil))
+                           (change-clickable-state clickable :neutral))))))
 
 ;;; BUTTON class.
 
