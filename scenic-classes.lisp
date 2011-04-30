@@ -13,25 +13,39 @@
 
 (defgeneric in-widget (x y widget))
 
+(defgeneric add-event-handler (object event propagation callback))
+
+(defgeneric on-event (object event event-args propagation))
+
+;;; EVENTFUL class.
+
+(defclass eventful ()
+  ((event-handlers :accessor event-handlers :initarg event-handlers :initform nil)))
+
+(defmethod add-event-handler ((object eventful) event propagation handler)
+  (let ((handler-list (assoc event (event-handlers object))))
+    (if handler-list
+        (push (cons handler propagation) (cdr handler-list))
+        (let ((fresh-handler-list (list (cons handler propagation))))
+          (push (cons event fresh-handler-list) (event-handlers object))))))
+
+(defmethod on-event ((object eventful) event event-arg propagation)
+  (dolist (handler (cdr (assoc event (event-handlers object))))
+    (when (or (null propagation) (eq (cdr handler) propagation))
+      (funcall (car handler) object event-arg)
+      (when (handled event-arg)
+        (return-from on-event)))))
+
 ;;; WIDGET class.
 
-(defclass widget ()
+(defclass widget (eventful)
   ((measured-width :accessor measured-width :initarg measured-width :initform nil)
    (measured-height :accessor measured-height :initarg measured-height :initform nil)
    (layout-left :accessor layout-left :initarg :layout-left :initform 0)
    (layout-top :accessor layout-top :initarg :layout-top :initform 0)
    (layout-width :accessor layout-width :initarg :layout-width :initform nil)
    (layout-height :accessor layout-height :initarg :layout-height :initform nil)
-   (parent :accessor parent :initarg :parent :initform nil)
-   (event-mouse-down :accessor event-mouse-down :initarg :event-mouse-down :initform nil)
-   (event-mouse-up :accessor event-mouse-up :initarg :event-mouse-up :initform nil)
-   (event-mouse-enter :accessor event-mouse-enter :initarg :event-mouse-enter :initform nil)
-   (event-mouse-move :accessor event-mouse-move :initarg :event-mouse-move :initform nil)
-   (event-mouse-leave :accessor event-mouse-leave :initarg :event-mouse-leave :initform nil)
-   (event-key-down :accessor event-key-down :initarg :event-key-down :initform nil)
-   (event-key-up :accessor event-key-up :initarg :event-key-up :initform nil)
-   (event-got-focus :accessor event-got-focus :initarg :event-got-focus :initform nil)
-   (event-lost-focus :accessor event-lost-focus :initarg :event-lost-focus :initform nil)))
+   (parent :accessor parent :initarg :parent :initform nil)))
 
 (defmethod print-object ((object widget) stream)
   (format stream
@@ -48,28 +62,6 @@
        (<= (layout-top widget) y)
        (< y (+ (layout-top widget) (layout-height widget)))))
 
-(defun call-widget-event-handlers (widget widget-events event propagation)
-  (dolist (handler widget-events)
-    (when (eq (cdr handler) propagation)
-      (funcall (car handler) widget event)
-      (when (handled event)
-        (return-from call-widget-event-handlers)))))
-
-(defun widget-on-mouse-move (object mouse-event propagation)
-  (call-widget-event-handlers object (event-mouse-move object) mouse-event propagation))
-
-(defun widget-on-mouse-enter (object mouse-event propagation)
-  (call-widget-event-handlers object (event-mouse-enter object) mouse-event propagation))
-
-(defun widget-on-mouse-leave (object mouse-event propagation)
-  (call-widget-event-handlers object (event-mouse-leave object) mouse-event propagation))
-
-(defun widget-on-mouse-down (object mouse-event propagation)
-  (call-widget-event-handlers object (event-mouse-down object) mouse-event propagation))
-
-(defun widget-on-mouse-up (object mouse-event propagation)
-  (call-widget-event-handlers object (event-mouse-up object) mouse-event propagation))
-
 (defmethod measure ((object widget) available-width available-height)
   (setf (measured-width object) available-width)
   (setf (measured-height object) available-height)
@@ -82,21 +74,6 @@
   (setf (layout-height object) height))
 
 (defmethod paint ((object widget)))
-
-(defun add-mouse-move (object handler propagation)
-  (push (cons handler propagation) (event-mouse-move object)))
-
-(defun add-mouse-enter (object handler propagation)
-  (push (cons handler propagation) (event-mouse-enter object)))
-
-(defun add-mouse-leave (object handler propagation)
-  (push (cons handler propagation) (event-mouse-leave object)))
-
-(defun add-mouse-button-down (object handler propagation)
-  (push (cons handler propagation) (event-mouse-down object)))
-
-(defun add-mouse-button-up (object handler propagation)
-  (push (cons handler propagation) (event-mouse-up object)))
 
 (defmethod paint-order-walk ((object widget) callback)
   (funcall callback object))
@@ -226,15 +203,15 @@
                             (setf result object))))
     result))
 
-(defun cascade-then-bubble (widget-chain event-handler event-arg)
+(defun cascade-then-bubble (widget-chain event event-arg)
   (dolist (widget widget-chain)
-    (funcall event-handler widget event-arg :cascade)
+    (on-event widget event event-arg :cascade)
     (when (handled event-arg)
       (return)))
   ;; then mouse-move bubble;
   (unless (handled event-arg)
     (dolist (widget (reverse widget-chain))
-      (funcall event-handler widget event-arg :bubble)
+      (on-event widget event event-arg :bubble)
       (when (handled event-arg)
         (return)))))
 
@@ -260,11 +237,11 @@
          (mouse-enter-widgets (calculate-mouse-enter (last-widget-chain scene)
                                                      widget-chain)))
     (setf (last-widget-chain scene) widget-chain)
-    (cascade-then-bubble mouse-leave-widgets #'widget-on-mouse-leave mouse-event)
+    (cascade-then-bubble mouse-leave-widgets :mouse-leave mouse-event)
     (setf (handled mouse-event) nil)
-    (cascade-then-bubble mouse-enter-widgets #'widget-on-mouse-enter mouse-event)
+    (cascade-then-bubble mouse-enter-widgets :mouse-enter mouse-event)
     (setf (handled mouse-event) nil)
-    (cascade-then-bubble widget-chain #'widget-on-mouse-move mouse-event)))
+    (cascade-then-bubble widget-chain :mouse-move mouse-event)))
 
 (defun scene-on-mouse-updown (scene mouse-event handler)
   (let ((widget-chain (get-widget-chain (list (hit-test (widget scene)
@@ -335,42 +312,31 @@
 ;;; CLICKABLE class.
 
 (defclass clickable (container1)
-  ((click-state :accessor click-state :initarg :click-state :initform :neutral)
-   (event-click :accessor event-click :initarg :event-click :initform nil)))
+  ((click-state :accessor click-state :initarg :click-state :initform :neutral)))
 
 (defun change-clickable-state (clickable new-state)
   (setf (click-state clickable) new-state))
 
 (defmethod initialize-instance :after ((instance clickable) &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
-  (add-mouse-button-down instance
-                         (lambda (clickable event)
-                           (declare (ignore event))
-                           (change-clickable-state clickable :half-click))
-                         :bubble)
-  (add-mouse-enter instance
-                   (lambda (clickable event)
-                     (declare (ignore event))
-                     (change-clickable-state clickable :neutral))
-                   :bubble)
-  (add-mouse-leave instance
-                   (lambda (clickable event)
-                     (declare (ignore event))
-                     (change-clickable-state clickable :neutral))
-                   :bubble)
-  (add-mouse-button-up instance
-                       (lambda (clickable event)
-                         (declare (ignore event))
-                         (when (eql :half-click (click-state clickable))
-                           (call-widget-event-handlers clickable
-                                                       (event-click clickable)
-                                                       (make-instance 'event)
-                                                       :bubble)
-                           (change-clickable-state clickable :neutral)))
-                       :bubble))
-
-(defun add-click-handler (clickable handler)
-  (push (cons handler :bubble) (event-click clickable)))
+  (add-event-handler instance :mouse-button-down :bubble
+                     (lambda (clickable event)
+                       (declare (ignore event))
+                       (change-clickable-state clickable :half-click)))
+  (add-event-handler instance :mouse-enter :bubble
+                     (lambda (clickable event)
+                       (declare (ignore event))
+                       (change-clickable-state clickable :neutral)))
+  (add-event-handler instance :mouse-leave :bubble
+                     (lambda (clickable event)
+                       (declare (ignore event))
+                       (change-clickable-state clickable :neutral)))
+  (add-event-handler instance :mouse-button-up :bubble
+                     (lambda (clickable event)
+                       (declare (ignore event))
+                       (when (eql :half-click (click-state clickable))
+                         (on-event clickable :click (make-instance 'event) nil)
+                         (change-clickable-state clickable :neutral)))))
 
 ;;; BUTTON class.
 
@@ -459,7 +425,7 @@
 (defmethod initialize-instance :after ((instance toggle-button)
                                        &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
-  (add-click-handler instance
+  (add-event-handler instance :click :bubble
                      (lambda (instance event)
                        (declare (ignore event))
                        (setf (state instance)
