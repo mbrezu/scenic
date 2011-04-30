@@ -173,7 +173,8 @@
    (width :accessor width :initarg :width :initform 1024)
    (height :accessor height :initarg :height :initform 768)
    (last-widget-chain :accessor last-widget-chain :initarg :last-widget-chain :initform nil)
-   (mouse-captors :accessor mouse-captors :initarg :mouse-captors :initform nil)))
+   (mouse-captors :accessor mouse-captors :initarg :mouse-captors :initform nil)
+   (dirty :accessor dirty :initarg :dirty :initform t)))
 
 (defun get-scene (widget)
   (if (eql (type-of widget) 'scene)
@@ -189,6 +190,9 @@
   (let ((scene (get-scene widget)))
     (setf (mouse-captors scene)
           (remove widget (mouse-captors scene)))))
+
+(defun invalidate (widget)
+  (setf (dirty (get-scene widget)) t))
 
 (defun paint-scene (scene)
   (paint-order-walk (widget scene)
@@ -376,7 +380,8 @@
 (defmethod (setf click-state) :after (value (instance button))
   (layout instance
           (layout-left instance) (layout-top instance)
-          (layout-width instance) (layout-height instance)))
+          (layout-width instance) (layout-height instance))
+  (invalidate instance))
 
 (defmethod measure ((object button) available-width available-height)
   (let ((child-size (measure (child object) available-width available-height)))

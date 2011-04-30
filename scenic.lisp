@@ -30,14 +30,16 @@
 
 (defun render-scene (scene)
   (let ((from-cairo nil))
-    (setf from-cairo
-          (draw-with-cairo (sdl:create-surface (width scene) (height scene))
-            (measure scene (width scene) (height scene))
-            (layout scene 0 0 (width scene) (height scene))
-            (paint-scene scene)))
-    (sdl:blit-surface from-cairo)
-    (sdl:free from-cairo)
-    (sdl:update-display)))
+    (when (dirty scene)
+      (setf (dirty scene) nil)
+      (setf from-cairo
+            (draw-with-cairo (sdl:create-surface (width scene) (height scene))
+              (measure scene (width scene) (height scene))
+              (layout scene 0 0 (width scene) (height scene))
+              (paint-scene scene)))
+      (sdl:blit-surface from-cairo)
+      (sdl:free from-cairo)
+      (sdl:update-display))))
 
 (defun run-scene (scene)
   (sdl:with-init ()
