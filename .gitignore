@@ -1,2 +1,4 @@
 *.fasl
+*.lx32fsl
+*.wx32fsl
 semantic.cache
