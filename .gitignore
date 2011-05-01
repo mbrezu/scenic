@@ -1,4 +1,6 @@
 *.fasl
 *.lx32fsl
 *.wx32fsl
+*.fas
+*.lib
 semantic.cache
