@@ -20,6 +20,7 @@ installed. If not, see http://www.quicklisp.org/beta/ about
 instructions on how to install Quicklisp.
 
 The implementations I tested the instructions below are:
+
  * SBCL (on Ubuntu)
  * CCL (on Ubuntu and Windows XP 32bit and Windows 7 32bit)
  * CLISP (on Ubuntu and Windows XP 32bit and Windows 7 32bit)
@@ -35,8 +36,8 @@ Loading scenic can be done by loading the Common Lisp implementation,
 set the working directory to point to the `scenic` root directory, and
 run:
 
-   (load "deploy.lisp")
-   (in-package :scenic-test)
-   (scenic:run-scene (make-scene))
+    (load "deploy.lisp")
+    (in-package :scenic-test)
+    (scenic:run-scene (make-scene))
 
 
