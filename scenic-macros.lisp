@@ -85,7 +85,8 @@
 (defmacro hslider (min max page)
   (let ((g-min (gensym "min")))
     `(let ((,g-min ,min))
-       (make-instance 'horizontal-slider
+       (make-instance 'slider
+                      :orientation :horizontal
                       :min-value ,g-min
                       :max-value ,max
                       :page-size ,page

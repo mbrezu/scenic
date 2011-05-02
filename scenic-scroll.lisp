@@ -1,70 +1,46 @@
 
 (in-package :scenic)
 
-;;; SLIDER, HORIZONTAL-SLIDER and VERTICAL-SLIDER classes.
+;;; SLIDER classes.
 
-(defclass slider (widget)
+(defclass slider (widget orientable)
   ((min-value :accessor min-value :initarg :min-value :initform nil)
    (max-value :accessor max-value :initarg :max-value :initform nil)
    (page-size :accessor page-size :initarg :page-size :initform nil)
    (current-min-position :accessor current-min-position
                          :initarg :current-min-position :initform nil)))
 
-(defclass horizontal-slider (slider)
-  ())
-
-(defclass vertical-slider (horizontal-slider)
-  ())
-
-(defgeneric get-slider-screen-dimension (slider))
-
-(defmethod get-slider-screen-dimension ((slider horizontal-slider))
-  (layout-width slider))
-
-(defmethod get-slider-screen-dimension ((slider vertical-slider))
-  (layout-height slider))
-
-(defgeneric get-slider-screen-position (slider mouse-event))
-
-(defmethod get-slider-screen-position ((slider horizontal-slider) mouse-event)
-  (- (mouse-x mouse-event)
-     (layout-left slider)))
-
-(defmethod get-slider-screen-position ((slider vertical-slider) mouse-event)
-  (- (mouse-y mouse-event)
-     (layout-top slider)))
-
 (defgeneric get-walker-width-or-height-and-position (slider))
 
 (defmethod get-walker-width-or-height-and-position ((slider slider))
-  (let* ((extent (- (max-value slider) (min-value slider)))
+  (let* ((screen-dimension (ifhorizontal slider
+                                         (layout-width slider)
+                                         (layout-height slider)))
+         (extent (- (max-value slider) (min-value slider)))
          (rel-page-size (/ (page-size slider) extent))
          (walker-width-or-height (max 10 (floor (* rel-page-size
-                                                   (get-slider-screen-dimension slider)))))
+                                                   screen-dimension))))
          (rel-position (/ (- (current-min-position slider)
                              (min-value slider))
                           extent))
-         (position (min (round (* rel-position (get-slider-screen-dimension slider)))
-                        (- (get-slider-screen-dimension slider) walker-width-or-height))))
+         (position (min (round (* rel-position screen-dimension))
+                        (- screen-dimension walker-width-or-height))))
     (values walker-width-or-height position)))
 
 (defgeneric get-walker-coordinates (slider))
 
-(defmethod get-walker-coordinates ((slider horizontal-slider))
+(defmethod get-walker-coordinates ((slider slider))
   (multiple-value-bind (walker-width-or-height position)
       (get-walker-width-or-height-and-position slider)
-    (values (+ (layout-left slider) position)
-            (layout-top slider)
-            walker-width-or-height
-            (layout-height slider))))
-
-(defmethod get-walker-coordinates ((slider vertical-slider))
-  (multiple-value-bind (walker-width-or-height position)
-      (get-walker-width-or-height-and-position slider)
-    (values (layout-left slider)
-            (+ (layout-top slider) position)
-            (layout-width slider)
-            walker-width-or-height)))
+    (ifhorizontal slider
+                  (values (+ (layout-left slider) position)
+                          (layout-top slider)
+                          walker-width-or-height
+                          (layout-height slider))
+                  (values (layout-left slider)
+                          (+ (layout-top slider) position)
+                          (layout-width slider)
+                          walker-width-or-height))))
 
 (defmethod paint ((object slider))
   (cl-cairo2:rectangle (layout-left object) (layout-top object)
@@ -99,12 +75,17 @@
     (add-event-handler instance :mouse-move :bubble
                        (lambda (instance event)
                          (when dragging
-                           (let* ((extent (1+ (- (max-value instance)
+                           (let* ((screen-dimension (ifhorizontal instance
+                                                                  (layout-width instance)
+                                                                  (layout-height instance)))
+                                  (screen-position
+                                   (ifhorizontal instance
+                                                 (- (mouse-x event) (layout-left instance))
+                                                 (- (mouse-y event) (layout-top instance))))
+                                  (extent (1+ (- (max-value instance)
                                                  (min-value instance))))
-                                  (multiplier (/ extent (get-slider-screen-dimension instance)))
-                                  (new-current-min-pos (- (* multiplier
-                                                             (get-slider-screen-position instance
-                                                                                         event))
+                                  (multiplier (/ extent screen-dimension))
+                                  (new-current-min-pos (- (* multiplier screen-position)
                                                           (/ (page-size instance) 2))))
                              (setf (current-min-position instance) new-current-min-pos)))))))
 
@@ -169,11 +150,6 @@
                          :initarg :current-min-position :initform nil)
    (slider :accessor slider :initarg :slider :initform nil)))
 
-(defmacro ifhorizontal (instance horizontal-body &optional (vertical-body nil))
-  `(if (eq (orientation ,instance) :horizontal)
-       ,horizontal-body
-       ,vertical-body))
-
 (defmethod initialize-instance :after ((instance scrollbar)
                                        &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
@@ -189,15 +165,13 @@
                                :max-height (ifhorizontal instance 19)
                                :max-width (ifhorizontal instance nil 19)
                                :child (setf slider
-                                            (make-instance
-                                             (ifhorizontal instance
-                                                           'horizontal-slider
-                                                           'vertical-slider)
-                                             :min-value (min-value instance)
-                                             :max-value (max-value instance)
-                                             :page-size (page-size instance)
-                                             :current-min-position
-                                             (current-min-position instance))))
+                                            (make-instance 'slider
+                                                           :orientation (orientation instance)
+                                                           :min-value (min-value instance)
+                                                           :max-value (max-value instance)
+                                                           :page-size (page-size instance)
+                                                           :current-min-position
+                                                           (current-min-position instance))))
                 (setf btn-right
                       (make-instance
                        'button

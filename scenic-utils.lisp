@@ -58,3 +58,8 @@
      (when (not (= (,property-slot (,child-slot instance)) (,property-slot instance)))
        (setf (,property-slot (,child-slot instance)) (,property-slot instance))
        (invalidate (,child-slot instance)))))
+
+(defmacro ifhorizontal (instance horizontal-body &optional (vertical-body nil))
+  `(if (eq (orientation ,instance) :horizontal)
+       ,horizontal-body
+       ,vertical-body))
