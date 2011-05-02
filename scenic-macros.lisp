@@ -122,3 +122,7 @@
                       :max-value ,max
                       :page-size ,page
                       :current-min-position ,g-min))))
+
+(defmacro img (image-path)
+  `(make-instance 'image
+                  :image-path ,image-path))

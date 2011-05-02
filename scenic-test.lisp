@@ -45,7 +45,15 @@
                                            (upad 3
                                              (setf text3
                                                    (lbl "on."
-                                                        :size 20 :weight :bold))))))
+                                                        :size 20 :weight :bold)))))
+                               (border (list 0.3 0.3 0.3)
+                                       1
+                                       (upad 2
+                                         (szr (img "/home/miron/tmp/lisp/scenic/icons/arrow_in.png")
+                                              :max-width 16
+                                              :min-width 16
+                                              :max-height 16
+                                              :max-width 16))))
                              (hbox 10
                                (border (list 0 0 0) 1 (setf button (btntxt "Gigel")))
                                (border (list 0 0 0) 1 (toggle "Titel"))

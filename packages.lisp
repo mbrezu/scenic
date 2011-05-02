@@ -32,12 +32,13 @@
            print-all
            arrow direction
            scrollbar
-           orientable orientation))
+           orientable orientation
+           image image-path))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)
   (:export bg border scene spc pad upad vbox flr stk lbl hbox
-           btn btntxt toggle hslider szr arr hsbar vsbar))
+           btn btntxt toggle hslider szr arr hsbar vsbar img))
 
 (defpackage :scenic-test
   (:use :cl :scenic-macros))

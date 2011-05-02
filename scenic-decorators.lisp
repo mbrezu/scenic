@@ -86,6 +86,7 @@
    (max-width :accessor max-width :initarg :max-width :initform nil)
    (max-height :accessor max-height :initarg :max-height :initform nil)))
 
+(declaim (optimize (debug 3)))
 (defmethod measure ((object sizer) available-width available-height)
   (let* ((size (measure (child object)
                         (if (null (max-width object))
@@ -97,9 +98,9 @@
          (width (first size))
          (height (second size)))
     (when (not (null (min-width object)))
-      (setf width (max (width (min-width object)))))
+      (setf width (max width (min-width object))))
     (when (not (null (min-height object)))
-      (setf height (max (height (min-height object)))))
+      (setf height (max height (min-height object))))
     (call-next-method object width height)))
 
 (defmethod layout ((object sizer) left top width height)

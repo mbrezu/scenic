@@ -149,3 +149,20 @@
 
 (defclass orientable ()
   ((orientation :accessor orientation :initarg :orientation :initform nil)))
+
+;;; IMAGE class.
+
+(defclass image (widget)
+  ((image-path :accessor image-path :initarg :image-path :initform nil)
+   (image :accessor image :initarg :image :initform nil)))
+
+(defmethod paint ((instance image))
+  (if (null (image instance))
+      (setf (image instance)
+            (cl-cairo2:image-surface-create-from-png (image-path instance))))
+  (cl-cairo2:set-source-surface (image instance) (layout-left instance) (layout-top instance))
+  (cl-cairo2:rectangle (layout-left instance) (layout-top instance)
+                       (layout-width instance) (layout-height instance))
+  (cl-cairo2:clip)
+  (cl-cairo2:paint)
+  (cl-cairo2:reset-clip))
