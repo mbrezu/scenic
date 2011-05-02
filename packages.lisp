@@ -31,7 +31,8 @@
            invalidate
            print-all
            arrow direction
-           scrollbar))
+           scrollbar
+           orientable orientation))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)

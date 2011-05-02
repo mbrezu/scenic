@@ -44,7 +44,7 @@
 (defmacro vbox (space &body children)
   `(make-instance 'box
                   :space-between-cells ,space
-                  :direction :vertical
+                  :orientation :vertical
                   :children (list ,@children)))
 
 (defmacro stk (&body children)
@@ -67,7 +67,7 @@
 (defmacro hbox (space &body children)
   `(make-instance 'box
                   :space-between-cells ,space
-                  :direction :horizontal
+                  :orientation :horizontal
                   :children (list ,@children)))
 
 (defmacro btn (child)
@@ -106,7 +106,7 @@
   (let ((g-min (gensym "min")))
     `(let ((,g-min ,min))
        (make-instance 'scrollbar
-                      :direction :horizontal
+                      :orientation :horizontal
                       :min-value ,g-min
                       :max-value ,max
                       :page-size ,page
@@ -116,7 +116,7 @@
   (let ((g-min (gensym "min")))
     `(let ((,g-min ,min))
        (make-instance 'scrollbar
-                      :direction :vertical
+                      :orientation :vertical
                       :min-value ,g-min
                       :max-value ,max
                       :page-size ,page

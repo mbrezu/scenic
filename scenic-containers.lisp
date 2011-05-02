@@ -23,12 +23,11 @@
 
 ;;; BOX class.
 
-(defclass box (container)
-  ((space-between-cells :accessor space-between-cells :initarg :space-between-cells :initform 0)
-   (direction :accessor direction :initarg :direction :initform nil)))
+(defclass box (container orientable)
+  ((space-between-cells :accessor space-between-cells :initarg :space-between-cells :initform 0)))
 
 (defmethod measure ((object box) available-width available-height)
-  (ecase (direction object)
+  (ecase (orientation object)
     (:vertical
      (let* ((child-sizes (mapcar #'(lambda (widget)
                                      (measure widget available-width available-height))
@@ -49,7 +48,7 @@
        (call-next-method object horizontal-size vertical-size)))))
 
 (defmethod layout ((object box) left top width height)
-  (ecase (direction object)
+  (ecase (orientation object)
     (:vertical
      (let ((running-top top))
        (dolist (widget (children object))

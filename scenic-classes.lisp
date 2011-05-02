@@ -142,3 +142,10 @@
     (cl-cairo2:move-to (layout-left object) (- (+ (layout-top object) ascent 0.5) descent))
     (cl-cairo2:show-text (text object))))
 
+;;; ORIENTABLE class.
+
+;;; This class has only one slot, orientation, which can be either
+;;; :horizontal or :vertical.
+
+(defclass orientable ()
+  ((orientation :accessor orientation :initarg :orientation :initform nil)))

@@ -133,7 +133,7 @@
   (call-next-method object left top 16 16))
 
 (defmethod paint ((object arrow))
-  (case (direction object)
+  (ecase (direction object)
     (:left
      (cl-cairo2:move-to (+ (layout-left object) 5) (+ (layout-top object) 8))
      (cl-cairo2:line-to (+ (layout-left object) 11) (+ (layout-top object) 2))
@@ -144,6 +144,18 @@
      (cl-cairo2:move-to (+ (layout-left object) 11) (+ (layout-top object) 8))
      (cl-cairo2:line-to (+ (layout-left object) 5) (+ (layout-top object) 2))
      (cl-cairo2:line-to (+ (layout-left object) 5) (+ (layout-top object) 13))
+     (cl-cairo2:set-source-rgb 0 0 0)
+     (cl-cairo2:fill-path))
+    (:up
+     (cl-cairo2:move-to (+ (layout-left object) 9) (+ (layout-top object) 5))
+     (cl-cairo2:line-to (+ (layout-left object) 3) (+ (layout-top object) 11))
+     (cl-cairo2:line-to (+ (layout-left object) 14) (+ (layout-top object) 11))
+     (cl-cairo2:set-source-rgb 0 0 0)
+     (cl-cairo2:fill-path))
+    (:down
+     (cl-cairo2:move-to (+ (layout-left object) 9) (+ (layout-top object) 11))
+     (cl-cairo2:line-to (+ (layout-left object) 3) (+ (layout-top object) 5))
+     (cl-cairo2:line-to (+ (layout-left object) 14) (+ (layout-top object) 5))
      (cl-cairo2:set-source-rgb 0 0 0)
      (cl-cairo2:fill-path))))
 
@@ -157,29 +169,40 @@
                          :initarg :current-min-position :initform nil)
    (slider :accessor slider :initarg :slider :initform nil)))
 
+(defmacro ifhorizontal (instance horizontal-body &optional (vertical-body nil))
+  `(if (eq (orientation ,instance) :horizontal)
+       ,horizontal-body
+       ,vertical-body))
+
 (defmethod initialize-instance :after ((instance scrollbar)
                                        &rest initargs &key &allow-other-keys)
   (declare (ignore initargs))
   (let (slider btn-left btn-right)
     (setf (space-between-cells instance) 0)
     (setf (children instance)
-          (list (setf btn-left (make-instance 'button
-                                              :child (make-instance 'arrow :direction :left)))
+          (list (setf btn-left
+                      (make-instance
+                       'button
+                       :child (make-instance 'arrow
+                                             :direction (ifhorizontal instance :left :up))))
                 (make-instance 'sizer
-                               :max-height (when (eq (direction instance) :horizontal) 19)
-                               :max-width (when (eq (direction instance) :vertical) 19)
+                               :max-height (ifhorizontal instance 19)
+                               :max-width (ifhorizontal instance nil 19)
                                :child (setf slider
                                             (make-instance
-                                             (if (eq (direction instance) :horizontal)
-                                                 'horizontal-slider
-                                                 'vertical-slider)
+                                             (ifhorizontal instance
+                                                           'horizontal-slider
+                                                           'vertical-slider)
                                              :min-value (min-value instance)
                                              :max-value (max-value instance)
                                              :page-size (page-size instance)
                                              :current-min-position
                                              (current-min-position instance))))
-                (setf btn-right (make-instance 'button
-                                               :child (make-instance 'arrow :direction :right)))))
+                (setf btn-right
+                      (make-instance
+                       'button
+                       :child (make-instance 'arrow
+                                             :direction (ifhorizontal instance :right :down))))))
     (setf (slider instance) slider)
     (add-event-handler slider :position-changed :bubble
                        (lambda (object event)
