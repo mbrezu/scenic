@@ -5,6 +5,7 @@
 (load (compile-file "sdl-patch.lisp"))
 (load (compile-file "packages.lisp"))
 (load (compile-file "scenic-utils.lisp"))
+(load (compile-file "scenic-images.lisp"))
 (load (compile-file "scenic-events.lisp"))
 (load (compile-file "scenic-classes.lisp"))
 (load (compile-file "scenic-containers.lisp"))

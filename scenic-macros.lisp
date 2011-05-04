@@ -125,4 +125,4 @@
 
 (defmacro img (image-path)
   `(make-instance 'image
-                  :image-path ,image-path))
+                  :image (get-image ,image-path)))

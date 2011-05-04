@@ -49,7 +49,7 @@
                                (border (list 0.3 0.3 0.3)
                                        1
                                        (upad 2
-                                         (szr (img "/home/miron/tmp/lisp/scenic/icons/arrow_in.png")
+                                         (szr (img "icons/arrow_in.png")
                                               :max-width 16
                                               :min-width 16
                                               :max-height 16

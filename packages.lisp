@@ -33,7 +33,7 @@
            arrow direction
            scrollbar
            orientable orientation
-           image image-path))
+           image image-path get-image))
 
 (defpackage :scenic-macros
   (:use :cl :scenic)
