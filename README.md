@@ -51,7 +51,15 @@ and running:
 
     (load "deploy.lisp")
     (in-package :scenic-test)
-    (scenic:run-scene (make-scene))
+
+and then
+
+    (test-scene (background-clear))
+    (test-scene (colored-rectangles))
+    (test-scene (hello-world))
+    (test-scene (buttons))
+
+to run the various tests/demos.
 
 # Other Notes
 

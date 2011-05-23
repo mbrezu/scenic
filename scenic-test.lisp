@@ -1,6 +1,73 @@
 
 (in-package :scenic-test)
 
+(defun test-scene (scene)
+  (scenic:run-scene scene))
+
+;;; A very simple scene that clears the screen.
+(defun background-clear ()
+  (scene 800 800
+         (stk
+           (bg (list 1.0 1.0 1.0)
+               (flr)))))
+
+;;; A scene with a couple of rectangles
+(defun colored-rectangles ()
+  (scene 800 800
+         (stk
+           (bg (list 1.0 1.0 1.0)
+               (flr))
+           (hbox 5
+             (bg (list 1.0 0.3 0.3)
+                 (spc 100 100))
+             (bg (list 0.3 1.0 0.3)
+                 (spc 100 100))
+             (bg (list 0.3 0.3 1.0)
+                 (spc 100 100))))))
+
+;;; Hello world!
+(defun hello-world ()
+  (scene 800 800
+         (stk
+           (bg (list 1.0 1.0 1.0)
+               (flr))
+           (upad 1
+             (lbl "Hello, world!" :size 20)))))
+
+;;; Button test
+(defun buttons ()
+  (let (scn push-button toggle-button)
+    (setf scn (scene 800 800
+                     (stk
+                       (bg (list 1.0 1.0 1.0)
+                           (flr))
+                       (upad 5
+                         (hbox 10
+                           (border (list 0 0 0) 1 (setf push-button
+                                                        (btntxt "Push Button")))
+                           (border (list 0 0 0) 1 (setf toggle-button
+                                                        (toggle "Toggle Button"))))))))
+    (scenic:add-event-handler push-button :mouse-move :cascade
+                              (lambda (object event)
+                                (format t "button mouse move: ~a ~a~%" object event)))
+    (scenic:add-event-handler push-button :mouse-enter :cascade
+                              (lambda (object event)
+                                (format t "button enter: ~a ~a~%" object event)))
+    (scenic:add-event-handler push-button :mouse-leave :cascade
+                              (lambda (object event)
+                                (format t "button mouse leave: ~a ~a~%" object event)))
+    (scenic:add-event-handler push-button :mouse-button-down :cascade
+                              (lambda (object event)
+                                (format t "button mouse button-down: ~a ~a~%" object event)))
+    (scenic:add-event-handler push-button :mouse-button-up :cascade
+                              (lambda (object event)
+                                (format t "button mouse button-up: ~a ~a~%" object event)))
+    (scenic:add-event-handler push-button :click :bubble
+                              (lambda (object event)
+                                (declare (ignore object event))
+                                (format t "button click~%")))
+    scn))
+
 (defun make-scene ()
   (let (text1 text2 text3 button scn hslider hbar vbar)
     (setf scn
@@ -145,5 +212,6 @@
                                                   (scenic:min-value object)
                                                   (scenic:max-value object))))
     scn))
+
 
 
