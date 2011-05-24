@@ -28,18 +28,16 @@
        (cl-cairo2:destroy cl-cairo2:*context*)
        ,g-sdl-surface)))
 
-(defvar *scenic-sdl-surface* nil)
-
 (defun render-scene (scene)
-  (when (null *scenic-sdl-surface*)
-    (setf *scenic-sdl-surface*
+  (unless  (sdl-surface scene)
+    (setf (sdl-surface scene)
           (sdl:create-surface (width scene) (height scene))))
   (when (dirty scene)
     (setf (dirty scene) nil)
-    (draw-with-cairo *scenic-sdl-surface*
+    (draw-with-cairo (sdl-surface scene)
       (measure-layout scene)
       (paint-scene scene))
-    (sdl:set-point-* *scenic-sdl-surface* :x 0 :y 0)
+    (sdl:set-point-* (sdl-surface scene) :x 0 :y 0)
     (if (rectangle-to-redraw scene)
         (let* ((scene-rect (mapcar (lambda (value)
                                      (the fixnum (round value)))
@@ -50,11 +48,11 @@
                                         :h (1+ (- (fourth scene-rect) (second scene-rect)))
                                         :fp nil)))
           (sdl:set-clip-rect sdl-rect :surface lispbuilder-sdl:*default-display*)
-          (sdl:blit-surface *scenic-sdl-surface* )
+          (sdl:blit-surface (sdl-surface scene) )
           (sdl:free sdl-rect)
           (sdl:clear-clip-rect lispbuilder-sdl:*default-display*)
           (setf (rectangle-to-redraw scene) nil))
-        (sdl:blit-surface *scenic-sdl-surface* lispbuilder-sdl:*default-display*))
+        (sdl:blit-surface (sdl-surface scene) lispbuilder-sdl:*default-display*))
     (sdl:update-display)))
 
 (defun run-scene (scene)

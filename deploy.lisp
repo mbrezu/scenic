@@ -19,4 +19,4 @@
 
 ;; to test (after loading this file)
 ;; (in-package :scenic-test)
-;; (scenic:run-scene (make-scene))
+;; (run-all-tests)

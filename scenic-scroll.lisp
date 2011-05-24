@@ -165,18 +165,20 @@
                                :max-height (ifhorizontal instance 19)
                                :max-width (ifhorizontal instance nil 19)
                                :child (setf slider
-                                            (make-instance 'slider
-                                                           :orientation (orientation instance)
-                                                           :min-value (min-value instance)
-                                                           :max-value (max-value instance)
-                                                           :page-size (page-size instance)
-                                                           :current-min-position
-                                                           (current-min-position instance))))
+                                            (make-instance
+                                             'slider
+                                             :orientation (orientation instance)
+                                             :min-value (min-value instance)
+                                             :max-value (max-value instance)
+                                             :page-size (page-size instance)
+                                             :current-min-position
+                                             (current-min-position instance))))
                 (setf btn-right
                       (make-instance
                        'button
-                       :child (make-instance 'arrow
-                                             :direction (ifhorizontal instance :right :down))))))
+                       :child (make-instance
+                               'arrow
+                               :direction (ifhorizontal instance :right :down))))))
     (setf (slider instance) slider)
     (add-event-handler slider :position-changed :bubble
                        (lambda (object event)
@@ -190,13 +192,15 @@
     (add-event-handler btn-left :click :bubble
                        (lambda (object event)
                          (declare (ignore object event))
-                         (setf (current-min-position instance) (- (current-min-position slider)
-                                                                  (page-size slider)))))
+                         (setf (current-min-position instance)
+                               (- (current-min-position slider)
+                                  (page-size slider)))))
     (add-event-handler btn-right :click :bubble
                        (lambda (object event)
                          (declare (ignore object event))
-                         (setf (current-min-position instance) (+ (current-min-position slider)
-                                                                  (page-size instance)))))))
+                         (setf (current-min-position instance)
+                               (+ (current-min-position slider)
+                                  (page-size instance)))))))
 
 (pass-to-child scrollbar slider min-value)
 (pass-to-child scrollbar slider max-value)

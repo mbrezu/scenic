@@ -12,7 +12,8 @@
    (dirty :accessor dirty :initarg :dirty :initform t)
    (dirty-list :accessor dirty-list :initarg :dirty-list :initform nil)
    (layedout :accessor layedout :initarg :layedout :initform nil)
-   (rectangle-to-redraw :accessor rectangle-to-redraw :initarg :rectangle-to-redraw :initform nil)))
+   (rectangle-to-redraw :accessor rectangle-to-redraw :initarg :rectangle-to-redraw :initform nil)
+   (sdl-surface :accessor sdl-surface :initarg :sdl-surface :initform nil)))
 
 (defun get-scene (widget)
   (if (eql (type-of widget) 'scene)

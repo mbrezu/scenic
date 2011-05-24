@@ -58,8 +58,17 @@ and then
     (test-scene (colored-rectangles))
     (test-scene (hello-world))
     (test-scene (buttons))
+    (test-scene (slider))
+    (test-scene (scrollbars))
+    (test-scene (icon))
+    (test-scene (text-baseline-alignment))
 
-to run the various tests/demos.
+to run the various tests/demos, or
+
+    (run-all-tests)
+
+to run all tests in sequence.
+
 
 # Other Notes
 
