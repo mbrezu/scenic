@@ -26,6 +26,9 @@ http://code.google.com/p/lispbuilder/issues/detail?id=23), but until
 then this ugly hack is necessary to let Scenic use Cairo to draw on
 SDL surfaces.
 
+(LISPBUILDER-SDL is currently fixed in SVN, will wait for the change
+to propagate to Quicklisp before removing my patch and this warning).
+
 # Install
 
 I assume that your Common Lisp implementation has Quicklisp
