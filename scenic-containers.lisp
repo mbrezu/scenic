@@ -92,11 +92,13 @@
 
 (defmethod measure ((object box) available-width available-height)
   (fill-in-layout-options object)
-  (let ((space-left (- (ifhorizontal object available-width available-height)
-                       (* (1- (length (children object)))
-                          (space-between-cells object))))
-        (sum-n-ext 0))
-    ;; measure pass 1 - measure the pxs and autos while we have space
+  (let* ((total-spacing (* (1- (length (children object)))
+                           (space-between-cells object)))
+         (space-left (- (ifhorizontal object available-width available-height)
+                        total-spacing))
+         (sum-n-ext 0)
+         (allocated-space 0))
+    ;; Measure pass 1 - measure the pxs and autos while we have space.
     (loop
        for lo in (layout-options object)
        for child in (children object)
@@ -104,16 +106,21 @@
             (when (and (> space-left 0)
                        (or (eq :auto lo)
                            (and (consp lo) (eq :px (second lo)))))
-              (cond ((eq :auto lo)
-                     (measure child
-                              (ifhorizontal object space-left available-width)
-                              (ifhorizontal object available-height space-left)))
-                    ((and (consp lo) (eq :px (second lo)))
-                     (measure child
-                              (ifhorizontal object (first lo) available-width)
-                              (ifhorizontal object available-height (first lo)))))
-              (decf space-left (ifhorizontal object (measured-width child)
-                                             (measured-height child))))
+              (let (space-increment)
+                (cond ((eq :auto lo)
+                       (measure child
+                                (ifhorizontal object space-left available-width)
+                                (ifhorizontal object available-height space-left))
+                       (setf space-increment (ifhorizontal object
+                                                           (measured-width child)
+                                                           (measured-height child))))
+                      ((and (consp lo) (eq :px (second lo)))
+                       (measure child
+                                (ifhorizontal object (first lo) available-width)
+                                (ifhorizontal object available-height (first lo)))
+                       (setf space-increment (first lo))))
+                (decf space-left space-increment)
+                (incf allocated-space space-increment)))
             (when (and (consp lo) (eq :ext (second lo)))
               (incf sum-n-ext (first lo)))))
     (when (< space-left 0)
@@ -121,7 +128,8 @@
     (if (> sum-n-ext 0)
         (setf (slice-size object) (truncate (/ space-left sum-n-ext)))
         (setf (slice-size object) 0))
-    ;; measure pass 2 - calculate the slice in the remaining space and measure the exts
+    ;; Measure pass 2 - calculate the slice in the remaining space and
+    ;; measure the exts.
     (loop
        for lo in (layout-options object)
        for child in (children object)
@@ -133,8 +141,17 @@
                                    available-width)
                      (ifhorizontal object
                                    available-height
-                                   (* (first lo) (slice-size object)))))))
-  (call-next-method object available-width available-height))
+                                   (* (first lo) (slice-size object))))
+            (incf allocated-space (* (first lo) (slice-size object)))))
+    (ifhorizontal object
+                  (call-next-method object
+                                    (+ total-spacing allocated-space)
+                                    (apply #'max (mapcar #'measured-height
+                                                         (children object))))
+                  (call-next-method object
+                                    (apply #'max (mapcar #'measured-width
+                                                         (children object)))
+                                    (+ total-spacing allocated-space)))))
 
 (defmethod layout ((object box) left top width height)
   (let ((running (ifhorizontal object left top)))
@@ -142,8 +159,7 @@
        for lo in (layout-options object)
        for child in (children object)
        do (progn
-            (cond ((or (eq :auto lo)
-                       (and (consp lo) (eq :px (second lo))))
+            (cond ((eq :auto lo)
                    (ifhorizontal object
                                  (layout child
                                          running top
@@ -156,6 +172,11 @@
                                                   (space-between-cells object))
                                                (+ (measured-height child)
                                                   (space-between-cells object)))))
+                  ((and (consp lo) (eq :px (second lo)))
+                   (ifhorizontal object
+                                 (layout child running top (first lo) height)
+                                 (layout child left running width (first lo)))
+                   (incf running (+ (first lo) (space-between-cells object))))
                   ((and (consp lo) (eq :ext (second lo)))
                    (ifhorizontal object
                                  (layout child

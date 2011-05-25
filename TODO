@@ -1,12 +1,15 @@
 -*- org -*-
 
-* TODO fillers with multipliers are used by the vertical and horizontal boxes;
+* TODO layout options for boxes
+** DONE add layout options
+** TODO tests for layout options (separate demos for vertical and horizontal)
+** TODO update other tests to use layout options
 * DONE button widget (events, mouse clicks, states);
-* TODO scrollbar;
-** TODO slider;
+* DONE scrollbar;
+** DONE slider;
 *** DONE horizontal
 *** TODO vertical
-** TODO arrow buttons
+** DONE arrow buttons
 * TODO grid layout;
 * TODO scroll view;
 * DONE min/max controls (they force the min/max width/height for their child)

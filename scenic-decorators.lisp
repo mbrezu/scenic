@@ -10,7 +10,11 @@
    (bottom-padding :accessor bottom-padding :initarg :bottom-padding :initform 0)))
 
 (defmethod measure ((object padding) available-width available-height)
-  (let* ((size (measure (child object) available-width available-height))
+  (let* ((size (measure (child object)
+                        (- available-width
+                           (left-padding object) (right-padding object))
+                        (- available-height
+                           (top-padding object) (bottom-padding object))))
          (width (+ (left-padding object) (right-padding object) (first size)))
          (height (+ (top-padding object) (bottom-padding object) (second size))))
     (call-next-method object width height)))
@@ -39,7 +43,9 @@
   (cl-cairo2:stroke))
 
 (defmethod measure ((object border) available-width available-height)
-  (let* ((size (measure (child object) available-width available-height))
+  (let* ((size (measure (child object)
+                        (- available-width (* 2 (stroke-width object)))
+                        (- available-height (* 2 (stroke-width object)))))
          (width (+ (* 2 (stroke-width object)) (first size)))
          (height (+ (* 2 (stroke-width object)) (second size))))
     (call-next-method object width height)))
@@ -48,9 +54,9 @@
   (layout (child object)
           (+ left (stroke-width object))
           (+ top (stroke-width object))
-          (measured-width (child object))
-          (measured-height (child object)))
-  (call-next-method object left top (measured-width object) (measured-height object)))
+          (- width (* 2 (stroke-width object)))
+          (- height (* 2 (stroke-width object))))
+  (call-next-method object left top width height))
 
 ;;; BACKGROUND class.
 
@@ -74,9 +80,9 @@
   (layout (child object)
           left
           top
-          (measured-width (child object))
-          (measured-height (child object)))
-  (call-next-method object left top (measured-width object) (measured-height object)))
+          width
+          height)
+  (call-next-method object left top width height))
 
 ;;; SIZER class.
 

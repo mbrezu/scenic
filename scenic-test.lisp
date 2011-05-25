@@ -145,26 +145,27 @@
          (stk
            (bg (list 1.0 1.0 1.0)
                (flr))
-           (upad 10
-             (hbox 10 nil
-               (border (list 0.3 0.3 0.3)
-                       1
-                       (bg (list 0.7 0.7 0.7)
-                           (upad 3
-                             (lbl "S p" :size 20 :slant :italic))))
-               (border (list 0.3 0.3 0.3)
-                       1
-                       (bg (list 0.7 0.7 0.7)
-                           (upad 3
-                             (lbl "S a"
-                                  :color (list 0.2 0.4 0.6)
-                                  :size 20))))
-               (border (list 0.3 0.3 0.3)
-                       1
-                       (bg (list 0.7 0.7 0.7)
-                           (upad 3
-                             (lbl "s j"
-                                  :size 20 :weight :bold)))))))))
+           (vbox 0 '(:auto)
+             (upad 10
+               (hbox 10 '(:auto :auto :auto)
+                 (border (list 0.3 0.3 0.3)
+                         1
+                         (bg (list 0.7 0.7 0.7)
+                             (upad 3
+                               (lbl "S p" :size 20 :slant :italic))))
+                 (border (list 0.3 0.3 0.3)
+                         1
+                         (bg (list 0.7 0.7 0.7)
+                             (upad 3
+                               (lbl "S a"
+                                    :color (list 0.2 0.4 0.6)
+                                    :size 20))))
+                 (border (list 0.3 0.3 0.3)
+                         1
+                         (bg (list 0.7 0.7 0.7)
+                             (upad 3
+                               (lbl "s j"
+                                    :size 20 :weight :bold))))))))))
 
 (defun run-all-tests ()
   (test-scene (background-clear))
