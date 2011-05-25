@@ -17,7 +17,7 @@
          (stk
            (bg (list 1.0 1.0 1.0)
                (flr))
-           (hbox 5
+           (hbox 5 '(:auto :auto :auto)
              (bg (list 1.0 0.3 0.3)
                  (spc 100 100))
              (bg (list 0.3 1.0 0.3)
@@ -42,7 +42,7 @@
                        (bg (list 1.0 1.0 1.0)
                            (flr))
                        (upad 5
-                         (hbox 10
+                         (hbox 10 nil
                            (border (list 0 0 0) 1 (setf push-button
                                                         (btntxt "Push Button")))
                            (border (list 0 0 0) 1 (setf toggle-button
@@ -74,7 +74,7 @@
                      (stk
                        (bg (list 1.0 1.0 1.0)
                            (flr))
-                       (vbox 10
+                       (vbox 10 nil
                          (upad 5
                            (szr (setf slider (hslider 0 50 30))
                                 :max-width 200
@@ -97,8 +97,8 @@
                        (bg (list 1.0 1.0 1.0)
                            (flr))
                        (upad 5
-                         (hbox 2
-                           (vbox 2
+                         (hbox 2 nil
+                           (vbox 2 nil
                              (bg (list 0.3 0.4 0.5)
                                  (spc 238 238))
                              (szr (setf horizontal-scrollbar (hsbar 0 50 30))
@@ -146,7 +146,7 @@
            (bg (list 1.0 1.0 1.0)
                (flr))
            (upad 10
-             (hbox 10
+             (hbox 10 nil
                (border (list 0.3 0.3 0.3)
                        1
                        (bg (list 0.7 0.7 0.7)

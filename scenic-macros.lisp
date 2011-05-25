@@ -41,10 +41,11 @@
                       :bottom-padding ,g-padding
                       :child ,(first child)))))
 
-(defmacro vbox (space &body children)
+(defmacro vbox (space layout-options &body children)
   `(make-instance 'box
                   :space-between-cells ,space
                   :orientation :vertical
+                  :layout-options ,layout-options
                   :children (list ,@children)))
 
 (defmacro stk (&body children)
@@ -64,10 +65,11 @@
                   :font-slant ,slant
                   :font-weight ,weight))
 
-(defmacro hbox (space &body children)
+(defmacro hbox (space layout-options &body children)
   `(make-instance 'box
                   :space-between-cells ,space
                   :orientation :horizontal
+                  :layout-options ,layout-options
                   :children (list ,@children)))
 
 (defmacro btn (child)
