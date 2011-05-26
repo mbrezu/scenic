@@ -248,28 +248,44 @@
 
 (defmethod initialize-instance :after ((instance grid) &rest initargs)
   (declare (ignore initargs))
+  (apply-children-descriptions instance (children-descriptions instance) 0 0))
+
+(defun apply-children-descriptions (instance descriptions column-offset row-offset)
   (mapc (lambda (description)
-          (cond ((eq :column (first description))
-                 (add-column instance description))
-                ((eq :row (first description))
-                 (add-row instance description))))
-        (children-descriptions instance)))
+          (cond ((eq :columns (first description))
+                 (loop
+                    for children in (rest description)
+                    for column = 0 then (1+ column)
+                    do (add-column instance children column column-offset row-offset)))
+                ((eq :rows (first description))
+                 (loop
+                    for children in (rest description)
+                    for row = 0 then (1+ row)
+                    do (add-row instance children row column-offset row-offset)))
+                ((eq :offset (first description))
+                 (apply-children-descriptions instance
+                                              (nthcdr 3 description)
+                                              (+ column-offset (second description))
+                                              (+ row-offset (third description))))))
+        descriptions))
 
-(defun add-column (grid description)
-  (let ((column (second description))
-        (children (cddr description)))
-    (loop
-       for child in children
-       for row = 0 then (1+ row)
-       do (add-cell grid column row child))))
+(defun add-column (grid children column column-offset row-offset)
+  (loop
+     for child in children
+     for row = 0 then (1+ row)
+     do (add-cell grid
+                  (+ column column-offset)
+                  (+ row row-offset)
+                  child)))
 
-(defun add-row (grid description)
-  (let ((row (second description))
-        (children (cddr description)))
-    (loop
-       for child in children
-       for column = 0 then (1+ column)
-       do (add-cell grid column row child))))
+(defun add-row (grid children row column-offset row-offset)
+  (loop
+     for child in children
+     for column = 0 then (1+ column)
+     do (add-cell grid
+                  (+ column column-offset)
+                  (+ row row-offset)
+                  child)))
 
 (defun add-cell (grid column row child)
   (push child (children grid))
@@ -288,9 +304,8 @@
         0)
     (dotimes (column column-count)
       (dotimes (row row-count)
-        (measure (get-child-at object column row)
-                 (column-slice-size object)
-                 (row-slice-size object)))))
+        (aif (get-child-at object column row)
+             (measure it (column-slice-size object) (row-slice-size object))))))
   (call-next-method object available-width available-height))
 
 (defun get-column-count (grid)
@@ -317,9 +332,10 @@
         (row-count (get-row-count object)))
     (dotimes (column column-count)
       (dotimes (row row-count)
-        (layout (get-child-at object column row)
-                (* column (column-slice-size object))
-                (* row (row-slice-size object))
-                (column-slice-size object)
-                (row-slice-size object)))))
+        (aif (get-child-at object column row)
+             (layout it
+                     (* column (column-slice-size object))
+                     (* row (row-slice-size object))
+                     (column-slice-size object)
+                     (row-slice-size object))))))
   (call-next-method object left top width height))

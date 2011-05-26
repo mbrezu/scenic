@@ -63,3 +63,7 @@
   `(if (eq (orientation ,instance) :horizontal)
        ,horizontal-body
        ,vertical-body))
+
+(defmacro aif (test then &optional (else nil))
+  `(let ((it ,test))
+     (if it ,then ,else)))

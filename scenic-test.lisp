@@ -241,7 +241,7 @@
                              (mapcar #'first strips)
                              (mapcar #'third strips))))))))
 
-(defun grid-scene ()
+(defun grid-basic ()
   (labels ((make-cell (text)
              (upad 3
                (bg (list 0.8 0.8 0.8)
@@ -250,18 +250,57 @@
            (stk
              (bg (list 1.0 1.0 1.0)
                  (flr))
-             (grid `((:column 0
-                              ,(make-cell "Cell 0 0")
-                              ,(make-cell "Cell 0 1")
-                              ,(make-cell "Cell 0 2"))
-                     (:column 1
-                              ,(make-cell "Cell 1 0")
-                              ,(make-cell "Cell 1 1")
-                              ,(make-cell "Cell 1 2"))
-                     (:column 2
-                              ,(make-cell "Cell 2 0")
-                              ,(make-cell "Cell 2 1")
-                              ,(make-cell "Cell 2 2"))))))))
+             (grid `((:columns ,(list (make-cell "Cell 0 0")
+                                      (make-cell "Cell 0 1")
+                                      (make-cell "Cell 0 2"))
+                               ,(list (make-cell "Cell 1 0")
+                                      (make-cell "Cell 1 1")
+                                      (make-cell "Cell 1 2"))
+                               ,(list (make-cell "Cell 2 0")
+                                      (make-cell "Cell 2 1")
+                                      (make-cell "Cell 2 2")))))))))
+
+(defun grid-offset ()
+  (labels ((make-cell (text color)
+             (upad 3
+               (bg color
+                   (upad 10 (lbl text :size 14))))))
+    (let ((color1 (list 0.8 0.8 0.3))
+          (color2 (list 0.3 0.8 0.8))
+          (color3 (list 0.8 0.3 0.8))
+          (color4 (list 0.9 0.3 0.5)))
+      (scene 800 800
+             (stk
+               (bg (list 1.0 1.0 1.0)
+                   (flr))
+               (grid `((:offset 0 0
+                                (:rows ,(list (make-cell "Cell 0 0" color1)
+                                              (make-cell "Cell 1 0" color1))
+                                       ,(list (make-cell "Cell 0 1" color1)
+                                              (make-cell "Cell 1 1" color1))
+                                       ,(list (make-cell "Cell 0 2" color1)
+                                              (make-cell "Cell 1 2" color1))))
+                       (:offset 2 0
+                                (:rows ,(list (make-cell "Cell 2 0" color2)
+                                              (make-cell "Cell 3 0" color2))
+                                       ,(list (make-cell "Cell 2 1" color2)
+                                              (make-cell "Cell 3 1" color2))
+                                       ,(list (make-cell "Cell 2 2" color2)
+                                              (make-cell "Cell 3 2" color2))))
+                       (:offset 4 0
+                                (:rows ,(list (make-cell "Cell 4 0" color3)
+                                              (make-cell "Cell 5 0" color3))
+                                       ,(list (make-cell "Cell 4 1" color3)
+                                              (make-cell "Cell 5 1" color3))
+                                       ,(list (make-cell "Cell 4 2" color3)
+                                              (make-cell "Cell 5 2" color3))))
+                       (:offset 0 3
+                                (:rows ,(list (make-cell "Cell 0 3" color4)
+                                              (make-cell "Cell 1 3" color4)
+                                              (make-cell "Cell 2 3" color4)
+                                              (make-cell "Cell 3 3" color4)
+                                              (make-cell "Cell 4 3" color4)
+                                              (make-cell "Cell 5 3" color4)))))))))))
 
 (defun run-all-tests ()
   (test-scene (background-clear))
@@ -274,4 +313,5 @@
   (test-scene (text-baseline-alignment))
   (test-scene (vbox-layout-options))
   (test-scene (hbox-layout-options))
-  (test-scene (grid-scene)))
+  (test-scene (grid-basic))
+  (test-scene (grid-offset)))
