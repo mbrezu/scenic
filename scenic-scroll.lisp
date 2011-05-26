@@ -155,6 +155,8 @@
   (declare (ignore initargs))
   (let (slider btn-left btn-right)
     (setf (space-between-cells instance) 0)
+    (setf (layout-options instance)
+          '(:auto (1 :ext) :auto))
     (setf (children instance)
           (list (setf btn-left
                       (make-instance

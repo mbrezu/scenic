@@ -17,13 +17,16 @@
          (stk
            (bg (list 1.0 1.0 1.0)
                (flr))
-           (hbox 5 '(:auto :auto :auto)
-             (bg (list 1.0 0.3 0.3)
-                 (spc 100 100))
-             (bg (list 0.3 1.0 0.3)
-                 (spc 100 100))
-             (bg (list 0.3 0.3 1.0)
-                 (spc 100 100))))))
+           (vbox 0
+                 '(:auto)
+                 (list (hbox 5 '(:auto :auto :auto)
+                             (list
+                              (bg (list 1.0 0.3 0.3)
+                                  (spc 100 100))
+                              (bg (list 0.3 1.0 0.3)
+                                  (spc 100 100))
+                              (bg (list 0.3 0.3 1.0)
+                                  (spc 100 100)))))))))
 
 ;;; Hello world!
 (defun hello-world ()
@@ -42,11 +45,18 @@
                        (bg (list 1.0 1.0 1.0)
                            (flr))
                        (upad 5
-                         (hbox 10 nil
-                           (border (list 0 0 0) 1 (setf push-button
-                                                        (btntxt "Push Button")))
-                           (border (list 0 0 0) 1 (setf toggle-button
-                                                        (toggle "Toggle Button"))))))))
+                         (vbox 0
+                               '(:auto)
+                               (list
+                                (hbox 10
+                                      '(:auto :auto)
+                                      (list
+                                       (border (list 0 0 0) 1
+                                               (setf push-button
+                                                     (btntxt "Push Button")))
+                                       (border (list 0 0 0) 1
+                                               (setf toggle-button
+                                                     (toggle "Toggle Button")))))))))))
     (scenic:add-event-handler push-button :mouse-move :cascade
                               (lambda (object event)
                                 (format t "button mouse move: ~a ~a~%" object event)))
@@ -74,11 +84,15 @@
                      (stk
                        (bg (list 1.0 1.0 1.0)
                            (flr))
-                       (vbox 10 nil
-                         (upad 5
-                           (szr (setf slider (hslider 0 50 30))
-                                :max-width 200
-                                :max-height 19))))))
+                       (vbox 10
+                             '(:auto)
+                             (list (upad 5
+                                     (hbox 10
+                                           '(:auto)
+                                           (list
+                                            (szr (setf slider (hslider 0 50 30))
+                                                 :max-width 200
+                                                 :max-height 19)))))))))
     (scenic:add-event-handler slider :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
@@ -97,16 +111,20 @@
                        (bg (list 1.0 1.0 1.0)
                            (flr))
                        (upad 5
-                         (hbox 2 nil
-                           (vbox 2 nil
-                             (bg (list 0.3 0.4 0.5)
-                                 (spc 238 238))
-                             (szr (setf horizontal-scrollbar (hsbar 0 50 30))
-                                  :max-height 19
-                                  :max-width 200))
-                           (szr (setf vertical-scrollbar (vsbar 0 50 30))
-                                :max-width 19
-                                :max-height 200))))))
+                         (hbox 0
+                               '(:auto :auto)
+                               (list
+                                (vbox 0
+                                      '(:auto :auto)
+                                      (list (bg (list 0.3 0.4 0.5)
+                                                (spc 200 200))
+                                            (szr (setf horizontal-scrollbar
+                                                       (hsbar 0 50 30))
+                                                 :max-height 19
+                                                 :max-width 200)))
+                                (szr (setf vertical-scrollbar (vsbar 0 50 30))
+                                     :max-width 19
+                                     :max-height 200)))))))
     (scenic:add-event-handler horizontal-scrollbar :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
@@ -146,26 +164,82 @@
            (bg (list 1.0 1.0 1.0)
                (flr))
            (vbox 0 '(:auto)
-             (upad 10
-               (hbox 10 '(:auto :auto :auto)
-                 (border (list 0.3 0.3 0.3)
-                         1
-                         (bg (list 0.7 0.7 0.7)
-                             (upad 3
-                               (lbl "S p" :size 20 :slant :italic))))
-                 (border (list 0.3 0.3 0.3)
-                         1
-                         (bg (list 0.7 0.7 0.7)
-                             (upad 3
-                               (lbl "S a"
-                                    :color (list 0.2 0.4 0.6)
-                                    :size 20))))
-                 (border (list 0.3 0.3 0.3)
-                         1
-                         (bg (list 0.7 0.7 0.7)
-                             (upad 3
-                               (lbl "s j"
-                                    :size 20 :weight :bold))))))))))
+                 (list
+                  (upad 10
+                    (hbox 10 '(:auto :auto :auto)
+                          (list
+                           (border (list 0.3 0.3 0.3)
+                                   1
+                                   (bg (list 0.7 0.7 0.7)
+                                       (upad 3
+                                         (lbl "S p" :size 20 :slant :italic))))
+                           (border (list 0.3 0.3 0.3)
+                                   1
+                                   (bg (list 0.7 0.7 0.7)
+                                       (upad 3
+                                         (lbl "S a"
+                                              :color (list 0.2 0.4 0.6)
+                                              :size 20))))
+                           (border (list 0.3 0.3 0.3)
+                                   1
+                                   (bg (list 0.7 0.7 0.7)
+                                       (upad 3
+                                         (lbl "s j"
+                                              :size 20 :weight :bold))))))))))))
+
+(defun vbox-layout-options ()
+  (labels ((make-strip (text color &optional (max-height nil))
+             (upad 3
+               (stk
+                 (bg color
+                     (szr (flr) :max-height max-height))
+                 (upad 3 (lbl text :size 18))))))
+    (scene 800 800
+           (stk
+             (bg (list 1.0 1.0 1.0)
+                 (flr))
+             (let ((strips '(((1.0 0.2 0.2) :auto 150)
+                             ((0.2 1.0 0.2) (1 :ext))
+                             ((0.2 0.2 1.0) (2 :ext))
+                             ((0.2 1.0 1.0) (100 :px))
+                             ((1.0 0.2 1.0) (200 :px)))))
+               (vbox 0
+                     (mapcar #'second strips)
+                     (mapcar (lambda (layout-option color max-height)
+                               (make-strip (with-output-to-string (str)
+                                             (prin1 layout-option str))
+                                           color
+                                           max-height))
+                             (mapcar #'second strips)
+                             (mapcar #'first strips)
+                             (mapcar #'third strips))))))))
+
+(defun hbox-layout-options ()
+  (labels ((make-strip (text color &optional (max-width nil))
+             (upad 3
+               (stk
+                 (bg color
+                     (szr (flr) :max-width max-width))
+                 (upad 3 (lbl text :size 18))))))
+    (scene 800 800
+           (stk
+             (bg (list 1.0 1.0 1.0)
+                 (flr))
+             (let ((strips '(((1.0 0.2 0.2) :auto 150)
+                             ((0.2 1.0 0.2) (1 :ext))
+                             ((0.2 0.2 1.0) (2 :ext))
+                             ((0.2 1.0 1.0) (100 :px))
+                             ((1.0 0.2 1.0) (200 :px)))))
+               (hbox 0
+                     (mapcar #'second strips)
+                     (mapcar (lambda (layout-option color max-width)
+                               (make-strip (with-output-to-string (str)
+                                             (prin1 layout-option str))
+                                           color
+                                           max-width))
+                             (mapcar #'second strips)
+                             (mapcar #'first strips)
+                             (mapcar #'third strips))))))))
 
 (defun run-all-tests ()
   (test-scene (background-clear))
@@ -175,8 +249,6 @@
   (test-scene (slider))
   (test-scene (scrollbars))
   (test-scene (icon))
-  (test-scene (text-baseline-alignment)))
-
-
-
-
+  (test-scene (text-baseline-alignment))
+  (test-scene (vbox-layout-options))
+  (test-scene (hbox-layout-options)))

@@ -57,21 +57,10 @@ and running:
 
 and then
 
-    (test-scene (background-clear))
-    (test-scene (colored-rectangles))
-    (test-scene (hello-world))
-    (test-scene (buttons))
-    (test-scene (slider))
-    (test-scene (scrollbars))
-    (test-scene (icon))
-    (test-scene (text-baseline-alignment))
-
-to run the various tests/demos, or
-
     (run-all-tests)
 
-to run all tests in sequence.
-
+to run all tests in sequence. See the definition of `run-all-tests`
+for the list of tests how to run only one test.
 
 # Other Notes
 

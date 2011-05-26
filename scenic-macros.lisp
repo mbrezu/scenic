@@ -41,12 +41,12 @@
                       :bottom-padding ,g-padding
                       :child ,(first child)))))
 
-(defmacro vbox (space layout-options &body children)
-  `(make-instance 'box
-                  :space-between-cells ,space
-                  :orientation :vertical
-                  :layout-options ,layout-options
-                  :children (list ,@children)))
+(defun vbox (space layout-options children)
+  (make-instance 'box
+                 :space-between-cells space
+                 :orientation :vertical
+                 :layout-options layout-options
+                 :children children))
 
 (defmacro stk (&body children)
   `(make-instance 'stack
@@ -65,12 +65,12 @@
                   :font-slant ,slant
                   :font-weight ,weight))
 
-(defmacro hbox (space layout-options &body children)
-  `(make-instance 'box
-                  :space-between-cells ,space
-                  :orientation :horizontal
-                  :layout-options ,layout-options
-                  :children (list ,@children)))
+(defun hbox (space layout-options children)
+  (make-instance 'box
+                 :space-between-cells space
+                 :orientation :horizontal
+                 :layout-options layout-options
+                 :children children))
 
 (defmacro btn (child)
   `(make-instance 'button

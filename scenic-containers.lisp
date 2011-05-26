@@ -197,7 +197,8 @@
 (defmethod measure ((object stack) available-width available-height)
   (apply #'call-next-method
          object
-         (max-box (mapcar #'(lambda (widget) (measure widget available-width available-height))
+         (max-box (mapcar #'(lambda (widget)
+                              (measure widget available-width available-height))
                           (children object)))))
 
 (defmethod layout ((object stack) left top width height)
