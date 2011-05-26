@@ -9,7 +9,7 @@
 (defun change-clickable-state (clickable new-state)
   (setf (click-state clickable) new-state))
 
-(defmethod initialize-instance :after ((instance clickable) &rest initargs &key &allow-other-keys)
+(defmethod initialize-instance :after ((instance clickable) &rest initargs)
   (declare (ignore initargs))
   (let ((is-inside nil))
     (add-event-handler instance :mouse-button-down :bubble
@@ -81,8 +81,7 @@
 (defclass toggle-button (button stateful)
   ())
 
-(defmethod initialize-instance :after ((instance toggle-button)
-                                       &rest initargs &key &allow-other-keys)
+(defmethod initialize-instance :after ((instance toggle-button) &rest initargs)
   (declare (ignore initargs))
   (add-event-handler instance :click :bubble
                      (lambda (instance event)

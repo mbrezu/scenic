@@ -241,6 +241,28 @@
                              (mapcar #'first strips)
                              (mapcar #'third strips))))))))
 
+(defun grid-scene ()
+  (labels ((make-cell (text)
+             (upad 3
+               (bg (list 0.8 0.8 0.8)
+                   (upad 10 (lbl text :size 14))))))
+    (scene 800 800
+           (stk
+             (bg (list 1.0 1.0 1.0)
+                 (flr))
+             (grid `((:column 0
+                              ,(make-cell "Cell 0 0")
+                              ,(make-cell "Cell 0 1")
+                              ,(make-cell "Cell 0 2"))
+                     (:column 1
+                              ,(make-cell "Cell 1 0")
+                              ,(make-cell "Cell 1 1")
+                              ,(make-cell "Cell 1 2"))
+                     (:column 2
+                              ,(make-cell "Cell 2 0")
+                              ,(make-cell "Cell 2 1")
+                              ,(make-cell "Cell 2 2"))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -251,4 +273,5 @@
   (test-scene (icon))
   (test-scene (text-baseline-alignment))
   (test-scene (vbox-layout-options))
-  (test-scene (hbox-layout-options)))
+  (test-scene (hbox-layout-options))
+  (test-scene (grid-scene)))

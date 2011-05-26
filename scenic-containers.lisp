@@ -8,7 +8,7 @@
 
 (declaim (optimize (debug 3)))
 
-(defmethod initialize-instance :after ((instance container) &rest initargs &key &allow-other-keys)
+(defmethod initialize-instance :after ((instance container) &rest initargs)
   (declare (ignore initargs))
   (mapc (lambda (widget)
           (setf (parent widget) instance))
@@ -212,7 +212,7 @@
 (defclass container1 (widget)
   ((child :accessor child :initarg :child :initform nil)))
 
-(defmethod initialize-instance :after ((instance container1) &rest initargs &key &allow-other-keys)
+(defmethod initialize-instance :after ((instance container1) &rest initargs)
   (declare (ignore initargs))
   (setf (parent (child instance)) instance))
 
@@ -222,3 +222,104 @@
 
 (defmethod (setf child) :after (value (instance container1))
   (setf (parent value) instance))
+
+;;; GRID class.
+
+(defclass grid (container orientable)
+  ((column-layout-options :accessor column-layout-options
+                          :initarg :column-layout-options
+                          :initform nil)
+   (row-layout-options :accessor row-layout-options
+                       :initarg :row-layout-options
+                       :initform nil)
+   (children-locations :accessor children-locations
+                       :initarg :children-locations
+                       :initform nil)
+   (children-descriptions :accessor children-descriptions
+                          :initarg :children-descriptions
+                          :initform nil)
+
+   (column-slice-size :accessor column-slice-size
+                      :initarg :column-slice-size
+                      :initform nil)
+   (row-slice-size :accessor row-slice-size
+                   :initarg :row-slice-size
+                   :initform nil)))
+
+(defmethod initialize-instance :after ((instance grid) &rest initargs)
+  (declare (ignore initargs))
+  (mapc (lambda (description)
+          (cond ((eq :column (first description))
+                 (add-column instance description))
+                ((eq :row (first description))
+                 (add-row instance description))))
+        (children-descriptions instance)))
+
+(defun add-column (grid description)
+  (let ((column (second description))
+        (children (cddr description)))
+    (loop
+       for child in children
+       for row = 0 then (1+ row)
+       do (add-cell grid column row child))))
+
+(defun add-row (grid description)
+  (let ((row (second description))
+        (children (cddr description)))
+    (loop
+       for child in children
+       for column = 0 then (1+ column)
+       do (add-cell grid column row child))))
+
+(defun add-cell (grid column row child)
+  (push child (children grid))
+  (push (list column row) (children-locations grid)))
+
+(defmethod measure ((object grid) available-width available-height)
+  (let ((column-count (get-column-count object))
+        (row-count (get-row-count object)))
+    (if (> column-count 0)
+        (setf (column-slice-size object)
+              (truncate (/ available-width column-count)))
+        0)
+    (if (> row-count 0)
+        (setf (row-slice-size object)
+              (truncate (/ available-width row-count)))
+        0)
+    (dotimes (column column-count)
+      (dotimes (row row-count)
+        (measure (get-child-at object column row)
+                 (column-slice-size object)
+                 (row-slice-size object)))))
+  (call-next-method object available-width available-height))
+
+(defun get-column-count (grid)
+  (1+
+   (apply #'max (mapcar #'first (children-locations grid)))))
+
+(defun get-row-count (grid)
+  (1+
+   (apply #'max (mapcar #'second (children-locations grid)))))
+
+(defun get-child-at (object column row)
+  (let (result)
+    (loop
+       for child in (children object)
+       for location in (children-locations object)
+       when (and (= column (first location))
+                 (= row (second location)))
+       do (setf result child)
+       until result)
+    result))
+
+(defmethod layout ((object grid) left top width height)
+  (let ((column-count (get-column-count object))
+        (row-count (get-row-count object)))
+    (dotimes (column column-count)
+      (dotimes (row row-count)
+        (layout (get-child-at object column row)
+                (* column (column-slice-size object))
+                (* row (row-slice-size object))
+                (column-slice-size object)
+                (row-slice-size object)))))
+  (call-next-method object left top width height))

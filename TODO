@@ -1,16 +1,20 @@
 -*- org -*-
 
-* TODO layout options for boxes
+* DONE layout options for boxes
 ** DONE add layout options
-** TODO tests for layout options (separate demos for vertical and horizontal)
-** TODO update other tests to use layout options
+** DONE tests for layout options (separate demos for vertical and horizontal)
+** DONE update other tests to use layout options
 * DONE button widget (events, mouse clicks, states);
 * DONE scrollbar;
 ** DONE slider;
 *** DONE horizontal
-*** TODO vertical
+*** DONE vertical
 ** DONE arrow buttons
 * TODO grid layout;
+** DONE first cut;
+** TODO add row and column layout options (similar to boxes);
+** TODO change vertical and horizontal boxes to be one dimensional grids
+** TODO add aligner widgets that use a grid to align their child
 * TODO scroll view;
 * DONE min/max controls (they force the min/max width/height for their child)
 * TODO text box;

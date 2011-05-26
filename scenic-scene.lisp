@@ -173,7 +173,7 @@
     (cascade-then-bubble widget-chain event mouse-event)
     (scene-handle-mouse-captors scene event mouse-event)))
 
-(defmethod initialize-instance :after ((instance scene) &rest initargs &key &allow-other-keys)
+(defmethod initialize-instance :after ((instance scene) &rest initargs)
   (declare (ignore initargs))
   (setf (parent (widget instance)) instance))
 

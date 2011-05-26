@@ -128,3 +128,7 @@
 (defmacro img (image-path)
   `(make-instance 'image
                   :image (get-image ,image-path)))
+
+(defun grid (children-descriptions)
+  (make-instance 'grid
+                 :children-descriptions children-descriptions))

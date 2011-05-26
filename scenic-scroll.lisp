@@ -57,8 +57,7 @@
       (get-walker-coordinates slider)
     (in-rectangle x y left top width height)))
 
-(defmethod initialize-instance :after ((instance slider)
-                                       &rest initargs &key &allow-other-keys)
+(defmethod initialize-instance :after ((instance slider) &rest initargs)
   (declare (ignore initargs))
   (let ((dragging nil))
     (add-event-handler instance :mouse-button-down :bubble
@@ -150,8 +149,7 @@
                          :initarg :current-min-position :initform nil)
    (slider :accessor slider :initarg :slider :initform nil)))
 
-(defmethod initialize-instance :after ((instance scrollbar)
-                                       &rest initargs &key &allow-other-keys)
+(defmethod initialize-instance :after ((instance scrollbar) &rest initargs)
   (declare (ignore initargs))
   (let (slider btn-left btn-right)
     (setf (space-between-cells instance) 0)
