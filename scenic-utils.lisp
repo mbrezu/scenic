@@ -67,3 +67,15 @@
 (defmacro aif (test then &optional (else nil))
   `(let ((it ,test))
      (if it ,then ,else)))
+
+(defun make-keyword (str)
+  (intern (string-upcase str) "KEYWORD"))
+
+(defmacro set-from-options (options &rest variables)
+  (let ((goption (gensym "option")))
+    `(loop
+        for ,goption in ,options
+          ,@(mapcan (lambda (var)
+                      `(when (eq ,(make-keyword (symbol-name var)) (car ,goption))
+                         do (setf ,var (cdr ,goption))))
+                    variables))))

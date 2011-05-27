@@ -13,6 +13,7 @@
 * TODO grid layout;
 ** DONE first cut;
 ** DONE add offsets on the cell arrangement DSL;
+** DONE add column and row spans;
 ** TODO add row and column layout options (similar to boxes);
 ** TODO change vertical and horizontal boxes to be one dimensional grids
 ** TODO add aligner widgets that use a grid to align their child
