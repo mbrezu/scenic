@@ -76,14 +76,13 @@
   (loop
      for child in children
      with column = 0
-     do
-       (multiple-value-bind (colspan rowspan)
-           (add-cell grid
-                     (+ column column-offset)
-                     (+ row row-offset)
-                     child)
-         (declare (ignore rowspan))
-         (incf column colspan))))
+     do (multiple-value-bind (colspan rowspan)
+            (add-cell grid
+                      (+ column column-offset)
+                      (+ row row-offset)
+                      child)
+          (declare (ignore rowspan))
+          (incf column colspan))))
 
 (defun add-cell (grid column row child)
   (cond ((and (consp child) (eq :cell (first child)))
@@ -105,104 +104,222 @@
              (values colspan rowspan))))
         (t (error (format nil "Invalid cell description ~a." child)))))
 
-(defmethod measure ((object grid) available-width available-height)
-  (let ((column-count (get-column-count object))
-        (row-count (get-row-count object))
+(defun calculate-widths-heights (object available-width available-height)
+  (let (column-count
+        row-count
         (current-available-width available-width)
-        (current-available-height available-height))
+        (current-available-height available-height)
+        (column-ext-sum 0)
+        (row-ext-sum 0)
+        auto-cells)
+
+    ;; Calculate the dimensions of the grid.
+    (setf (values column-count row-count) (get-dimensions object))
+
     ;; Fill lists of layout options so we don't run into trouble later.
-    (setf (column-layout-options object)
-          (fill-list (column-layout-options object) column-count '(1 :ext)))
-    (setf (row-layout-options object)
-          (fill-list (row-layout-options object) row-count '(1 :ext)))
+    (fill-in-grid-layout-options object column-count row-count)
+
     ;; Determine available horizontal and vertical space (subtract px
     ;; sizes from available sizes).
-    (loop
-       for lo in (column-layout-options object)
-       when (and (consp lo) (eq :px (second lo)))
-       do (decf current-available-width (first lo)))
-    (loop
-       for lo in (row-layout-options object)
-       when (and (consp lo) (eq :px (second lo)))
-       do (decf current-available-height (first lo)))
+    (decf current-available-width
+          (sum-layout-option (column-layout-options object) :px))
+    (decf current-available-height
+          (sum-layout-option (row-layout-options object) :px))
 
     ;; Determine the cells that have auto as layout option either
-    ;; vertically or horizontally and have colspan/rowspan 1.
-    (let ((auto-cells (make-array (list row-count column-count))))
-      (loop
-         for lo in (column-layout-options object)
-         for column-index = 0 then (1+ column-index)
-         when (eq :auto lo)
-         do (loop
-               for row-index from 0 to row-count
-               ;; when (spans-are-1 (get-child-options column-index row-index))
-               do
-                 (setf (aref auto-cells row-index column-index)
-                       (get-child-at object column-index row-index))))
-      (loop
-         for lo in (row-layout-options object)
-         for row-index = 0 then (1+ row-index)
-         when (eq :auto lo)
-         do (loop
-               for column-index from 0 to column-count
-               ;; when (spans-are-1 (get-child-options column-index row-index))
-               do (setf (aref auto-cells row-index column-index)
-                        (get-child-at object column-index row-index)))))
-
+    ;; vertically or horizontally and have the relevant span 1.
+    (setf auto-cells (determine-auto-cells object column-count row-count))
     ;; Measure them (using the grid dimensions - sum of px sizes) to
     ;; determine the column/row sizes for auto; if an auto dimension
     ;; can't be determined, it is changed to (1 :ext).
-    (if (> column-count 0)
+    (multiple-value-bind (auto-column-widths auto-row-heights)
+        (measure-autos auto-cells
+                       column-count row-count
+                       current-available-width current-available-height)
+      ;; Allocate the space for the autos in the column
+      ;; widths. Allocate 0 width if all the space has already been
+      ;; allocated.
+      (setf (column-widths object) (make-array column-count :initial-element 0))
+      (setf current-available-width (allocate-auto auto-column-widths
+                                                   (column-widths object)
+                                                   current-available-width))
+
+      ;; Same operation as above for rows.
+      (setf (row-heights object) (make-array row-count :initial-element 0))
+      (setf current-available-height (allocate-auto auto-row-heights
+                                                    (row-heights object)
+                                                    current-available-height)))
+
+    ;; Determine the sum of ext parameters for columns and rows.
+    (setf column-ext-sum (sum-layout-option (column-layout-options object) :ext))
+    (setf row-ext-sum (sum-layout-option (row-layout-options object) :ext))
+
+    (if (> column-ext-sum 0)
         (setf (column-slice-size object)
-              (truncate (/ available-width column-count)))
+              (truncate (/ current-available-width column-ext-sum)))
         0)
-    (if (> row-count 0)
+    (if (> row-ext-sum 0)
         (setf (row-slice-size object)
-              (truncate (/ available-width row-count)))
+              (truncate (/ current-available-height row-ext-sum)))
         0)
-    (dotimes (column column-count)
-      (dotimes (row row-count)
-        (aif (get-child-at object column row)
-             (let ((colspan 1)
-                   (rowspan 1))
-               (set-from-options (second it) colspan rowspan)
-               (measure (first it)
-                        (* colspan (column-slice-size object))
-                        (* rowspan (row-slice-size object))))))))
+
+    ;; Determine the space for px and ext columns.
+    (allocate-px-ext (column-layout-options object)
+                     (column-widths object)
+                     (column-slice-size object))
+
+    ;; Determine the space for px and ext rows.
+    (allocate-px-ext (row-layout-options object)
+                     (row-heights object)
+                     (row-slice-size object))
+
+    ;; Measure the rest of the widgets.
+    (loop
+       for location in (children-locations object)
+       for child in (children object)
+       for options in (children-options object)
+       ;; If it's in auto-cells, it's already measured.
+       unless (aref auto-cells (second location) (first location))
+       do (let ((colspan 1)
+                (rowspan 1))
+            (set-from-options options colspan rowspan)
+            (measure child
+                     (get-size (column-widths object) (first location) colspan)
+                     (get-size (row-heights object) (second location) rowspan))))))
+
+(defmethod measure ((object grid) available-width available-height)
   (call-next-method object available-width available-height))
 
-(defun get-column-count (grid)
-  (1+
-   (apply #'max (mapcar #'first (children-locations grid)))))
+(defun get-size (size-array start length)
+  (loop
+     for i from start to (1- (+ start length))
+     sum (aref size-array i)))
 
-(defun get-row-count (grid)
-  (1+
-   (apply #'max (mapcar #'second (children-locations grid)))))
+(defun sum-layout-option (layout-options kind)
+  (loop
+     for lo in layout-options
+     when (and (consp lo) (eq kind (second lo)))
+     sum (first lo)))
+
+(defun allocate-auto (auto-size-array size-array current-available-space)
+  (dotimes (idx (length size-array))
+    (let ((space (min current-available-space (aref auto-size-array idx))))
+      (setf (aref size-array idx) space)
+      (decf current-available-space space)))
+  current-available-space)
+
+(defun allocate-px-ext (layout-options size-array slice-size)
+  (loop
+     for lo in layout-options
+     for idx = 0 then (1+ idx)
+     when (and (consp lo) (eq :ext (second lo)))
+     do (setf (aref size-array idx) (* (first lo) slice-size))
+     when (and (consp lo) (eq :px (second lo)))
+     do (setf (aref size-array idx)
+              (first lo))))
+
+(defun fill-in-grid-layout-options (object column-count row-count)
+  (setf (column-layout-options object)
+        (fill-list (column-layout-options object) column-count '(1 :ext)))
+  (setf (row-layout-options object)
+        (fill-list (row-layout-options object) row-count '(1 :ext))))
+
+(defun measure-autos (auto-cells
+                      column-count row-count
+                      current-available-width current-available-height)
+  (let ((column-widths (make-array column-count :initial-element 0))
+        (row-heights (make-array row-count)))
+    (dotimes (column column-count)
+      (dotimes (row row-count)
+        (aif (aref auto-cells row column)
+             (let ((width-height
+                    (measure it current-available-width current-available-height)))
+               (when (> (first width-height) (aref column-widths column))
+                 (setf (aref column-widths column) (first width-height)))
+               (when (> (second width-height) (aref row-heights row))
+                 (setf (aref row-heights column) (second width-height)))))))
+    (values column-widths row-heights)))
+
+(defun determine-auto-cells (object column-count row-count)
+  (let ((auto-cells (make-array (list row-count column-count)
+                                :initial-element nil)))
+    (loop
+       for lo in (column-layout-options object)
+       for column-index = 0 then (1+ column-index)
+       when (eq :auto lo)
+       do (loop
+             for row-index from 0 to row-count
+             when (aif (get-child-at object column-index row-index)
+                       (colspan-1 (first it)))
+             do
+               (setf (aref auto-cells row-index column-index)
+                     (get-child-at object column-index row-index))))
+    (loop
+       for lo in (row-layout-options object)
+       for row-index = 0 then (1+ row-index)
+       when (eq :auto lo)
+       do (loop
+             for column-index from 0 to column-count
+             when (aif (get-child-at object column-index row-index)
+                       (rowspan-1 (first it)))
+             do (setf (aref auto-cells row-index column-index)
+                      (get-child-at object column-index row-index))))
+    auto-cells))
+
+(defun colspan-1 (options)
+  (let ((colspan 1))
+    (set-from-options options colspan)
+    (= 1 colspan)))
+
+(defun rowspan-1 (options)
+  (let ((rowspan 1))
+    (set-from-options options rowspan)
+    (= 1 rowspan)))
+
+(defun get-dimensions (grid)
+  (let ((column-count 0)
+        (row-count 0))
+    (loop
+       for location in (children-locations grid)
+       for options in (children-options grid)
+       do (let ((colspan 1)
+                (rowspan 1))
+            (set-from-options options colspan rowspan)
+            (setf column-count (max column-count (+ (first location) colspan)))
+            (setf row-count (max row-count (+ (second location) rowspan)))))
+    (values column-count row-count)))
 
 (defun get-child-at (object column row)
-  (let (result)
-    (loop
-       for child in (children object)
-       for option in (children-options object)
-       for location in (children-locations object)
-       when (and (= column (first location))
-                 (= row (second location)))
-       do (setf result (list child option))
-       until result)
+  (loop
+     for child in (children object)
+     for option in (children-options object)
+     for location in (children-locations object)
+     when (and (= column (first location))
+               (= row (second location)))
+     return (list child option)))
+
+(defun get-offsets (size-array)
+  (let ((result (make-array (length size-array) :initial-element 0))
+        (running-total 0))
+    (dotimes (idx (length size-array))
+      (setf (aref result idx) running-total)
+      (incf running-total (aref size-array idx)))
     result))
 
 (defmethod layout ((object grid) left top width height)
-  (let ((column-count (get-column-count object))
-        (row-count (get-row-count object)))
-    (dotimes (column column-count)
-      (dotimes (row row-count)
-        (aif (get-child-at object column row)
-             (let ((colspan 1)
-                   (rowspan 1))
-               (set-from-options (second it) colspan rowspan)
-               (layout (first it)
-                       (* column (column-slice-size object))
-                       (* row (row-slice-size object))
-                       (* colspan (column-slice-size object))
-                       (* rowspan (row-slice-size object))))))))
+  (calculate-widths-heights object width height)
+  (let ((column-left (get-offsets (column-widths object)))
+        (row-top (get-offsets (row-heights object))))
+    (loop
+       for child in (children object)
+       for location in (children-locations object)
+       for options in (children-options object)
+       do (let ((colspan 1)
+                (rowspan 1))
+            (set-from-options options colspan rowspan)
+            (layout child
+                    (aref column-left (first location))
+                    (aref row-top (second location))
+                    (get-size (column-widths object) (first location) colspan)
+                    (get-size (row-heights object) (second location) rowspan)))))
   (call-next-method object left top width height))

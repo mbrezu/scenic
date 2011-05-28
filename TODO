@@ -1,3 +1,4 @@
+
 -*- org -*-
 
 * DONE layout options for boxes
@@ -15,6 +16,9 @@
 ** DONE add offsets on the cell arrangement DSL;
 ** DONE add column and row spans;
 ** TODO add row and column layout options (similar to boxes);
+*** DONE first cut;
+*** TODO move the grid into its own package (it has many helper functions)
+*** TODO write some tests for the column/row layout options
 ** TODO change vertical and horizontal boxes to be one dimensional grids
 ** TODO add aligner widgets that use a grid to align their child
 * TODO scroll view;
@@ -25,4 +29,5 @@
 * TODO combo box;
 * TODO checkbox/radio box;
 * TODO themes/widget factories;
+* TODO unit tests (e.g. for the grid layout)
 

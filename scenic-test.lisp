@@ -4,16 +4,22 @@
 (defun test-scene (scene)
   (scenic:run-scene scene))
 
+(defvar *scene-width*)
+(setf *scene-width* 600)
+
+(defvar *scene-height*)
+(setf *scene-height* 600)
+
 ;;; A very simple scene that clears the screen.
 (defun background-clear ()
-  (scene 800 800
+  (scene *scene-width* *scene-height*
          (stk
            (bg (list 1.0 1.0 1.0)
                (flr)))))
 
 ;;; A scene with a couple of rectangles
 (defun colored-rectangles ()
-  (scene 800 800
+  (scene *scene-width* *scene-height*
          (stk
            (bg (list 1.0 1.0 1.0)
                (flr))
@@ -30,7 +36,7 @@
 
 ;;; Hello world!
 (defun hello-world ()
-  (scene 800 800
+  (scene *scene-width* *scene-height*
          (stk
            (bg (list 1.0 1.0 1.0)
                (flr))
@@ -40,7 +46,7 @@
 ;;; Button test
 (defun buttons ()
   (let (scn push-button toggle-button)
-    (setf scn (scene 800 800
+    (setf scn (scene *scene-width* *scene-height*
                      (stk
                        (bg (list 1.0 1.0 1.0)
                            (flr))
@@ -80,7 +86,7 @@
 
 (defun slider ()
   (let (scn slider)
-    (setf scn (scene 800 800
+    (setf scn (scene *scene-width* *scene-height*
                      (stk
                        (bg (list 1.0 1.0 1.0)
                            (flr))
@@ -106,7 +112,7 @@
 
 (defun scrollbars ()
   (let (scn horizontal-scrollbar vertical-scrollbar)
-    (setf scn (scene 800 800
+    (setf scn (scene *scene-width* *scene-height*
                      (stk
                        (bg (list 1.0 1.0 1.0)
                            (flr))
@@ -144,7 +150,7 @@
     scn))
 
 (defun icon ()
-  (scene 800 800
+  (scene *scene-width* *scene-height*
          (stk
            (bg (list 1.0 1.0 1.0)
                (flr))
@@ -159,7 +165,7 @@
                     :max-width 16))))))
 
 (defun text-baseline-alignment ()
-  (scene 800 800
+  (scene *scene-width* *scene-height*
          (stk
            (bg (list 1.0 1.0 1.0)
                (flr))
@@ -194,7 +200,7 @@
                  (bg color
                      (szr (flr) :max-height max-height))
                  (upad 3 (lbl text :size 18))))))
-    (scene 800 800
+    (scene *scene-width* *scene-height*
            (stk
              (bg (list 1.0 1.0 1.0)
                  (flr))
@@ -221,7 +227,7 @@
                  (bg color
                      (szr (flr) :max-width max-width))
                  (upad 3 (lbl text :size 18))))))
-    (scene 800 800
+    (scene *scene-width* *scene-height*
            (stk
              (bg (list 1.0 1.0 1.0)
                  (flr))
@@ -246,7 +252,7 @@
              (upad 3
                (bg (list 0.8 0.8 0.8)
                    (upad 10 (lbl text :size 14))))))
-    (scene 800 800
+    (scene *scene-width* *scene-height*
            (stk
              (bg (list 1.0 1.0 1.0)
                  (flr))
@@ -271,7 +277,7 @@
           (color2 (list 0.3 0.8 0.8))
           (color3 (list 0.8 0.3 0.8))
           (color4 (list 0.9 0.3 0.5)))
-      (scene 800 800
+      (scene *scene-width* *scene-height*
              (stk
                (bg (list 1.0 1.0 1.0)
                    (flr))
@@ -315,7 +321,7 @@
           (color2 (list 0.3 0.8 0.8))
           (color3 (list 0.8 0.3 0.8))
           (color4 (list 0.9 0.3 0.5)))
-      (scene 800 800
+      (scene *scene-width* *scene-height*
              (stk
                (bg (list 1.0 1.0 1.0)
                    (flr))

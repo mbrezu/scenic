@@ -10,7 +10,6 @@
 (load (compile-file "scenic-classes.lisp"))
 (load (compile-file "scenic-containers.lisp"))
 (load (compile-file "scenic-grid.lisp"))
-(load (compile-file "grid/test.lisp"))
 (load (compile-file "scenic-scene.lisp"))
 (load (compile-file "scenic-decorators.lisp"))
 (load (compile-file "scenic-buttons.lisp"))
