@@ -79,3 +79,13 @@
                       `(when (eq ,(make-keyword (symbol-name var)) (car ,goption))
                          do (setf ,var (cdr ,goption))))
                     variables))))
+
+(defun fill-list (list desired-count element)
+  (let ((add-count (- desired-count (length list))))
+    (if (> add-count 0)
+        (append list
+                (loop
+                   for i from 1 to add-count
+                   collect element))
+        list)))
+

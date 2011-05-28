@@ -250,7 +250,9 @@
            (stk
              (bg (list 1.0 1.0 1.0)
                  (flr))
-             (grid `((:column (:cell ,(make-cell "Cell 0 0"))
+             (grid nil
+                   nil
+                   `((:column (:cell ,(make-cell "Cell 0 0"))
                               (:cell ,(make-cell "Cell 0 1"))
                               (:cell ,(make-cell "Cell 0 2")))
                      (:column (:cell ,(make-cell "Cell 1 0"))
@@ -273,7 +275,9 @@
              (stk
                (bg (list 1.0 1.0 1.0)
                    (flr))
-               (grid `((:offset 0 0
+               (grid nil
+                     nil
+                     `((:offset 0 0
                                 (:row (:cell ,(make-cell "Cell 0 0" color1))
                                       (:cell ,(make-cell "Cell 1 0" color1)))
                                 (:row (:cell ,(make-cell "Cell 0 1" color1))
@@ -315,7 +319,9 @@
              (stk
                (bg (list 1.0 1.0 1.0)
                    (flr))
-               (grid `((:offset 0 0
+               (grid nil
+                     nil
+                     `((:offset 0 0
                                 (:row (:cell :colspan 2 ,(make-cell "Cell 0 0" color1)))
                                 (:row (:cell ,(make-cell "Cell 0 1" color1))
                                       (:cell :rowspan 2 ,(make-cell "Cell 1 1" color1)))

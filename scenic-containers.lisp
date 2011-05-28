@@ -43,7 +43,7 @@
 ;;
 ;; * :auto - the child will take as much space as it requires;
 ;; * '(n :px) - n is the size in pixels for the child;
-;; * '(n :ext) - the child fill fill the space proportionally;
+;; * '(n :ext) - the child will fill the space proportionally;
 ;;
 ;; If the option is '(n ext), n is used to determine the child's share
 ;; in the remaining space (if all exts have n 1, they will receive an
@@ -77,14 +77,8 @@
 (declaim (optimize (debug 3)))
 
 (defun fill-in-layout-options (box)
-  (let* ((children-count (length (children box)))
-         (layout-options-count (length (layout-options box))))
-    (when (< layout-options-count children-count)
-      (setf (layout-options box)
-            (append (layout-options box)
-                    (loop
-                       for i from 1 to (- children-count layout-options-count)
-                       collect '(1 :ext)))))))
+  (setf (layout-options box)
+        (fill-list (layout-options box) (length (children box)) '(1 :ext))))
 
 (defun f. (f1 f2)
   (lambda (x)

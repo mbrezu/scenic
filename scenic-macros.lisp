@@ -129,6 +129,8 @@
   `(make-instance 'image
                   :image (get-image ,image-path)))
 
-(defun grid (children-descriptions)
+(defun grid (column-layout-options row-layout-options children-descriptions)
   (make-instance 'grid
+                 :column-layout-options column-layout-options
+                 :row-layout-options row-layout-options
                  :children-descriptions children-descriptions))
