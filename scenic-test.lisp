@@ -102,11 +102,11 @@
     (scenic:add-event-handler slider :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
-                                (scenic-utils:print-all t
-                                                        (scenic:current-min-position object)
-                                                        (scenic:page-size object)
-                                                        (scenic:min-value object)
-                                                        (scenic:max-value object))))
+                                (print-all t
+                                           (scenic:current-min-position object)
+                                           (scenic:page-size object)
+                                           (scenic:min-value object)
+                                           (scenic:max-value object))))
 
     scn))
 
@@ -134,19 +134,19 @@
     (scenic:add-event-handler horizontal-scrollbar :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
-                                (scenic-utils:print-all t
-                                                        (scenic:current-min-position object)
-                                                        (scenic:page-size object)
-                                                        (scenic:min-value object)
-                                                        (scenic:max-value object))))
+                                (print-all t
+                                           (scenic:current-min-position object)
+                                           (scenic:page-size object)
+                                           (scenic:min-value object)
+                                           (scenic:max-value object))))
     (scenic:add-event-handler vertical-scrollbar :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
-                                (scenic-utils:print-all t
-                                                        (scenic:current-min-position object)
-                                                        (scenic:page-size object)
-                                                        (scenic:min-value object)
-                                                        (scenic:max-value object))))
+                                (print-all t
+                                           (scenic:current-min-position object)
+                                           (scenic:page-size object)
+                                           (scenic:min-value object)
+                                           (scenic:max-value object))))
     scn))
 
 (defun icon ()
@@ -392,6 +392,42 @@
                                       (:cell ,(make-cell "Cell 4 3" color4))
                                       (:cell ,(make-cell "Cell 5 3" color4)))))))))))
 
+(defun grid-layout-options-2 ()
+  (let ((max-height 30))
+    (labels ((make-prompt-cell (text color)
+               (upad 3
+                      (bg color
+                          (upad 3 (lbl text :size 14)))))
+             (make-text-cell (color1 color2)
+               (szr (upad 3
+                      (border color1 1
+                              (bg color2 (flr))))
+                    :max-height max-height))
+             (make-button-cell (text)
+               (upad 3
+                      (btntxt text))))
+      (let ((color1 (list 0.8 0.8 0.3))
+            (black (list 0.0 0.0 0.0)))
+        (scene *scene-width* *scene-height*
+               (stk
+                 (bg (list 1.0 1.0 1.0)
+                     (flr))
+                 (grid '((150 :px) (1 :ext) :auto)
+                       '(:auto (100 :px) (50 :px) (1 :ext))
+                       `((:offset 0 0
+                                  (:row (:cell ,(make-prompt-cell "Field 1:" color1))
+                                        (:cell ,(make-text-cell black color1))
+                                        (:cell ,(make-button-cell "Activate")))
+                                  (:row (:cell ,(make-prompt-cell "Field 2:" color1))
+                                        (:cell ,(make-text-cell black color1))
+                                        (:cell ,(make-button-cell "Deactivate")))
+                                  (:row (:cell ,(make-prompt-cell "Field 3:" color1))
+                                        (:cell ,(make-text-cell black color1))
+                                        (:cell ,(make-button-cell "Edit")))
+                                  (:row (:cell ,(make-prompt-cell "Field 4:" color1))
+                                        (:cell ,(make-text-cell black color1))
+                                        (:cell ,(make-button-cell "Filler"))))))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -406,4 +442,5 @@
   (test-scene (grid-basic))
   (test-scene (grid-offset))
   (test-scene (grid-spans))
-  (test-scene (grid-layout-options)))
+  (test-scene (grid-layout-options))
+  (test-scene (grid-layout-options-2)))

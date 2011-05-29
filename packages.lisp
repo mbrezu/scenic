@@ -50,5 +50,5 @@
            btn btntxt toggle hslider szr arr hsbar vsbar img grid))
 
 (defpackage :scenic-test
-  (:use :cl :scenic-macros))
+  (:use :cl :scenic-macros :scenic-utils))
 
