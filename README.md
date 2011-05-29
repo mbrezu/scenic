@@ -2,16 +2,43 @@
 
 # Introduction
 
-A simple scene renderer/GUI.
+A simple GUI toolkit.
 
          "Hamill: How was the road in?
           Miller: Scenic."
                  from "Saving Private Ryan"
 
-Uses SDL via LISPBUILDER to define a sane way to draw 2D scenes and
-graphical user interfaces.
+It uses Cairo for drawing and SDL as an event source and on-screen
+rendering.
 
-Drawing is done using Cairo.
+# Personal Motivation
+
+I'm a Common Lisp newbie and I want to learn more. A long time ago I
+was told that the best way to learn a language is to use it in a
+project. This advice helped me everytime I tried using it. This is the
+project I use to learn more about Common Lisp.
+
+These are some of the questions I'm exploring in the process:
+
+ * How do I organize a non trivial Common Lisp project into files?
+   (where do I place packages, classes, generic methods etc.)
+ * Can I still manage working on a project using Emacs? (I got
+   very used to Visual Studio lately; there are plenty of things that
+   I hate about VS - but I like the project organization/navigation
+   tools it offers)
+ * How good are Common Lisp debuggers? (and their integration with
+   Emacs)
+ * How fast is Common Lisp code? How much memory does it need?
+ * How easy is it to deploy Common Lisp code?
+ * How portable is Common Lisp code (across OSes)?
+ * Can I find libraries for what I need (does Quicklisp provide an
+   easy way to use Common Lisp libraries)?
+
+So far, the answers to these questions are mostly favorable (or very
+favorable). Most of the time, I feel that my brain is the
+bottleneck. I don't get that feeling with most other languages (and
+when I do get it, I tend to think that the language must share some of
+the blame, or that I'm not getting enough for my effort).
 
 # WARNING - DANGER, DANGER, DANGER
 
