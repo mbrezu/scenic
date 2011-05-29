@@ -1,6 +1,12 @@
 
-(defpackage :scenic
+(defpackage :scenic-utils
   (:use :cl)
+  (:export max-box print-all draw-button-raw pass-to-child
+           ifhorizontal aif set-from-options
+           fill-list it))
+
+(defpackage :scenic
+  (:use :cl :scenic-utils)
   (:export run-scene
            eventful add-event-handler on-event
            widget min-width
@@ -29,15 +35,17 @@
            sizer min-width min-height max-width max-height
            capture-mouse release-mouse
            invalidate
-           print-all
            arrow direction
            scrollbar
            orientable orientation
-           image image-path get-image
-           grid))
+           image image-path get-image))
+
+(defpackage :scenic-grid
+  (:use :cl :scenic :scenic-utils)
+  (:export grid))
 
 (defpackage :scenic-macros
-  (:use :cl :scenic)
+  (:use :cl :scenic :scenic-grid)
   (:export bg border scene spc pad upad vbox flr stk lbl hbox
            btn btntxt toggle hslider szr arr hsbar vsbar img grid))
 

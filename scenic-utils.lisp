@@ -1,5 +1,5 @@
 
-(in-package :scenic)
+(in-package :scenic-utils)
 
 (defun max-box (boxes)
   (list (apply #'max (mapcar #'first boxes))
@@ -57,10 +57,10 @@
   `(defmethod (setf ,property-slot) :after (value (instance ,class))
      (when (not (= (,property-slot (,child-slot instance)) (,property-slot instance)))
        (setf (,property-slot (,child-slot instance)) (,property-slot instance))
-       (invalidate (,child-slot instance)))))
+       (scenic:invalidate (,child-slot instance)))))
 
 (defmacro ifhorizontal (instance horizontal-body &optional (vertical-body nil))
-  `(if (eq (orientation ,instance) :horizontal)
+  `(if (eq (scenic:orientation ,instance) :horizontal)
        ,horizontal-body
        ,vertical-body))
 

@@ -102,11 +102,11 @@
     (scenic:add-event-handler slider :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
-                                (scenic:print-all t
-                                                  (scenic:current-min-position object)
-                                                  (scenic:page-size object)
-                                                  (scenic:min-value object)
-                                                  (scenic:max-value object))))
+                                (scenic-utils:print-all t
+                                                        (scenic:current-min-position object)
+                                                        (scenic:page-size object)
+                                                        (scenic:min-value object)
+                                                        (scenic:max-value object))))
 
     scn))
 
@@ -134,19 +134,19 @@
     (scenic:add-event-handler horizontal-scrollbar :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
-                                (scenic:print-all t
-                                                  (scenic:current-min-position object)
-                                                  (scenic:page-size object)
-                                                  (scenic:min-value object)
-                                                  (scenic:max-value object))))
+                                (scenic-utils:print-all t
+                                                        (scenic:current-min-position object)
+                                                        (scenic:page-size object)
+                                                        (scenic:min-value object)
+                                                        (scenic:max-value object))))
     (scenic:add-event-handler vertical-scrollbar :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
-                                (scenic:print-all t
-                                                  (scenic:current-min-position object)
-                                                  (scenic:page-size object)
-                                                  (scenic:min-value object)
-                                                  (scenic:max-value object))))
+                                (scenic-utils:print-all t
+                                                        (scenic:current-min-position object)
+                                                        (scenic:page-size object)
+                                                        (scenic:min-value object)
+                                                        (scenic:max-value object))))
     scn))
 
 (defun icon ()

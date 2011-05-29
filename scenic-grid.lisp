@@ -1,5 +1,5 @@
 
-(in-package :scenic)
+(in-package :scenic-grid)
 
 ;;; GRID class.
 
