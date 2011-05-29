@@ -135,7 +135,8 @@
     (multiple-value-bind (auto-column-widths auto-row-heights)
         (measure-autos auto-cells
                        column-count row-count
-                       current-available-width current-available-height)
+                       current-available-width current-available-height
+                       (column-layout-options object) (row-layout-options object))
       ;; Allocate the space for the autos in the column
       ;; widths. Allocate 0 width if all the space has already been
       ;; allocated.
@@ -226,18 +227,21 @@
 
 (defun measure-autos (auto-cells
                       column-count row-count
-                      current-available-width current-available-height)
+                      current-available-width current-available-height
+                      column-layout-options row-layout-options)
   (let ((column-widths (make-array column-count :initial-element 0))
-        (row-heights (make-array row-count)))
+        (row-heights (make-array row-count :initial-element 0)))
     (dotimes (column column-count)
       (dotimes (row row-count)
         (aif (aref auto-cells row column)
              (let ((width-height
                     (measure it current-available-width current-available-height)))
-               (when (> (first width-height) (aref column-widths column))
-                 (setf (aref column-widths column) (first width-height)))
-               (when (> (second width-height) (aref row-heights row))
-                 (setf (aref row-heights column) (second width-height)))))))
+               (when (eq :auto (elt column-layout-options column))
+                 (setf (aref column-widths column)
+                       (max (aref column-widths column) (first width-height))))
+               (when (eq :auto (elt row-layout-options row))
+                 (setf (aref row-heights row)
+                       (max (aref row-heights row) (second width-height))))))))
     (values column-widths row-heights)))
 
 (defun determine-auto-cells (object column-count row-count)
@@ -250,10 +254,10 @@
        do (loop
              for row-index from 0 to row-count
              when (aif (get-child-at object column-index row-index)
-                       (colspan-1 (first it)))
+                       (colspan-1 (second it)))
              do
                (setf (aref auto-cells row-index column-index)
-                     (get-child-at object column-index row-index))))
+                     (first (get-child-at object column-index row-index)))))
     (loop
        for lo in (row-layout-options object)
        for row-index = 0 then (1+ row-index)
@@ -261,9 +265,9 @@
        do (loop
              for column-index from 0 to column-count
              when (aif (get-child-at object column-index row-index)
-                       (rowspan-1 (first it)))
+                       (rowspan-1 (second it)))
              do (setf (aref auto-cells row-index column-index)
-                      (get-child-at object column-index row-index))))
+                      (first (get-child-at object column-index row-index)))))
     auto-cells))
 
 (defun colspan-1 (options)

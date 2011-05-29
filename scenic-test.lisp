@@ -352,6 +352,46 @@
                                       (:cell ,(make-cell "Cell 4 3" color4))
                                       (:cell ,(make-cell "Cell 5 3" color4)))))))))))
 
+(defun grid-layout-options ()
+  (labels ((make-cell (text color)
+             (upad 3
+               (bg color
+                   (upad 10 (lbl text :size 14))))))
+    (let ((color1 (list 0.8 0.8 0.3))
+          (color2 (list 0.3 0.8 0.8))
+          (color3 (list 0.8 0.3 0.8))
+          (color4 (list 0.9 0.3 0.5)))
+      (scene *scene-width* *scene-height*
+             (stk
+               (bg (list 1.0 1.0 1.0)
+                   (flr))
+               (grid '((100 :px) (80 :px) (100 :px) (80 :px))
+                     '((100 :px) (100 :px) (1 :ext) (100 :px))
+                     `((:offset 0 0
+                                (:row (:cell :colspan 2 ,(make-cell "Cell 0 0" color1)))
+                                (:row (:cell ,(make-cell "Cell 0 1" color1))
+                                      (:cell :rowspan 2 ,(make-cell "Cell 1 1" color1)))
+                                (:row (:cell ,(make-cell "Cell 0 2" color1))))
+                       (:offset 2 0
+                                (:row (:cell ,(make-cell "Cell 2 0" color2))
+                                      (:cell ,(make-cell "Cell 3 0" color2)))
+                                (:row (:cell ,(make-cell "Cell 2 1" color2))
+                                      (:cell ,(make-cell "Cell 3 1" color2)))
+                                (:row (:cell ,(make-cell "Cell 2 2" color2))
+                                      (:cell ,(make-cell "Cell 3 2" color2))))
+                       (:offset 4 0
+                                (:row (:cell ,(make-cell "Cell 4 0" color3))
+                                      (:cell ,(make-cell "Cell 5 0" color3)))
+                                (:row (:cell ,(make-cell "Cell 4 1" color3))
+                                      (:cell ,(make-cell "Cell 5 1" color3)))
+                                (:row (:cell ,(make-cell "Cell 4 2" color3))
+                                      (:cell ,(make-cell "Cell 5 2" color3))))
+                       (:offset 0 3
+                                (:row (:cell ,(make-cell "Cell 0 3" color4))
+                                      (:cell :colspan 3 ,(make-cell "Cell 1 3" color4))
+                                      (:cell ,(make-cell "Cell 4 3" color4))
+                                      (:cell ,(make-cell "Cell 5 3" color4)))))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -365,4 +405,5 @@
   (test-scene (hbox-layout-options))
   (test-scene (grid-basic))
   (test-scene (grid-offset))
-  (test-scene (grid-spans)))
+  (test-scene (grid-spans))
+  (test-scene (grid-layout-options)))
