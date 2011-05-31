@@ -77,7 +77,7 @@
                   :child ,child))
 
 (defmacro btntxt (text)
-  `(btn (upad 2 (lbl ,text :size 18))))
+  `(btn (upad 2 (aligner (lbl ,text :size 18)))))
 
 (defmacro toggle (text)
   `(make-instance 'toggle-button

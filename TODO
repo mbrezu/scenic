@@ -23,8 +23,10 @@
    decided not to do it, boxes are faster
 ** DONE add aligner widgets that use a grid to align their child
    added a separate aligner widget - faster
-* TODO scroll view;
+* TODO change the helper macros from scenic-macros into functions;
+   redefine the package and file to 'scenic-helpers'.
 * DONE min/max controls (they force the min/max width/height for their child)
+* TODO scroll view;
 * TODO text box;
 * TODO popups/dialogs;
 * TODO menubar/menu;
@@ -32,7 +34,5 @@
 * TODO checkbox/radio box;
 * TODO themes/widget factories;
 * TODO unit tests (e.g. for the grid layout)
-* TODO change the helper macros from scenic-macros into functions;
-   redefine the package and file to 'scenic-helpers'.
 * TODO tree widget
 * TODO datagrid widget
