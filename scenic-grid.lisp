@@ -188,9 +188,6 @@
                      (get-size (column-widths object) (first location) colspan)
                      (get-size (row-heights object) (second location) rowspan))))))
 
-(defmethod measure ((object grid) available-width available-height)
-  (call-next-method object available-width available-height))
-
 (defun get-size (size-array start length)
   (loop
      for i from start to (1- (+ start length))

@@ -396,8 +396,8 @@
   (let ((max-height 30))
     (labels ((make-prompt-cell (text color)
                (upad 3
-                      (bg color
-                          (upad 3 (lbl text :size 14)))))
+                 (bg color
+                     (upad 3 (lbl text :size 14)))))
              (make-text-cell (color1 color2)
                (szr (upad 3
                       (border color1 1
@@ -405,7 +405,7 @@
                     :max-height max-height))
              (make-button-cell (text)
                (upad 3
-                      (btntxt text))))
+                 (btntxt text))))
       (let ((color1 (list 0.8 0.8 0.3))
             (black (list 0.0 0.0 0.0)))
         (scene *scene-width* *scene-height*
@@ -428,6 +428,36 @@
                                         (:cell ,(make-text-cell black color1))
                                         (:cell ,(make-button-cell "Filler"))))))))))))
 
+(defun grid-layout-options-3 ()
+  (let ((color1 (list 0.8 0.8 0.3)))
+    (labels ((make-prompt-cell (text color)
+               (upad 3
+                 (bg color
+                     (upad 3 (lbl text :size 14)))))
+             (make-layout-options ()
+               (loop
+                  for i from 1 to 5
+                  collect :auto
+                  collect (list 15 :px)
+                  collect (list 1 :ext)))
+             (make-cells ()
+               (loop
+                  for i from 1 to 15
+                  collect `(:cell ,(make-prompt-cell "T" color1))))
+             (make-rows ()
+               (loop
+                  for i from 1 to 15
+                  collect `(:row ,@(make-cells)))))
+      (let ()
+        (scene *scene-width* *scene-height*
+               (stk
+                 (bg (list 1.0 1.0 1.0)
+                     (flr))
+                 (grid (make-layout-options)
+                       (make-layout-options)
+                       `((:offset 0 0
+                                  ,@(make-rows))))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -443,4 +473,5 @@
   (test-scene (grid-offset))
   (test-scene (grid-spans))
   (test-scene (grid-layout-options))
-  (test-scene (grid-layout-options-2)))
+  (test-scene (grid-layout-options-2))
+  (test-scene (grid-layout-options-3)))
