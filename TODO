@@ -23,8 +23,9 @@
    decided not to do it, boxes are faster
 ** DONE add aligner widgets that use a grid to align their child
    added a separate aligner widget - faster
-* TODO change the helper macros from scenic-macros into functions;
+* DONE change the helper macros from scenic-macros into functions;
    redefine the package and file to 'scenic-helpers'.
+* DONE rename the helper functions in :scenic-helper to sane alternatives;
 * DONE min/max controls (they force the min/max width/height for their child)
 * TODO scroll view;
 * TODO text box;

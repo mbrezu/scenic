@@ -45,12 +45,22 @@
   (:use :cl :scenic :scenic-utils)
   (:export grid))
 
-(defpackage :scenic-macros
+(defpackage :scenic-helpers
   (:use :cl :scenic :scenic-grid)
-  (:export bg border scene spc pad upad vbox flr stk lbl hbox
-           btn btntxt toggle hslider szr arr hsbar vsbar img grid
+  (:export scene background border
+           placeholder
+           padding uniform-padding
+           vertical-box horizontal-box
+           filler
+           stack
+           label button button-text toggle
+           horizontal-slider vertical-slider
+           sizer arrow
+           horizontal-scrollbar vertical-scrollbar
+           image grid
            aligner))
 
 (defpackage :scenic-test
-  (:use :cl :scenic-macros :scenic-utils))
+  (:use :cl :scenic-helpers :scenic-utils)
+  (:export run-all-tests))
 

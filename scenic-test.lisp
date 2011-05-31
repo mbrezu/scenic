@@ -13,56 +13,57 @@
 ;;; A very simple scene that clears the screen.
 (defun background-clear ()
   (scene *scene-width* *scene-height*
-         (stk
-           (bg (list 1.0 1.0 1.0)
-               (flr)))))
+         (stack
+          (background (list 1.0 1.0 1.0)
+                      (filler)))))
 
 ;;; A scene with a couple of rectangles
 (defun colored-rectangles ()
   (scene *scene-width* *scene-height*
-         (stk
-           (bg (list 1.0 1.0 1.0)
-               (flr))
-           (vbox 0
-                 '(:auto)
-                 (list (hbox 5 '(:auto :auto :auto)
-                             (list
-                              (bg (list 1.0 0.3 0.3)
-                                  (spc 100 100))
-                              (bg (list 0.3 1.0 0.3)
-                                  (spc 100 100))
-                              (bg (list 0.3 0.3 1.0)
-                                  (spc 100 100)))))))))
+         (stack
+          (background (list 1.0 1.0 1.0)
+                      (filler))
+          (vertical-box 0
+                        '(:auto)
+                        (list (horizontal-box 5 '(:auto :auto :auto)
+                                              (list
+                                               (background (list 1.0 0.3 0.3)
+                                                           (placeholder 100 100))
+                                               (background (list 0.3 1.0 0.3)
+                                                           (placeholder 100 100))
+                                               (background (list 0.3 0.3 1.0)
+                                                           (placeholder 100 100)))))))))
 
 ;;; Hello world!
 (defun hello-world ()
   (scene *scene-width* *scene-height*
-         (stk
-           (bg (list 1.0 1.0 1.0)
-               (flr))
-           (upad 1
-             (lbl "Hello, world!" :size 20)))))
+         (stack
+          (background (list 1.0 1.0 1.0)
+                      (filler))
+          (uniform-padding 1
+                           (label "Hello, world!" :size 20)))))
 
 ;;; Button test
 (defun buttons ()
   (let (scn push-button toggle-button)
     (setf scn (scene *scene-width* *scene-height*
-                     (stk
-                       (bg (list 1.0 1.0 1.0)
-                           (flr))
-                       (upad 5
-                         (vbox 0
-                               '(:auto)
-                               (list
-                                (hbox 10
-                                      '(:auto :auto)
-                                      (list
-                                       (border (list 0 0 0) 1
-                                               (setf push-button
-                                                     (btntxt "Push Button")))
-                                       (border (list 0 0 0) 1
-                                               (setf toggle-button
-                                                     (toggle "Toggle Button")))))))))))
+                     (stack
+                      (background (list 1.0 1.0 1.0)
+                                  (filler))
+                      (uniform-padding 5
+                                       (vertical-box 0
+                                                     '(:auto)
+                                                     (list
+                                                      (horizontal-box 10
+                                                                      '(:auto :auto)
+                                                                      (list
+                                                                       (border (list 0 0 0) 1
+                                                                               (setf push-button
+                                                                                     (button-text "Push Button")))
+                                                                       (border
+                                                                        (list 0 0 0) 1
+                                                                        (setf toggle-button
+                                                                              (toggle "Toggle Button")))))))))))
     (scenic:add-event-handler push-button :mouse-move :cascade
                               (lambda (object event)
                                 (format t "button mouse move: ~a ~a~%" object event)))
@@ -87,18 +88,19 @@
 (defun slider ()
   (let (scn slider)
     (setf scn (scene *scene-width* *scene-height*
-                     (stk
-                       (bg (list 1.0 1.0 1.0)
-                           (flr))
-                       (vbox 10
-                             '(:auto)
-                             (list (upad 5
-                                     (hbox 10
-                                           '(:auto)
-                                           (list
-                                            (szr (setf slider (hslider 0 50 30))
-                                                 :max-width 200
-                                                 :max-height 19)))))))))
+                     (stack
+                      (background (list 1.0 1.0 1.0)
+                                  (filler))
+                      (vertical-box 10
+                                    '(:auto)
+                                    (list (uniform-padding 5
+                                                           (horizontal-box 10
+                                                                           '(:auto)
+                                                                           (list
+                                                                            (sizer (setf slider
+                                                                                         (horizontal-slider 0 50 30))
+                                                                                   :max-width 200
+                                                                                   :max-height 19)))))))))
     (scenic:add-event-handler slider :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
@@ -113,24 +115,25 @@
 (defun scrollbars ()
   (let (scn horizontal-scrollbar vertical-scrollbar)
     (setf scn (scene *scene-width* *scene-height*
-                     (stk
-                       (bg (list 1.0 1.0 1.0)
-                           (flr))
-                       (upad 5
-                         (hbox 0
-                               '(:auto :auto)
-                               (list
-                                (vbox 0
-                                      '(:auto :auto)
-                                      (list (bg (list 0.3 0.4 0.5)
-                                                (spc 200 200))
-                                            (szr (setf horizontal-scrollbar
-                                                       (hsbar 0 50 30))
-                                                 :max-height 19
-                                                 :max-width 200)))
-                                (szr (setf vertical-scrollbar (vsbar 0 50 30))
-                                     :max-width 19
-                                     :max-height 200)))))))
+                     (stack
+                      (background (list 1.0 1.0 1.0)
+                                  (filler))
+                      (uniform-padding 5
+                                       (horizontal-box 0
+                                                       '(:auto :auto)
+                                                       (list
+                                                        (vertical-box 0
+                                                                      '(:auto :auto)
+                                                                      (list (background
+                                                                             (list 0.3 0.4 0.5)
+                                                                             (placeholder 200 200))
+                                                                            (sizer (setf horizontal-scrollbar
+                                                                                         (horizontal-scrollbar 0 50 30))
+                                                                                   :max-height 19
+                                                                                   :max-width 200)))
+                                                        (sizer (setf vertical-scrollbar (vertical-scrollbar 0 50 30))
+                                                               :max-width 19
+                                                               :max-height 200)))))))
     (scenic:add-event-handler horizontal-scrollbar :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
@@ -151,289 +154,291 @@
 
 (defun icon ()
   (scene *scene-width* *scene-height*
-         (stk
-           (bg (list 1.0 1.0 1.0)
-               (flr))
-           (upad 10
-             (stk
-               (bg (list 0.8 0.8 0.8)
-                   (spc 16 16))
-               (szr (img "icons/arrow_in.png")
-                    :max-width 16
-                    :min-width 16
-                    :max-height 16
-                    :max-width 16))))))
+         (stack
+          (background (list 1.0 1.0 1.0)
+                      (filler))
+          (uniform-padding 10
+                           (stack
+                            (background (list 0.8 0.8 0.8)
+                                        (placeholder 16 16))
+                            (sizer (image "icons/arrow_in.png")
+                                   :max-width 16
+                                   :min-width 16
+                                   :max-height 16
+                                   :max-width 16))))))
 
 (defun text-baseline-alignment ()
   (scene *scene-width* *scene-height*
-         (stk
-           (bg (list 1.0 1.0 1.0)
-               (flr))
-           (vbox 0 '(:auto)
-                 (list
-                  (upad 10
-                    (hbox 10 '(:auto :auto :auto)
-                          (list
-                           (border (list 0.3 0.3 0.3)
-                                   1
-                                   (bg (list 0.7 0.7 0.7)
-                                       (upad 3
-                                         (lbl "S p" :size 20 :slant :italic))))
-                           (border (list 0.3 0.3 0.3)
-                                   1
-                                   (bg (list 0.7 0.7 0.7)
-                                       (upad 3
-                                         (lbl "S a"
-                                              :color (list 0.2 0.4 0.6)
-                                              :size 20))))
-                           (border (list 0.3 0.3 0.3)
-                                   1
-                                   (bg (list 0.7 0.7 0.7)
-                                       (upad 3
-                                         (lbl "s j"
-                                              :size 20 :weight :bold))))))))))))
+         (stack
+          (background (list 1.0 1.0 1.0)
+                      (filler))
+          (vertical-box 0 '(:auto)
+                        (list
+                         (uniform-padding 10
+                                          (horizontal-box 10 '(:auto :auto :auto)
+                                                          (list
+                                                           (border (list 0.3 0.3 0.3)
+                                                                   1
+                                                                   (background (list 0.7 0.7 0.7)
+                                                                               (uniform-padding 3
+                                                                                                (label "S p" :size 20
+                                                                                                     :slant :italic))))
+                                                           (border (list 0.3 0.3 0.3)
+                                                                   1
+                                                                   (background (list 0.7 0.7 0.7)
+                                                                               (uniform-padding 3
+                                                                                                (label "S a"
+                                                                                                     :color (list 0.2 0.4 0.6)
+                                                                                                     :size 20))))
+                                                           (border (list 0.3 0.3 0.3)
+                                                                   1
+                                                                   (background (list 0.7 0.7 0.7)
+                                                                               (uniform-padding 3
+                                                                                                (label "s j"
+                                                                                                     :size 20
+                                                                                                     :weight :bold))))))))))))
 
-(defun vbox-layout-options ()
+(defun vertical-box-layout-options ()
   (labels ((make-strip (text color &optional (max-height nil))
-             (upad 3
-               (stk
-                 (bg color
-                     (szr (flr) :max-height max-height))
-                 (upad 3 (lbl text :size 18))))))
+             (uniform-padding 3
+                              (stack
+                               (background color
+                                           (sizer (filler) :max-height max-height))
+                               (uniform-padding 3 (label text :size 18))))))
     (scene *scene-width* *scene-height*
-           (stk
-             (bg (list 1.0 1.0 1.0)
-                 (flr))
-             (let ((strips '(((1.0 0.2 0.2) :auto 150)
-                             ((0.2 1.0 0.2) (1 :ext))
-                             ((0.2 0.2 1.0) (2 :ext))
-                             ((0.2 1.0 1.0) (100 :px))
-                             ((1.0 0.2 1.0) (200 :px)))))
-               (vbox 0
-                     (mapcar #'second strips)
-                     (mapcar (lambda (layout-option color max-height)
-                               (make-strip (with-output-to-string (str)
-                                             (prin1 layout-option str))
-                                           color
-                                           max-height))
-                             (mapcar #'second strips)
-                             (mapcar #'first strips)
-                             (mapcar #'third strips))))))))
+           (stack
+            (background (list 1.0 1.0 1.0)
+                        (filler))
+            (let ((strips '(((1.0 0.2 0.2) :auto 150)
+                            ((0.2 1.0 0.2) (1 :ext))
+                            ((0.2 0.2 1.0) (2 :ext))
+                            ((0.2 1.0 1.0) (100 :px))
+                            ((1.0 0.2 1.0) (200 :px)))))
+              (vertical-box 0
+                            (mapcar #'second strips)
+                            (mapcar (lambda (layout-option color max-height)
+                                      (make-strip (with-output-to-string (str)
+                                                    (prin1 layout-option str))
+                                                  color
+                                                  max-height))
+                                    (mapcar #'second strips)
+                                    (mapcar #'first strips)
+                                    (mapcar #'third strips))))))))
 
-(defun hbox-layout-options ()
+(defun horizontal-box-layout-options ()
   (labels ((make-strip (text color &optional (max-width nil))
-             (upad 3
-               (stk
-                 (bg color
-                     (szr (flr) :max-width max-width))
-                 (upad 3 (lbl text :size 18))))))
+             (uniform-padding 3
+                              (stack
+                               (background color
+                                           (sizer (filler) :max-width max-width))
+                               (uniform-padding 3 (label text :size 18))))))
     (scene *scene-width* *scene-height*
-           (stk
-             (bg (list 1.0 1.0 1.0)
-                 (flr))
-             (let ((strips '(((1.0 0.2 0.2) :auto 150)
-                             ((0.2 1.0 0.2) (1 :ext))
-                             ((0.2 0.2 1.0) (2 :ext))
-                             ((0.2 1.0 1.0) (100 :px))
-                             ((1.0 0.2 1.0) (200 :px)))))
-               (hbox 0
-                     (mapcar #'second strips)
-                     (mapcar (lambda (layout-option color max-width)
-                               (make-strip (with-output-to-string (str)
-                                             (prin1 layout-option str))
-                                           color
-                                           max-width))
-                             (mapcar #'second strips)
-                             (mapcar #'first strips)
-                             (mapcar #'third strips))))))))
+           (stack
+            (background (list 1.0 1.0 1.0)
+                        (filler))
+            (let ((strips '(((1.0 0.2 0.2) :auto 150)
+                            ((0.2 1.0 0.2) (1 :ext))
+                            ((0.2 0.2 1.0) (2 :ext))
+                            ((0.2 1.0 1.0) (100 :px))
+                            ((1.0 0.2 1.0) (200 :px)))))
+              (horizontal-box 0
+                              (mapcar #'second strips)
+                              (mapcar (lambda (layout-option color max-width)
+                                        (make-strip (with-output-to-string (str)
+                                                      (prin1 layout-option str))
+                                                    color
+                                                    max-width))
+                                      (mapcar #'second strips)
+                                      (mapcar #'first strips)
+                                      (mapcar #'third strips))))))))
 
 (defun grid-basic ()
   (labels ((make-cell (text)
-             (upad 3
-               (bg (list 0.8 0.8 0.8)
-                   (upad 10 (lbl text :size 14))))))
+             (uniform-padding 3
+                              (background (list 0.8 0.8 0.8)
+                                          (uniform-padding 10 (label text :size 14))))))
     (scene *scene-width* *scene-height*
-           (stk
-             (bg (list 1.0 1.0 1.0)
-                 (flr))
-             (grid nil
-                   nil
-                   `((:column (:cell ,(make-cell "Cell 0 0"))
-                              (:cell ,(make-cell "Cell 0 1"))
-                              (:cell ,(make-cell "Cell 0 2")))
-                     (:column (:cell ,(make-cell "Cell 1 0"))
-                              (:cell ,(make-cell "Cell 1 1"))
-                              (:cell ,(make-cell "Cell 1 2")))
-                     (:column (:cell ,(make-cell "Cell 2 0"))
-                              (:cell ,(make-cell "Cell 2 1"))
-                              (:cell ,(make-cell "Cell 2 2")))))))))
+           (stack
+            (background (list 1.0 1.0 1.0)
+                        (filler))
+            (grid nil
+                  nil
+                  `((:column (:cell ,(make-cell "Cell 0 0"))
+                             (:cell ,(make-cell "Cell 0 1"))
+                             (:cell ,(make-cell "Cell 0 2")))
+                    (:column (:cell ,(make-cell "Cell 1 0"))
+                             (:cell ,(make-cell "Cell 1 1"))
+                             (:cell ,(make-cell "Cell 1 2")))
+                    (:column (:cell ,(make-cell "Cell 2 0"))
+                             (:cell ,(make-cell "Cell 2 1"))
+                             (:cell ,(make-cell "Cell 2 2")))))))))
 
 (defun grid-offset ()
   (labels ((make-cell (text color)
-             (upad 3
-               (bg color
-                   (upad 10 (lbl text :size 14))))))
+             (uniform-padding 3
+                              (background color
+                                          (uniform-padding 10 (label text :size 14))))))
     (let ((color1 (list 0.8 0.8 0.3))
           (color2 (list 0.3 0.8 0.8))
           (color3 (list 0.8 0.3 0.8))
           (color4 (list 0.9 0.3 0.5)))
       (scene *scene-width* *scene-height*
-             (stk
-               (bg (list 1.0 1.0 1.0)
-                   (flr))
-               (grid nil
-                     nil
-                     `((:offset 0 0
-                                (:row (:cell ,(make-cell "Cell 0 0" color1))
-                                      (:cell ,(make-cell "Cell 1 0" color1)))
-                                (:row (:cell ,(make-cell "Cell 0 1" color1))
-                                      (:cell ,(make-cell "Cell 1 1" color1)))
-                                (:row (:cell ,(make-cell "Cell 0 2" color1))
-                                      (:cell ,(make-cell "Cell 1 2" color1))))
-                       (:offset 2 0
-                                (:row (:cell ,(make-cell "Cell 2 0" color2))
-                                      (:cell ,(make-cell "Cell 3 0" color2)))
-                                (:row (:cell ,(make-cell "Cell 2 1" color2))
-                                      (:cell ,(make-cell "Cell 3 1" color2)))
-                                (:row (:cell ,(make-cell "Cell 2 2" color2))
-                                      (:cell ,(make-cell "Cell 3 2" color2))))
-                       (:offset 4 0
-                                (:row (:cell ,(make-cell "Cell 4 0" color3))
-                                      (:cell ,(make-cell "Cell 5 0" color3)))
-                                (:row (:cell ,(make-cell "Cell 4 1" color3))
-                                      (:cell ,(make-cell "Cell 5 1" color3)))
-                                (:row (:cell ,(make-cell "Cell 4 2" color3))
-                                      (:cell ,(make-cell "Cell 5 2" color3))))
-                       (:offset 0 3
-                                (:row (:cell ,(make-cell "Cell 0 3" color4))
-                                      (:cell ,(make-cell "Cell 1 3" color4))
-                                      (:cell ,(make-cell "Cell 2 3" color4))
-                                      (:cell ,(make-cell "Cell 3 3" color4))
-                                      (:cell ,(make-cell "Cell 4 3" color4))
-                                      (:cell ,(make-cell "Cell 5 3" color4)))))))))))
+             (stack
+              (background (list 1.0 1.0 1.0)
+                          (filler))
+              (grid nil
+                    nil
+                    `((:offset 0 0
+                               (:row (:cell ,(make-cell "Cell 0 0" color1))
+                                     (:cell ,(make-cell "Cell 1 0" color1)))
+                               (:row (:cell ,(make-cell "Cell 0 1" color1))
+                                     (:cell ,(make-cell "Cell 1 1" color1)))
+                               (:row (:cell ,(make-cell "Cell 0 2" color1))
+                                     (:cell ,(make-cell "Cell 1 2" color1))))
+                      (:offset 2 0
+                               (:row (:cell ,(make-cell "Cell 2 0" color2))
+                                     (:cell ,(make-cell "Cell 3 0" color2)))
+                               (:row (:cell ,(make-cell "Cell 2 1" color2))
+                                     (:cell ,(make-cell "Cell 3 1" color2)))
+                               (:row (:cell ,(make-cell "Cell 2 2" color2))
+                                     (:cell ,(make-cell "Cell 3 2" color2))))
+                      (:offset 4 0
+                               (:row (:cell ,(make-cell "Cell 4 0" color3))
+                                     (:cell ,(make-cell "Cell 5 0" color3)))
+                               (:row (:cell ,(make-cell "Cell 4 1" color3))
+                                     (:cell ,(make-cell "Cell 5 1" color3)))
+                               (:row (:cell ,(make-cell "Cell 4 2" color3))
+                                     (:cell ,(make-cell "Cell 5 2" color3))))
+                      (:offset 0 3
+                               (:row (:cell ,(make-cell "Cell 0 3" color4))
+                                     (:cell ,(make-cell "Cell 1 3" color4))
+                                     (:cell ,(make-cell "Cell 2 3" color4))
+                                     (:cell ,(make-cell "Cell 3 3" color4))
+                                     (:cell ,(make-cell "Cell 4 3" color4))
+                                     (:cell ,(make-cell "Cell 5 3" color4)))))))))))
 
 (defun grid-spans ()
   (labels ((make-cell (text color)
-             (upad 3
-               (bg color
-                   (upad 10 (lbl text :size 14))))))
+             (uniform-padding 3
+                              (background color
+                                          (uniform-padding 10 (label text :size 14))))))
     (let ((color1 (list 0.8 0.8 0.3))
           (color2 (list 0.3 0.8 0.8))
           (color3 (list 0.8 0.3 0.8))
           (color4 (list 0.9 0.3 0.5)))
       (scene *scene-width* *scene-height*
-             (stk
-               (bg (list 1.0 1.0 1.0)
-                   (flr))
-               (grid nil
-                     nil
-                     `((:offset 0 0
-                                (:row (:cell :colspan 2 ,(make-cell "Cell 0 0" color1)))
-                                (:row (:cell ,(make-cell "Cell 0 1" color1))
-                                      (:cell :rowspan 2 ,(make-cell "Cell 1 1" color1)))
-                                (:row (:cell ,(make-cell "Cell 0 2" color1))))
-                       (:offset 2 0
-                                (:row (:cell ,(make-cell "Cell 2 0" color2))
-                                      (:cell ,(make-cell "Cell 3 0" color2)))
-                                (:row (:cell ,(make-cell "Cell 2 1" color2))
-                                      (:cell ,(make-cell "Cell 3 1" color2)))
-                                (:row (:cell ,(make-cell "Cell 2 2" color2))
-                                      (:cell ,(make-cell "Cell 3 2" color2))))
-                       (:offset 4 0
-                                (:row (:cell ,(make-cell "Cell 4 0" color3))
-                                      (:cell ,(make-cell "Cell 5 0" color3)))
-                                (:row (:cell ,(make-cell "Cell 4 1" color3))
-                                      (:cell ,(make-cell "Cell 5 1" color3)))
-                                (:row (:cell ,(make-cell "Cell 4 2" color3))
-                                      (:cell ,(make-cell "Cell 5 2" color3))))
-                       (:offset 0 3
-                                (:row (:cell ,(make-cell "Cell 0 3" color4))
-                                      (:cell :colspan 3 ,(make-cell "Cell 1 3" color4))
-                                      (:cell ,(make-cell "Cell 4 3" color4))
-                                      (:cell ,(make-cell "Cell 5 3" color4)))))))))))
+             (stack
+              (background (list 1.0 1.0 1.0)
+                          (filler))
+              (grid nil
+                    nil
+                    `((:offset 0 0
+                               (:row (:cell :colspan 2 ,(make-cell "Cell 0 0" color1)))
+                               (:row (:cell ,(make-cell "Cell 0 1" color1))
+                                     (:cell :rowspan 2 ,(make-cell "Cell 1 1" color1)))
+                               (:row (:cell ,(make-cell "Cell 0 2" color1))))
+                      (:offset 2 0
+                               (:row (:cell ,(make-cell "Cell 2 0" color2))
+                                     (:cell ,(make-cell "Cell 3 0" color2)))
+                               (:row (:cell ,(make-cell "Cell 2 1" color2))
+                                     (:cell ,(make-cell "Cell 3 1" color2)))
+                               (:row (:cell ,(make-cell "Cell 2 2" color2))
+                                     (:cell ,(make-cell "Cell 3 2" color2))))
+                      (:offset 4 0
+                               (:row (:cell ,(make-cell "Cell 4 0" color3))
+                                     (:cell ,(make-cell "Cell 5 0" color3)))
+                               (:row (:cell ,(make-cell "Cell 4 1" color3))
+                                     (:cell ,(make-cell "Cell 5 1" color3)))
+                               (:row (:cell ,(make-cell "Cell 4 2" color3))
+                                     (:cell ,(make-cell "Cell 5 2" color3))))
+                      (:offset 0 3
+                               (:row (:cell ,(make-cell "Cell 0 3" color4))
+                                     (:cell :colspan 3 ,(make-cell "Cell 1 3" color4))
+                                     (:cell ,(make-cell "Cell 4 3" color4))
+                                     (:cell ,(make-cell "Cell 5 3" color4)))))))))))
 
 (defun grid-layout-options ()
   (labels ((make-cell (text color)
-             (upad 3
-               (bg color
-                   (upad 10 (lbl text :size 14))))))
+             (uniform-padding 3
+                              (background color
+                                          (uniform-padding 10 (label text :size 14))))))
     (let ((color1 (list 0.8 0.8 0.3))
           (color2 (list 0.3 0.8 0.8))
           (color3 (list 0.8 0.3 0.8))
           (color4 (list 0.9 0.3 0.5)))
       (scene *scene-width* *scene-height*
-             (stk
-               (bg (list 1.0 1.0 1.0)
-                   (flr))
-               (grid '((100 :px) (80 :px) (100 :px) (80 :px))
-                     '((100 :px) (100 :px) (1 :ext) (100 :px))
-                     `((:offset 0 0
-                                (:row (:cell :colspan 2 ,(make-cell "Cell 0 0" color1)))
-                                (:row (:cell ,(make-cell "Cell 0 1" color1))
-                                      (:cell :rowspan 2 ,(make-cell "Cell 1 1" color1)))
-                                (:row (:cell ,(make-cell "Cell 0 2" color1))))
-                       (:offset 2 0
-                                (:row (:cell ,(make-cell "Cell 2 0" color2))
-                                      (:cell ,(make-cell "Cell 3 0" color2)))
-                                (:row (:cell ,(make-cell "Cell 2 1" color2))
-                                      (:cell ,(make-cell "Cell 3 1" color2)))
-                                (:row (:cell ,(make-cell "Cell 2 2" color2))
-                                      (:cell ,(make-cell "Cell 3 2" color2))))
-                       (:offset 4 0
-                                (:row (:cell ,(make-cell "Cell 4 0" color3))
-                                      (:cell ,(make-cell "Cell 5 0" color3)))
-                                (:row (:cell ,(make-cell "Cell 4 1" color3))
-                                      (:cell ,(make-cell "Cell 5 1" color3)))
-                                (:row (:cell ,(make-cell "Cell 4 2" color3))
-                                      (:cell ,(make-cell "Cell 5 2" color3))))
-                       (:offset 0 3
-                                (:row (:cell ,(make-cell "Cell 0 3" color4))
-                                      (:cell :colspan 3 ,(make-cell "Cell 1 3" color4))
-                                      (:cell ,(make-cell "Cell 4 3" color4))
-                                      (:cell ,(make-cell "Cell 5 3" color4)))))))))))
+             (stack
+              (background (list 1.0 1.0 1.0)
+                          (filler))
+              (grid '((100 :px) (80 :px) (100 :px) (80 :px))
+                    '((100 :px) (100 :px) (1 :ext) (100 :px))
+                    `((:offset 0 0
+                               (:row (:cell :colspan 2 ,(make-cell "Cell 0 0" color1)))
+                               (:row (:cell ,(make-cell "Cell 0 1" color1))
+                                     (:cell :rowspan 2 ,(make-cell "Cell 1 1" color1)))
+                               (:row (:cell ,(make-cell "Cell 0 2" color1))))
+                      (:offset 2 0
+                               (:row (:cell ,(make-cell "Cell 2 0" color2))
+                                     (:cell ,(make-cell "Cell 3 0" color2)))
+                               (:row (:cell ,(make-cell "Cell 2 1" color2))
+                                     (:cell ,(make-cell "Cell 3 1" color2)))
+                               (:row (:cell ,(make-cell "Cell 2 2" color2))
+                                     (:cell ,(make-cell "Cell 3 2" color2))))
+                      (:offset 4 0
+                               (:row (:cell ,(make-cell "Cell 4 0" color3))
+                                     (:cell ,(make-cell "Cell 5 0" color3)))
+                               (:row (:cell ,(make-cell "Cell 4 1" color3))
+                                     (:cell ,(make-cell "Cell 5 1" color3)))
+                               (:row (:cell ,(make-cell "Cell 4 2" color3))
+                                     (:cell ,(make-cell "Cell 5 2" color3))))
+                      (:offset 0 3
+                               (:row (:cell ,(make-cell "Cell 0 3" color4))
+                                     (:cell :colspan 3 ,(make-cell "Cell 1 3" color4))
+                                     (:cell ,(make-cell "Cell 4 3" color4))
+                                     (:cell ,(make-cell "Cell 5 3" color4)))))))))))
 
 (defun grid-layout-options-2 ()
   (let ((max-height 30))
     (labels ((make-prompt-cell (text color)
-               (upad 3
-                 (bg color
-                     (upad 3 (lbl text :size 14)))))
+               (uniform-padding 3
+                                (background color
+                                            (uniform-padding 3 (label text :size 14)))))
              (make-text-cell (color1 color2)
-               (szr (upad 3
-                      (border color1 1
-                              (bg color2 (flr))))
-                    :max-height max-height))
+               (sizer (uniform-padding 3
+                                       (border color1 1
+                                               (background color2 (filler))))
+                      :max-height max-height))
              (make-button-cell (text)
-               (upad 3
-                 (btntxt text))))
+               (uniform-padding 3
+                                (button-text text))))
       (let ((color1 (list 0.8 0.8 0.3))
             (black (list 0.0 0.0 0.0)))
         (scene *scene-width* *scene-height*
-               (stk
-                 (bg (list 1.0 1.0 1.0)
-                     (flr))
-                 (grid '((150 :px) (1 :ext) :auto)
-                       '(:auto (100 :px) (50 :px) (1 :ext))
-                       `((:offset 0 0
-                                  (:row (:cell ,(make-prompt-cell "Field 1:" color1))
-                                        (:cell ,(make-text-cell black color1))
-                                        (:cell ,(make-button-cell "Activate")))
-                                  (:row (:cell ,(make-prompt-cell "Field 2:" color1))
-                                        (:cell ,(make-text-cell black color1))
-                                        (:cell ,(make-button-cell "Deactivate")))
-                                  (:row (:cell ,(make-prompt-cell "Field 3:" color1))
-                                        (:cell ,(make-text-cell black color1))
-                                        (:cell ,(make-button-cell "Edit")))
-                                  (:row (:cell ,(make-prompt-cell "Field 4:" color1))
-                                        (:cell ,(make-text-cell black color1))
-                                        (:cell ,(make-button-cell "Filler"))))))))))))
+               (stack
+                (background (list 1.0 1.0 1.0)
+                            (filler))
+                (grid '((150 :px) (1 :ext) :auto)
+                      '(:auto (100 :px) (50 :px) (1 :ext))
+                      `((:offset 0 0
+                                 (:row (:cell ,(make-prompt-cell "Field 1:" color1))
+                                       (:cell ,(make-text-cell black color1))
+                                       (:cell ,(make-button-cell "Activate")))
+                                 (:row (:cell ,(make-prompt-cell "Field 2:" color1))
+                                       (:cell ,(make-text-cell black color1))
+                                       (:cell ,(make-button-cell "Deactivate")))
+                                 (:row (:cell ,(make-prompt-cell "Field 3:" color1))
+                                       (:cell ,(make-text-cell black color1))
+                                       (:cell ,(make-button-cell "Edit")))
+                                 (:row (:cell ,(make-prompt-cell "Field 4:" color1))
+                                       (:cell ,(make-text-cell black color1))
+                                       (:cell ,(make-button-cell "Filler"))))))))))))
 
 (defun grid-layout-options-3 ()
   (let ((color1 (list 0.8 0.8 0.3)))
     (labels ((make-prompt-cell (text color)
-               (upad 3
-                 (bg color
-                     (upad 3 (lbl text :size 14)))))
+               (uniform-padding 3
+                                (background color
+                                            (uniform-padding 3 (label text :size 14)))))
              (make-layout-options ()
                (loop
                   for i from 1 to 5
@@ -450,23 +455,23 @@
                   collect `(:row ,@(make-cells)))))
       (let ()
         (scene *scene-width* *scene-height*
-               (stk
-                 (bg (list 1.0 1.0 1.0)
-                     (flr))
-                 (grid (make-layout-options)
-                       (make-layout-options)
-                       `((:offset 0 0
-                                  ,@(make-rows))))))))))
+               (stack
+                (background (list 1.0 1.0 1.0)
+                            (filler))
+                (grid (make-layout-options)
+                      (make-layout-options)
+                      `((:offset 0 0
+                                 ,@(make-rows))))))))))
 
 (defun aligner-1 ()
   (let ((color1 (list 0.7 0.9 0.4))
         (h-options '(:left :center :right :fill))
         (v-options '(:top :center :bottom :fill)))
     (labels ((make-cell (text &key (horizontal :center) (vertical :center))
-               (upad 2
-                 (stk
-                   (bg color1 (flr))
-                   (aligner (btntxt text) :horizontal horizontal :vertical vertical))))
+               (uniform-padding 2
+                                (stack
+                                 (background color1 (filler))
+                                 (aligner (button-text text) :horizontal horizontal :vertical vertical))))
              (make-row (v-option)
                (loop
                   for h-option in h-options
@@ -474,15 +479,15 @@
                                                  :horizontal h-option
                                                  :vertical v-option)))))
       (scene *scene-width* *scene-height*
-             (stk
-               (bg (list 1.0 1.0 1.0)
-                   (flr))
-               (grid nil
-                     nil
-                     `((:row ,@(make-row (elt v-options 0)))
-                       (:row ,@(make-row (elt v-options 1)))
-                       (:row ,@(make-row (elt v-options 2)))
-                       (:row ,@(make-row (elt v-options 3))))))))))
+             (stack
+              (background (list 1.0 1.0 1.0)
+                          (filler))
+              (grid nil
+                    nil
+                    `((:row ,@(make-row (elt v-options 0)))
+                      (:row ,@(make-row (elt v-options 1)))
+                      (:row ,@(make-row (elt v-options 2)))
+                      (:row ,@(make-row (elt v-options 3))))))))))
 
 (defun run-all-tests ()
   (test-scene (background-clear))
@@ -493,8 +498,8 @@
   (test-scene (scrollbars))
   (test-scene (icon))
   (test-scene (text-baseline-alignment))
-  (test-scene (vbox-layout-options))
-  (test-scene (hbox-layout-options))
+  (test-scene (vertical-box-layout-options))
+  (test-scene (horizontal-box-layout-options))
   (test-scene (grid-basic))
   (test-scene (grid-offset))
   (test-scene (grid-spans))

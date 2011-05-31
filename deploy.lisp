@@ -14,7 +14,7 @@
 (load (compile-file "scenic-decorators.lisp"))
 (load (compile-file "scenic-buttons.lisp"))
 (load (compile-file "scenic-scroll.lisp"))
-(load (compile-file "scenic-macros.lisp"))
+(load (compile-file "scenic-helpers.lisp"))
 (load (compile-file "scenic.lisp"))
 (load (compile-file "scenic-test.lisp"))
 

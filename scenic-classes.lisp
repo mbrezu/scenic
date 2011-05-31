@@ -153,10 +153,11 @@
 ;;; IMAGE class.
 
 (defclass image (widget)
-  ((image :accessor image :initarg :image :initform nil)))
+  ((image-surface :accessor image-surface :initarg :image-surface :initform nil)))
 
 (defmethod paint ((instance image))
-  (cl-cairo2:set-source-surface (image instance) (layout-left instance) (layout-top instance))
+  (cl-cairo2:set-source-surface (image-surface instance)
+                                (layout-left instance) (layout-top instance))
   (cl-cairo2:rectangle (layout-left instance) (layout-top instance)
                        (layout-width instance) (layout-height instance))
   (cl-cairo2:clip)
