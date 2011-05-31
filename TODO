@@ -11,16 +11,18 @@
 *** DONE horizontal
 *** DONE vertical
 ** DONE arrow buttons
-* TODO grid layout;
+* DONE grid layout;
 ** DONE first cut;
 ** DONE add offsets on the cell arrangement DSL;
 ** DONE add column and row spans;
-** TODO add row and column layout options (similar to boxes);
+** DONE add row and column layout options (similar to boxes);
 *** DONE first cut;
 *** DONE move the grid into its own package (it has many helper functions)
 *** DONE write some tests for the column/row layout options
-** TODO change vertical and horizontal boxes to be one dimensional grids
-** TODO add aligner widgets that use a grid to align their child
+** DONE change vertical and horizontal boxes to be one dimensional grids
+   decided not to do it, boxes are faster
+** DONE add aligner widgets that use a grid to align their child
+   added a separate aligner widget - faster
 * TODO scroll view;
 * DONE min/max controls (they force the min/max width/height for their child)
 * TODO text box;
@@ -30,4 +32,7 @@
 * TODO checkbox/radio box;
 * TODO themes/widget factories;
 * TODO unit tests (e.g. for the grid layout)
-
+* TODO change the helper macros from scenic-macros into functions;
+   redefine the package and file to 'scenic-helpers'.
+* TODO tree widget
+* TODO datagrid widget

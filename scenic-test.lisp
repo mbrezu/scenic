@@ -5,10 +5,10 @@
   (scenic:run-scene scene))
 
 (defvar *scene-width*)
-(setf *scene-width* 600)
+(setf *scene-width* 700)
 
 (defvar *scene-height*)
-(setf *scene-height* 600)
+(setf *scene-height* 700)
 
 ;;; A very simple scene that clears the screen.
 (defun background-clear ()
@@ -458,6 +458,32 @@
                        `((:offset 0 0
                                   ,@(make-rows))))))))))
 
+(defun aligner-1 ()
+  (let ((color1 (list 0.7 0.9 0.4))
+        (h-options '(:left :center :right :fill))
+        (v-options '(:top :center :bottom :fill)))
+    (labels ((make-cell (text &key (horizontal :center) (vertical :center))
+               (upad 2
+                 (stk
+                   (bg color1 (flr))
+                   (aligner (btntxt text) :horizontal horizontal :vertical vertical))))
+             (make-row (v-option)
+               (loop
+                  for h-option in h-options
+                  collect (list :cell (make-cell (format nil "~a-~a" h-option v-option)
+                                                 :horizontal h-option
+                                                 :vertical v-option)))))
+      (scene *scene-width* *scene-height*
+             (stk
+               (bg (list 1.0 1.0 1.0)
+                   (flr))
+               (grid nil
+                     nil
+                     `((:row ,@(make-row (elt v-options 0)))
+                       (:row ,@(make-row (elt v-options 1)))
+                       (:row ,@(make-row (elt v-options 2)))
+                       (:row ,@(make-row (elt v-options 3))))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -474,4 +500,5 @@
   (test-scene (grid-spans))
   (test-scene (grid-layout-options))
   (test-scene (grid-layout-options-2))
-  (test-scene (grid-layout-options-3)))
+  (test-scene (grid-layout-options-3))
+  (test-scene (aligner-1)))

@@ -38,7 +38,8 @@
            arrow direction
            scrollbar
            orientable orientation
-           image image-path get-image))
+           image image-path get-image
+           aligner))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -47,7 +48,8 @@
 (defpackage :scenic-macros
   (:use :cl :scenic :scenic-grid)
   (:export bg border scene spc pad upad vbox flr stk lbl hbox
-           btn btntxt toggle hslider szr arr hsbar vsbar img grid))
+           btn btntxt toggle hslider szr arr hsbar vsbar img grid
+           aligner))
 
 (defpackage :scenic-test
   (:use :cl :scenic-macros :scenic-utils))

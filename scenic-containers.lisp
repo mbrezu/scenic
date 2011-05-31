@@ -217,3 +217,36 @@
 (defmethod (setf child) :after (value (instance container1))
   (setf (parent value) instance))
 
+;;; ALIGNER class.
+
+(defclass aligner (container1)
+  ((vertical :accessor vertical :initarg :vertical :initform :center)
+   (horizontal :accessor horizontal :initarg :horizontal :initform :center)))
+
+(defmethod measure ((object aligner) available-width availaible-height)
+  (let ((width-height (measure (child object) available-width availaible-height)))
+    (call-next-method object
+                      (min (first width-height) available-width)
+                      (min (second width-height) availaible-height))))
+
+(defmethod layout ((object aligner) left top width height)
+  (let ((child-width (measured-width (child object)))
+        (child-height (measured-height (child object))))
+    (let ((h-space (max 0 (- width child-width)))
+          (v-space (max 0 (- height child-height))))
+      (layout (child object)
+              (ecase (horizontal object)
+                ((:left :fill) left)
+                ((:right) (+ h-space left))
+                ((:center) (+ (/ h-space 2) left)))
+              (ecase (vertical object)
+                ((:top :fill) top)
+                ((:bottom) (+ v-space top))
+                ((:center) (+ (/ v-space 2) top)))
+              (ecase (horizontal object)
+                ((:left :right :center) child-width)
+                ((:fill) width))
+              (ecase (vertical object)
+                ((:top :bottom :center) child-height)
+                ((:fill) width)))
+      (call-next-method object left top width height))))

@@ -134,3 +134,9 @@
                  :column-layout-options column-layout-options
                  :row-layout-options row-layout-options
                  :children-descriptions children-descriptions))
+
+(defun aligner (child &key (horizontal :center) (vertical :center))
+  (make-instance 'aligner
+                 :child child
+                 :horizontal horizontal
+                 :vertical vertical))
