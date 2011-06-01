@@ -41,7 +41,8 @@
            orientable orientation
            image image-path get-image
            aligner
-           clipper))
+           clipper
+           glass opacity))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -61,7 +62,8 @@
            horizontal-scrollbar vertical-scrollbar
            image grid
            aligner
-           clipper))
+           clipper
+           glass))
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)

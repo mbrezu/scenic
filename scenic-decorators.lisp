@@ -152,3 +152,41 @@
 (defmethod after-paint ((instance clipper))
   (cl-cairo2:reset-clip))
 
+;;; GLASS class.
+
+(defclass glass (container1)
+  ((opacity :accessor opacity :initarg :opacity :initform :center)
+   (old-context :accessor old-context
+                :initarg :old-context
+                :initform :center)
+   (cairo-surface :accessor cairo-surface
+                  :initarg :cairo-surface
+                  :initform :center)))
+
+(defmethod paint ((instance glass))
+  (setf (cairo-surface instance)
+        (cl-cairo2:create-image-surface :argb32
+                                        (measured-width instance)
+                                        (measured-height instance)))
+  (setf (old-context instance) cl-cairo2:*context*)
+  (setf cl-cairo2:*context*
+        (cl-cairo2:create-context (cairo-surface instance)))
+  (cl-cairo2:translate (- (layout-left instance)) (- (layout-top instance))))
+
+(defmethod after-paint ((instance glass))
+  (cl-cairo2:destroy cl-cairo2:*context*)
+  (setf cl-cairo2:*context* (old-context instance))
+
+  (cl-cairo2:rectangle (layout-left instance)
+                       (layout-top instance)
+                       (layout-width instance)
+                       (layout-height instance))
+  (cl-cairo2:clip)
+  (cl-cairo2:set-source-surface (cairo-surface instance)
+                                (layout-left instance)
+                                (layout-top instance))
+  (cl-cairo2:paint-with-alpha (opacity instance))
+  (cl-cairo2:reset-clip)
+
+  ;; Cleaning up.
+  (cl-cairo2:destroy (cairo-surface instance)))

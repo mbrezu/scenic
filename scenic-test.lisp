@@ -531,6 +531,31 @@
                        `((:column (:cell ,(unbounded-cell))
                                   (:cell ,(bounded-cell)))))))))))))
 
+(defun glass-1 ()
+  (scene *scene-width* *scene-height*
+         (stack
+          (background (list 1.0 1.0 1.0)
+                      (filler))
+          (vertical-box 0
+                        '(:auto)
+                        (list (horizontal-box
+                               5 '(:auto :auto :auto)
+                               (list
+                                (glass 0.2 (background (list 1.0 0.3 0.3)
+                                                       (placeholder 100 100)))
+                                (glass 0.2 (background (list 0.3 1.0 0.3)
+                                                       (placeholder 100 100)))
+                                (glass 0.2 (background (list 0.3 0.3 1.0)
+                                                       (placeholder 100 100)))))
+                              (uniform-padding
+                               3
+                               (border
+                                (list 0.0 0.0 0.0) 1
+                                (background (list 0.8 0.8 0.8)
+                                            (uniform-padding
+                                             3
+                                             (label "Aici e un text" :size 20))))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -549,4 +574,5 @@
   (test-scene (grid-layout-options-2))
   (test-scene (grid-layout-options-3))
   (test-scene (aligner-1))
-  (test-scene (clipper-1)))
+  (test-scene (clipper-1))
+  (test-scene (glass-1)))

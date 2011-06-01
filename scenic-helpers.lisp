@@ -146,3 +146,7 @@
   (make-instance 'clipper
                  :child child))
 
+(defun glass (opacity child)
+  (make-instance 'glass
+                 :opacity opacity
+                 :child child))

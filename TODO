@@ -28,11 +28,16 @@
 * DONE rename the helper functions in :scenic-helper to sane alternatives;
 * DONE min/max controls (they force the min/max width/height for their child)
 * DONE clipper class
-* TODO refactor the measure-* and layout-* setting
+* DONE refactor the measure-* and layout-* setting
   - add separate methods for them, don't call-next-method to do it;
   - factor the duplicated code for background and clipper into
     the measure/layout for container1
-* TODO opacity class
+* DONE opacity class
+* TODO grid processing - in the same order that the controls
+  appeared in the lisp source (reverse the lists at the end of
+  apply-children-descriptions)
+* TODO canvas class (top/left/bottom/right/width/height positioning)
+  called henchman
 * TODO scroll view;
 * TODO text box;
 * TODO popups/dialogs;
