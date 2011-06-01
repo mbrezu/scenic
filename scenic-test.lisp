@@ -554,7 +554,7 @@
                                 (background (list 0.8 0.8 0.8)
                                             (uniform-padding
                                              3
-                                             (label "Aici e un text" :size 20))))))))))
+                                             (label "The quick brown etc." :size 20))))))))))
 
 (defun run-all-tests ()
   (test-scene (background-clear))

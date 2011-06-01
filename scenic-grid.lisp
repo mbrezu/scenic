@@ -58,7 +58,10 @@
                                                 (nthcdr 3 description)
                                                 (+ column-offset (second description))
                                                 (+ row-offset (third description))))))
-          descriptions)))
+          descriptions)
+    (setf (children instance) (reverse (children instance)))
+    (setf (children-options instance) (reverse (children-options instance)))
+    (setf (children-locations instance) (reverse (children-locations instance)))))
 
 (defun add-column (grid children column column-offset row-offset)
   (loop

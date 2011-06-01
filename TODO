@@ -33,7 +33,7 @@
   - factor the duplicated code for background and clipper into
     the measure/layout for container1
 * DONE opacity class
-* TODO grid processing - in the same order that the controls
+* DONE grid processing - in the same order that the controls
   appeared in the lisp source (reverse the lists at the end of
   apply-children-descriptions)
 * TODO canvas class (top/left/bottom/right/width/height positioning)
