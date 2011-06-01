@@ -231,14 +231,14 @@
     (dotimes (column column-count)
       (dotimes (row row-count)
         (aif (aref auto-cells row column)
-             (let ((width-height
-                    (measure it current-available-width current-available-height)))
+             (multiple-value-bind (width height)
+                 (measure it current-available-width current-available-height)
                (when (eq :auto (elt column-layout-options column))
                  (setf (aref column-widths column)
-                       (max (aref column-widths column) (first width-height))))
+                       (max (aref column-widths column) width)))
                (when (eq :auto (elt row-layout-options row))
                  (setf (aref row-heights row)
-                       (max (aref row-heights row) (second width-height))))))))
+                       (max (aref row-heights row) height)))))))
     (values column-widths row-heights)))
 
 (defun determine-auto-cells (object column-count row-count)

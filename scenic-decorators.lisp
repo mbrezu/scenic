@@ -10,14 +10,15 @@
    (bottom-padding :accessor bottom-padding :initarg :bottom-padding :initform 0)))
 
 (defmethod measure ((object padding) available-width available-height)
-  (let* ((size (measure (child object)
-                        (- available-width
-                           (left-padding object) (right-padding object))
-                        (- available-height
-                           (top-padding object) (bottom-padding object))))
-         (width (+ (left-padding object) (right-padding object) (first size)))
-         (height (+ (top-padding object) (bottom-padding object) (second size))))
-    (call-next-method object width height)))
+  (multiple-value-bind (child-width child-height)
+      (measure (child object)
+               (- available-width
+                  (left-padding object) (right-padding object))
+               (- available-height
+                  (top-padding object) (bottom-padding object)))
+    (let ((width (+ (left-padding object) (right-padding object) child-width))
+          (height (+ (top-padding object) (bottom-padding object) child-height)))
+      (set-measured object width height))))
 
 (defmethod layout ((object padding) left top width height)
   (layout (child object)
@@ -25,7 +26,7 @@
           (+ top (top-padding object))
           (- width (+ (left-padding object) (right-padding object)))
           (- height (+ (top-padding object) (bottom-padding object))))
-  (call-next-method object left top width height))
+  (set-layout object left top width height))
 
 ;;; BORDER class.
 
@@ -43,12 +44,13 @@
   (cl-cairo2:stroke))
 
 (defmethod measure ((object border) available-width available-height)
-  (let* ((size (measure (child object)
-                        (- available-width (* 2 (stroke-width object)))
-                        (- available-height (* 2 (stroke-width object)))))
-         (width (+ (* 2 (stroke-width object)) (first size)))
-         (height (+ (* 2 (stroke-width object)) (second size))))
-    (call-next-method object width height)))
+  (multiple-value-bind (child-width child-height)
+      (measure (child object)
+               (- available-width (* 2 (stroke-width object)))
+               (- available-height (* 2 (stroke-width object))))
+    (let ((width (+ (* 2 (stroke-width object)) child-width))
+          (height (+ (* 2 (stroke-width object)) child-height)))
+      (set-measured object width height))))
 
 (defmethod layout ((object border) left top width height)
   (layout (child object)
@@ -56,7 +58,7 @@
           (+ top (stroke-width object))
           (- width (* 2 (stroke-width object)))
           (- height (* 2 (stroke-width object))))
-  (call-next-method object left top width height))
+  (set-layout object left top width height))
 
 ;;; BACKGROUND class.
 
@@ -71,19 +73,6 @@
   (apply #'cl-cairo2:set-source-rgb (fill-color object))
   (cl-cairo2:fill-path))
 
-(defmethod measure ((object background) available-width available-height)
-  (apply #'call-next-method
-         object
-         (measure (child object) available-width available-height)))
-
-(defmethod layout ((object background) left top width height)
-  (layout (child object)
-          left
-          top
-          width
-          height)
-  (call-next-method object left top width height))
-
 ;;; SIZER class.
 
 (defclass sizer (container1)
@@ -93,25 +82,25 @@
    (max-height :accessor max-height :initarg :max-height :initform nil)))
 
 (declaim (optimize (debug 3)))
+
 (defmethod measure ((object sizer) available-width available-height)
-  (let* ((size (measure (child object)
-                        (if (null (max-width object))
-                            available-width
-                            (min available-width (max-width object)))
-                        (if (null (max-height object))
-                            available-height
-                            (min available-height (max-height object)))))
-         (width (first size))
-         (height (second size)))
+  (multiple-value-bind (width height)
+      (measure (child object)
+               (if (null (max-width object))
+                   available-width
+                   (min available-width (max-width object)))
+               (if (null (max-height object))
+                   available-height
+                   (min available-height (max-height object))))
     (when (not (null (min-width object)))
       (setf width (max width (min-width object))))
     (when (not (null (min-height object)))
       (setf height (max height (min-height object))))
-    (call-next-method object width height)))
+    (set-measured object width height)))
 
 (defmethod layout ((object sizer) left top width height)
   (layout (child object) left top width height)
-  (call-next-method))
+  (set-layout object left top width height))
 
 ;;; ALIGNER class.
 
@@ -120,10 +109,11 @@
    (horizontal :accessor horizontal :initarg :horizontal :initform :center)))
 
 (defmethod measure ((object aligner) available-width availaible-height)
-  (let ((width-height (measure (child object) available-width availaible-height)))
+  (multiple-value-bind (width height)
+      (measure (child object) available-width availaible-height)
     (call-next-method object
-                      (min (first width-height) available-width)
-                      (min (second width-height) availaible-height))))
+                      (min width available-width)
+                      (min height availaible-height))))
 
 (defmethod layout ((object aligner) left top width height)
   (let ((child-width (measured-width (child object)))
@@ -145,7 +135,7 @@
               (ecase (vertical object)
                 ((:top :bottom :center) child-height)
                 ((:fill) width)))
-      (call-next-method object left top width height))))
+      (set-layout object left top width height))))
 
 ;;; CLIPPER class.
 
@@ -162,15 +152,3 @@
 (defmethod after-paint ((instance clipper))
   (cl-cairo2:reset-clip))
 
-(defmethod measure ((object clipper) available-width available-height)
-  (apply #'call-next-method
-         object
-         (measure (child object) available-width available-height)))
-
-(defmethod layout ((object clipper) left top width height)
-  (layout (child object)
-          left
-          top
-          width
-          height)
-  (call-next-method object left top width height))

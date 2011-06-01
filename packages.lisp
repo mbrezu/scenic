@@ -9,9 +9,10 @@
   (:use :cl :scenic-utils)
   (:export run-scene
            eventful add-event-handler on-event
-           widget min-width
-           min-height max-width max-height measured-width measured-height
+           widget measured-width measured-height
+           set-measured
            layout-left layout-top layout-width layout-height
+           set-layout
            parent
            measure layout paint-scene
            container box stack children space-between-cells

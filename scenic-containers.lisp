@@ -142,14 +142,14 @@
                                    (* (first lo) (slice-size object))))
             (incf allocated-space (* (first lo) (slice-size object)))))
     (ifhorizontal object
-                  (call-next-method object
-                                    (+ total-spacing allocated-space)
-                                    (apply #'max (mapcar #'measured-height
-                                                         (children object))))
-                  (call-next-method object
-                                    (apply #'max (mapcar #'measured-width
-                                                         (children object)))
-                                    (+ total-spacing allocated-space)))))
+                  (set-measured object
+                                (+ total-spacing allocated-space)
+                                (apply #'max (mapcar #'measured-height
+                                                     (children object))))
+                  (set-measured object
+                                (apply #'max (mapcar #'measured-width
+                                                     (children object)))
+                                (+ total-spacing allocated-space)))))
 
 (defmethod layout ((object box) left top width height)
   (let ((running (ifhorizontal object left top)))
@@ -193,15 +193,19 @@
   ())
 
 (defmethod measure ((object stack) available-width available-height)
-  (apply #'call-next-method
-         object
-         (max-box (mapcar #'(lambda (widget)
-                              (measure widget available-width available-height))
-                          (children object)))))
+  (let ((max-width 0)
+        (max-height 0))
+    (mapc (lambda (widget)
+            (multiple-value-bind (w h)
+                (measure widget available-width available-height)
+              (setf max-width (max max-width w))
+              (setf max-height (max max-height h))))
+          (children object))
+    (set-measured object max-width max-height)))
 
 (defmethod layout ((object stack) left top width height)
-  (mapc #'(lambda (widget)
-            (layout widget left top (measured-width object) (measured-height object)))
+  (mapc (lambda (widget)
+          (layout widget left top (measured-width object) (measured-height object)))
         (children object))
   (call-next-method object left top width height))
 
@@ -223,5 +227,16 @@
 (defmethod (setf child) :after (value (instance container1))
   (setf (parent value) instance))
 
+(defmethod measure ((object container1) available-width available-height)
+  (multiple-value-bind (width height)
+      (measure (child object) available-width available-height)
+    (set-measured object width height)))
 
+(defmethod layout ((object container1) left top width height)
+  (layout (child object)
+          left
+          top
+          width
+          height)
+  (set-layout object left top width height))
 

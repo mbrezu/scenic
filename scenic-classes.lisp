@@ -72,23 +72,29 @@
                 (layout-left widget) (layout-top widget)
                 (layout-width widget) (layout-height widget)))
 
+(defun set-measured (widget available-width available-height)
+  (setf (measured-width widget) available-width)
+  (setf (measured-height widget) available-height)
+  (values available-width available-height))
+
 (defmethod measure ((object widget) available-width available-height)
-  (setf (measured-width object) available-width)
-  (setf (measured-height object) available-height)
-  (list available-width available-height))
+  (set-measured object available-width available-height))
+
+(defun set-layout (widget left top width height)
+  (setf (layout-left widget) left)
+  (setf (layout-top widget) top)
+  (setf (layout-width widget) width)
+  (setf (layout-height widget) height)
+  (values))
 
 (defmethod layout ((object widget) left top width height)
-  (setf (layout-left object) left)
-  (setf (layout-top object) top)
-  (setf (layout-width object) width)
-  (setf (layout-height object) height))
+  (set-layout object left top width height))
 
 (defmethod paint ((object widget)))
 
 (defmethod after-paint ((object widget)))
 
 (defmethod paint-order-walk ((object widget) callback &key (after-callback nil))
-  (declare (ignore after-callback))
   (funcall callback object)
   (when after-callback
     (funcall after-callback object)))
@@ -100,9 +106,9 @@
    (height :accessor height :initarg :height :initform 0)))
 
 (defmethod measure ((object placeholder) available-width available-height)
-  (call-next-method object
-                    (min (width object) available-width)
-                    (min (height object) available-height)))
+  (set-measured object
+                (min (width object) available-width)
+                (min (height object) available-height)))
 
 ;;; FILLER class.
 
@@ -130,12 +136,12 @@
     (declare (ignore x_bearing y_bearing x_advance y_advance height))
     (let* ((extents (cl-cairo2:get-font-extents))
            (ascent (cl-cairo2:font-ascent extents)))
-      (call-next-method object
-                        (min width available-width)
-                        (min ascent available-height)))))
+      (set-measured object
+                    (min width available-width)
+                    (min ascent available-height)))))
 
 (defmethod layout ((object label) left top width height)
-  (call-next-method object left top (measured-width object) (measured-height object)))
+  (set-layout object left top (measured-width object) (measured-height object)))
 
 (defmethod paint ((object label))
   (cl-cairo2:set-font-size (font-size object))

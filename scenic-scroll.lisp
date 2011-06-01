@@ -107,10 +107,10 @@
   ((direction :accessor direction :initarg :direction :initform nil)))
 
 (defmethod measure ((object arrow) available-width available-height)
-  (call-next-method object 16 16))
+  (set-measured object 16 16))
 
 (defmethod layout ((object arrow) left top width height)
-  (call-next-method object left top 16 16))
+  (set-layout object left top 16 16))
 
 (defmethod paint ((object arrow))
   (ecase (direction object)

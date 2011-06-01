@@ -48,8 +48,9 @@
   (invalidate instance))
 
 (defmethod measure ((object button) available-width available-height)
-  (let ((child-size (measure (child object) available-width available-height)))
-    (call-next-method object (+ 3 (first child-size)) (+ 3 (second child-size)))))
+  (multiple-value-bind (width height)
+      (measure (child object) available-width available-height)
+    (set-measured object (+ 3 width) (+ 3 height))))
 
 (defmethod layout ((object button) left top width height)
   (case (click-state object)
@@ -59,7 +60,7 @@
     (:half-click (layout (child object)
                          (+ 2 left) (+ 2 top)
                          (- width 3) (- height 3))))
-  (call-next-method))
+  (set-layout object left top width height))
 
 (defun draw-button (button pressed)
   (draw-button-raw (layout-left button)
