@@ -141,3 +141,8 @@
                  :child child
                  :horizontal horizontal
                  :vertical vertical))
+
+(defun clipper (child)
+  (make-instance 'clipper
+                 :child child))
+

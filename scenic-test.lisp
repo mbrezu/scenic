@@ -50,20 +50,22 @@
                      (stack
                       (background (list 1.0 1.0 1.0)
                                   (filler))
-                      (uniform-padding 5
-                                       (vertical-box 0
-                                                     '(:auto)
-                                                     (list
-                                                      (horizontal-box 10
-                                                                      '(:auto :auto)
-                                                                      (list
-                                                                       (border (list 0 0 0) 1
-                                                                               (setf push-button
-                                                                                     (button-text "Push Button")))
-                                                                       (border
-                                                                        (list 0 0 0) 1
-                                                                        (setf toggle-button
-                                                                              (toggle "Toggle Button")))))))))))
+                      (uniform-padding
+                       5
+                       (vertical-box
+                        0
+                        '(:auto)
+                        (list
+                         (horizontal-box 10
+                                         '(:auto :auto)
+                                         (list
+                                          (border (list 0 0 0) 1
+                                                  (setf push-button
+                                                        (button-text "Push Button")))
+                                          (border
+                                           (list 0 0 0) 1
+                                           (setf toggle-button
+                                                 (toggle "Toggle Button")))))))))))
     (scenic:add-event-handler push-button :mouse-move :cascade
                               (lambda (object event)
                                 (format t "button mouse move: ~a ~a~%" object event)))
@@ -91,16 +93,18 @@
                      (stack
                       (background (list 1.0 1.0 1.0)
                                   (filler))
-                      (vertical-box 10
-                                    '(:auto)
-                                    (list (uniform-padding 5
-                                                           (horizontal-box 10
-                                                                           '(:auto)
-                                                                           (list
-                                                                            (sizer (setf slider
-                                                                                         (horizontal-slider 0 50 30))
-                                                                                   :max-width 200
-                                                                                   :max-height 19)))))))))
+                      (vertical-box
+                       10
+                       '(:auto)
+                       (list (uniform-padding 5
+                                              (horizontal-box
+                                               10
+                                               '(:auto)
+                                               (list
+                                                (sizer (setf slider
+                                                             (horizontal-slider 0 50 30))
+                                                       :max-width 200
+                                                       :max-height 19)))))))))
     (scenic:add-event-handler slider :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
@@ -119,21 +123,24 @@
                       (background (list 1.0 1.0 1.0)
                                   (filler))
                       (uniform-padding 5
-                                       (horizontal-box 0
-                                                       '(:auto :auto)
-                                                       (list
-                                                        (vertical-box 0
-                                                                      '(:auto :auto)
-                                                                      (list (background
-                                                                             (list 0.3 0.4 0.5)
-                                                                             (placeholder 200 200))
-                                                                            (sizer (setf horizontal-scrollbar
-                                                                                         (horizontal-scrollbar 0 50 30))
-                                                                                   :max-height 19
-                                                                                   :max-width 200)))
-                                                        (sizer (setf vertical-scrollbar (vertical-scrollbar 0 50 30))
-                                                               :max-width 19
-                                                               :max-height 200)))))))
+                                       (horizontal-box
+                                        0
+                                        '(:auto :auto)
+                                        (list
+                                         (vertical-box
+                                          0
+                                          '(:auto :auto)
+                                          (list (background
+                                                 (list 0.3 0.4 0.5)
+                                                 (placeholder 200 200))
+                                                (sizer (setf horizontal-scrollbar
+                                                             (horizontal-scrollbar 0 50 30))
+                                                       :max-height 19
+                                                       :max-width 200)))
+                                         (sizer (setf vertical-scrollbar
+                                                      (vertical-scrollbar 0 50 30))
+                                                :max-width 19
+                                                :max-height 200)))))))
     (scenic:add-event-handler horizontal-scrollbar :position-changed :bubble
                               (lambda (object event)
                                 (declare (ignore event))
@@ -172,31 +179,34 @@
          (stack
           (background (list 1.0 1.0 1.0)
                       (filler))
-          (vertical-box 0 '(:auto)
-                        (list
-                         (uniform-padding 10
-                                          (horizontal-box 10 '(:auto :auto :auto)
-                                                          (list
-                                                           (border (list 0.3 0.3 0.3)
-                                                                   1
-                                                                   (background (list 0.7 0.7 0.7)
-                                                                               (uniform-padding 3
-                                                                                                (label "S p" :size 20
-                                                                                                     :slant :italic))))
-                                                           (border (list 0.3 0.3 0.3)
-                                                                   1
-                                                                   (background (list 0.7 0.7 0.7)
-                                                                               (uniform-padding 3
-                                                                                                (label "S a"
-                                                                                                     :color (list 0.2 0.4 0.6)
-                                                                                                     :size 20))))
-                                                           (border (list 0.3 0.3 0.3)
-                                                                   1
-                                                                   (background (list 0.7 0.7 0.7)
-                                                                               (uniform-padding 3
-                                                                                                (label "s j"
-                                                                                                     :size 20
-                                                                                                     :weight :bold))))))))))))
+          (vertical-box
+           0 '(:auto)
+           (list
+            (uniform-padding
+             10
+             (horizontal-box
+              10 '(:auto :auto :auto)
+              (list
+               (border
+                (list 0.3 0.3 0.3) 1
+                (background (list 0.7 0.7 0.7)
+                            (uniform-padding 3
+                                             (label "S p" :size 20
+                                                    :slant :italic))))
+               (border
+                (list 0.3 0.3 0.3) 1
+                (background (list 0.7 0.7 0.7)
+                            (uniform-padding 3
+                                             (label "S a"
+                                                    :color (list 0.2 0.4 0.6)
+                                                    :size 20))))
+               (border
+                (list 0.3 0.3 0.3) 1
+                (background (list 0.7 0.7 0.7)
+                            (uniform-padding 3
+                                             (label "s j"
+                                                    :size 20
+                                                    :weight :bold))))))))))))
 
 (defun vertical-box-layout-options ()
   (labels ((make-strip (text color &optional (max-height nil))
@@ -471,7 +481,9 @@
                (uniform-padding 2
                                 (stack
                                  (background color1 (filler))
-                                 (aligner (button-text text) :horizontal horizontal :vertical vertical))))
+                                 (aligner (button-text text)
+                                          :horizontal horizontal
+                                          :vertical vertical))))
              (make-row (v-option)
                (loop
                   for h-option in h-options
@@ -488,6 +500,36 @@
                       (:row ,@(make-row (elt v-options 1)))
                       (:row ,@(make-row (elt v-options 2)))
                       (:row ,@(make-row (elt v-options 3))))))))))
+
+(defun clipper-1 ()
+  (let ((color1 (list 0.7 0.9 0.4))
+        (color2 (list 0.4 0.7 0.8)))
+    (labels ((unbounded-cell ()
+               (uniform-padding
+                3
+                (background
+                 color2
+                 (uniform-padding 3 (label "Breakfast" :size 18)))))
+             (bounded-cell ()
+               (uniform-padding
+                3
+                (background
+                 color2
+                 (uniform-padding 3 (clipper (label "Breakfast" :size 18)))))))
+      (scene *scene-width* *scene-height*
+             (stack
+              (background (list 1.0 1.0 1.0)
+                          (filler))
+              (horizontal-box
+               0
+               '((70 :px))
+               (list
+                (background
+                 color1
+                 (grid nil
+                       nil
+                       `((:column (:cell ,(unbounded-cell))
+                                  (:cell ,(bounded-cell)))))))))))))
 
 (defun run-all-tests ()
   (test-scene (background-clear))
@@ -506,4 +548,5 @@
   (test-scene (grid-layout-options))
   (test-scene (grid-layout-options-2))
   (test-scene (grid-layout-options-3))
-  (test-scene (aligner-1)))
+  (test-scene (aligner-1))
+  (test-scene (clipper-1)))

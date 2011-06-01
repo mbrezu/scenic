@@ -39,7 +39,8 @@
            scrollbar
            orientable orientation
            image image-path get-image
-           aligner))
+           aligner
+           clipper))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -58,7 +59,8 @@
            sizer arrow
            horizontal-scrollbar vertical-scrollbar
            image grid
-           aligner))
+           aligner
+           clipper))
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)

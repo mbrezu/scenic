@@ -9,7 +9,9 @@
 
 (defgeneric paint (object))
 
-(defgeneric paint-order-walk (object callback))
+(defgeneric after-paint (object))
+
+(defgeneric paint-order-walk (object callback &key after-callback))
 
 (defgeneric in-widget (x y widget))
 
@@ -83,8 +85,13 @@
 
 (defmethod paint ((object widget)))
 
-(defmethod paint-order-walk ((object widget) callback)
-  (funcall callback object))
+(defmethod after-paint ((object widget)))
+
+(defmethod paint-order-walk ((object widget) callback &key (after-callback nil))
+  (declare (ignore after-callback))
+  (funcall callback object)
+  (when after-callback
+    (funcall after-callback object)))
 
 ;;; PLACEHOLDER class.
 

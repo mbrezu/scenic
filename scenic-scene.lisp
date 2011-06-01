@@ -77,7 +77,9 @@
       (paint-order-walk (widget scene)
                         (lambda (object)
                           (paint object)
-                          t))
+                          t)
+                        :after-callback (lambda (object)
+                                          (after-paint object)))
       (progn
         (let ((number 0))
           (paint-order-walk (widget scene)
@@ -90,7 +92,11 @@
                             (when (widget-paint-member object (dirty-list scene))
                               (paint object)
                               (push object (dirty-list scene)))
-                            t))
+                            t)
+                          :after-callback (lambda (object)
+                                            (when (widget-paint-member object
+                                                                       (dirty-list scene))
+                                              (after-paint object))))
         (setf (rectangle-to-redraw scene)
               (reduce #'common-bounding-box
                       (mapcar #'bounding-box (dirty-list scene))))))
