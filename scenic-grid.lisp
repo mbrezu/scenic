@@ -101,9 +101,8 @@
            (push (car child) (children grid))
            (push options (children-options grid))
            (push (list column row) (children-locations grid))
-           (let ((colspan 1)
-                 (rowspan 1))
-             (set-from-options options colspan rowspan)
+           (let-from-options options ((colspan 1)
+                                      (rowspan 1))
              (values colspan rowspan))))
         (t (error (format nil "Invalid cell description ~a." child)))))
 
@@ -184,9 +183,8 @@
        for options in (children-options object)
        ;; If it's in auto-cells, it's already measured.
        unless (aref auto-cells (second location) (first location))
-       do (let ((colspan 1)
-                (rowspan 1))
-            (set-from-options options colspan rowspan)
+       do (let-from-options options ((colspan 1)
+                                     (rowspan 1))
             (measure child
                      (get-size (column-widths object) (first location) colspan)
                      (get-size (row-heights object) (second location) rowspan))))))
@@ -271,13 +269,11 @@
     auto-cells))
 
 (defun colspan-1 (options)
-  (let ((colspan 1))
-    (set-from-options options colspan)
+  (let-from-options options ((colspan 1))
     (= 1 colspan)))
 
 (defun rowspan-1 (options)
-  (let ((rowspan 1))
-    (set-from-options options rowspan)
+  (let-from-options options ((rowspan 1))
     (= 1 rowspan)))
 
 (defun get-dimensions (grid)
@@ -286,9 +282,8 @@
     (loop
        for location in (children-locations grid)
        for options in (children-options grid)
-       do (let ((colspan 1)
-                (rowspan 1))
-            (set-from-options options colspan rowspan)
+       do (let-from-options options ((colspan 1)
+                                     (rowspan 1))
             (setf column-count (max column-count (+ (first location) colspan)))
             (setf row-count (max row-count (+ (second location) rowspan)))))
     (values column-count row-count)))
@@ -318,9 +313,8 @@
        for child in (children object)
        for location in (children-locations object)
        for options in (children-options object)
-       do (let ((colspan 1)
-                (rowspan 1))
-            (set-from-options options colspan rowspan)
+       do (let-from-options options ((colspan 1)
+                                     (rowspan 1))
             (layout child
                     (aref column-left (first location))
                     (aref row-top (second location))

@@ -556,6 +556,48 @@
                                              3
                                              (label "The quick brown etc." :size 20))))))))))
 
+(defun henchman-1 ()
+  (labels ((make-child (color)
+             (background color
+                         (filler))))
+    (let ((color1 (list 1.0 0.3 0.3))
+          (color2 (list 0.3 1.0 0.3))
+          (color3 (list 0.3 0.3 1.0))
+          (color4 (list 0.7 0.3 1.0)))
+      (scene *scene-width* *scene-height*
+             (stack
+              (background (list 1.0 1.0 1.0)
+                          (filler))
+              (henchman '((:left 10 :top 10 :width 100 :height 100)
+                          (:left 10 :bottom 10 :width 100 :height 100)
+                          (:right 10 :top 10 :width 100 :height 100)
+                          (:right 10 :bottom 10 :width 100 :height 100))
+                        (list (make-child color1)
+                              (make-child color2)
+                              (make-child color3)
+                              (make-child color4))))))))
+
+(defun henchman-glass ()
+  (labels ((make-child (color)
+             (glass 0.2 (background color
+                                    (filler)))))
+    (let ((color1 (list 1.0 0.3 0.3))
+          (color2 (list 0.3 1.0 0.3))
+          (color3 (list 0.3 0.3 1.0))
+          (color4 (list 0.7 0.3 1.0)))
+      (scene *scene-width* *scene-height*
+             (stack
+              (background (list 1.0 1.0 1.0)
+                          (filler))
+              (henchman '((:left 10 :top 10 :width 100 :height 100)
+                          (:left 50 :top 10 :width 100 :height 100)
+                          (:left 10 :top 50 :width 100 :height 100)
+                          (:left 50 :top 50 :width 100 :height 100))
+                        (list (make-child color1)
+                              (make-child color2)
+                              (make-child color3)
+                              (make-child color4))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -575,4 +617,6 @@
   (test-scene (grid-layout-options-3))
   (test-scene (aligner-1))
   (test-scene (clipper-1))
-  (test-scene (glass-1)))
+  (test-scene (glass-1))
+  (test-scene (henchman-1))
+  (test-scene (henchman-glass)))

@@ -2,8 +2,8 @@
 (defpackage :scenic-utils
   (:use :cl)
   (:export max-box print-all draw-button-raw pass-to-child
-           ifhorizontal aif set-from-options
-           fill-list it))
+           ifhorizontal aif let-from-options
+           fill-list it groups))
 
 (defpackage :scenic
   (:use :cl :scenic-utils)
@@ -42,7 +42,8 @@
            image image-path get-image
            aligner
            clipper
-           glass opacity))
+           glass opacity
+           henchman))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -63,7 +64,8 @@
            image grid
            aligner
            clipper
-           glass))
+           glass
+           henchman))
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)

@@ -71,14 +71,16 @@
 (defun make-keyword (str)
   (intern (string-upcase str) "KEYWORD"))
 
-(defmacro set-from-options (options &rest variables)
+(defmacro let-from-options (options variables &body body)
   (let ((goption (gensym "option")))
-    `(loop
-        for ,goption in ,options
-          ,@(mapcan (lambda (var)
-                      `(when (eq ,(make-keyword (symbol-name var)) (car ,goption))
-                         do (setf ,var (cdr ,goption))))
-                    variables))))
+    `(let ,variables
+       (loop
+          for ,goption in ,options
+            ,@(mapcan (lambda (var)
+                        `(when (eq ,(make-keyword (symbol-name (first var))) (car ,goption))
+                           do (setf ,(first var) (cdr ,goption))))
+                      variables))
+       ,@body)))
 
 (defun fill-list (list desired-count element)
   (let ((add-count (- desired-count (length list))))
@@ -89,3 +91,9 @@
                    collect element))
         list)))
 
+(defun groups (list n)
+  (cond ((null list) nil)
+        ((< (length list) n)
+         (list list))
+        (t (cons (subseq list 0 n)
+                 (groups (subseq list n) n)))))

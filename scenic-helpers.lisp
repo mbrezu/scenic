@@ -150,3 +150,8 @@
   (make-instance 'glass
                  :opacity opacity
                  :child child))
+
+(defun henchman (children-locations children)
+  (make-instance 'henchman
+                 :children children
+                 :children-locations children-locations))

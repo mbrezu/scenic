@@ -240,3 +240,66 @@
           height)
   (set-layout object left top width height))
 
+;;; HENCHMAN class.
+
+(defclass henchman (container)
+  ((children-locations :accessor children-locations
+                       :initarg :children-locations
+                       :initform nil)))
+
+(defmethod measure ((object henchman) available-width available-height)
+  (set-measured object available-width available-height)
+  (let ((children-options (locations-to-options (children-locations object))))
+    (loop
+       for child in (children object)
+       for options in children-options
+       do (multiple-value-bind (left top width height)
+              (get-location options 0 0 available-width available-height)
+            (declare (ignore left top))
+            (measure child width height))))
+  (values available-width available-height))
+
+(defmethod layout ((object henchman) left top width height)
+  (set-layout object left top width height)
+  (let ((children-options (locations-to-options (children-locations object))))
+    (loop
+       for child in (children object)
+       for options in children-options
+       do (multiple-value-bind (cleft ctop cwidth cheight)
+              (get-location options left top width height)
+            (layout child cleft ctop cwidth cheight)))))
+
+(defun get-location (options pleft ptop pwidth pheight)
+  (let-from-options options ((left nil) (top nil)
+                             (right nil) (bottom nil)
+                             (width nil) (height nil))
+    (let (lleft lwidth ltop lheight)
+      (setf (values lleft lwidth) (get-pos-length pleft pwidth left width right))
+      (setf (values ltop lheight) (get-pos-length ptop pheight top height bottom))
+      (values lleft ltop lwidth lheight))))
+
+(defun get-pos-length (parent-pos parent-length maybe-pos maybe-length maybe-antipos)
+  (cond ((and maybe-pos maybe-length maybe-antipos)
+         (error "Position overspecified."))
+        ((and maybe-pos maybe-length)
+         (values (+ parent-pos maybe-pos)
+                 maybe-length))
+        ((and maybe-pos maybe-antipos)
+         (values (+ parent-pos maybe-pos)
+                 (1+ (- (- parent-length maybe-antipos) maybe-pos))))
+        ((and maybe-length maybe-antipos)
+         (values (+ (1+ (- (- parent-length maybe-antipos) maybe-length))
+                    parent-pos)
+                 maybe-length))
+        (t (error "Position underspecified."))))
+
+(defun locations-to-options (locations)
+  (let (result)
+    (loop
+       for location in locations
+       do (push (mapcar (lambda (list)
+                          (cons (first list)
+                                (second list)))
+                        (groups location 2))
+                result))
+    (nreverse result)))
