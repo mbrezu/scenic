@@ -43,7 +43,9 @@
            aligner
            clipper
            glass opacity
-           henchman))
+           henchman
+           scroll-view horizontal-offset vertical-offset
+           inside-width inside-height))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -65,7 +67,8 @@
            aligner
            clipper
            glass
-           henchman))
+           henchman
+           scroll-view))
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)

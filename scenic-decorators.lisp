@@ -96,6 +96,10 @@
       (setf width (max width (min-width object))))
     (when (not (null (min-height object)))
       (setf height (max height (min-height object))))
+    (when (not (null (max-width object)))
+      (setf width (min width (max-width object))))
+    (when (not (null (max-height object)))
+      (setf height (min height (max-height object))))
     (set-measured object width height)))
 
 (defmethod layout ((object sizer) left top width height)
@@ -143,6 +147,7 @@
   ())
 
 (defmethod paint ((instance clipper))
+  (cl-cairo2:save)
   (cl-cairo2:rectangle (layout-left instance)
                        (layout-top instance)
                        (layout-width instance)
@@ -150,7 +155,7 @@
   (cl-cairo2:clip))
 
 (defmethod after-paint ((instance clipper))
-  (cl-cairo2:reset-clip))
+  (cl-cairo2:restore))
 
 ;;; GLASS class.
 
@@ -177,6 +182,7 @@
   (cl-cairo2:destroy cl-cairo2:*context*)
   (setf cl-cairo2:*context* (old-context instance))
 
+  (cl-cairo2:save)
   (cl-cairo2:rectangle (layout-left instance)
                        (layout-top instance)
                        (layout-width instance)
@@ -186,7 +192,7 @@
                                 (layout-left instance)
                                 (layout-top instance))
   (cl-cairo2:paint-with-alpha (opacity instance))
-  (cl-cairo2:reset-clip)
+  (cl-cairo2:restore)
 
   ;; Cleaning up.
   (cl-cairo2:destroy (cairo-surface instance)))

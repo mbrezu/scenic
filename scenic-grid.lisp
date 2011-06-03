@@ -211,6 +211,7 @@
   (loop
      for lo in layout-options
      for idx = 0 then (1+ idx)
+     until (= idx (length size-array))
      when (and (consp lo) (eq :ext (second lo)))
      do (setf (aref size-array idx) (* (first lo) slice-size))
      when (and (consp lo) (eq :px (second lo)))

@@ -303,3 +303,51 @@
                         (groups location 2))
                 result))
     (nreverse result)))
+
+;;; SCROLL-VIEW class.
+
+(defclass scroll-view (container1)
+  ((horizontal-offset :accessor horizontal-offset
+                      :initarg :horizontal-offset
+                      :initform 0)
+   (vertical-offset :accessor vertical-offset
+                    :initarg :vertical-offset
+                    :initform 0)
+   (inside-width :accessor inside-width
+                 :initarg :inside-width
+                 :initform (expt 10 6))
+   (inside-height :accessor inside-height
+                  :initarg :inside-height
+                  :initform (expt 10 6))))
+
+(defmethod measure ((object scroll-view) available-width available-height)
+  (measure (child object) (inside-width object) (inside-height object))
+  (set-measured object available-width available-height)
+  (on-event object :scroll-view-measured
+            (make-instance 'scroll-view-measured-event
+                           :inner-width (measured-width (child object))
+                           :inner-height (measured-height (child object))
+                           :outer-width (measured-width object)
+                           :outer-height (measured-height object))
+            nil)
+  (values available-width available-width))
+
+(defmethod layout ((object scroll-view) left top width height)
+  (layout (child object)
+          left top
+          (measured-width (child object)) (measured-height (child object)))
+  (set-layout object left top width height))
+
+(defmethod paint ((object scroll-view))
+  (cl-cairo2:save)
+  (cl-cairo2:rectangle (layout-left object)
+                       (layout-top object)
+                       (layout-width object)
+                       (layout-height object))
+  (cl-cairo2:clip)
+  (cl-cairo2:translate (- (horizontal-offset object))
+                       (- (vertical-offset object))))
+
+(defmethod after-paint ((object scroll-view))
+  (cl-cairo2:restore))
+

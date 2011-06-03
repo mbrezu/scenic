@@ -155,3 +155,9 @@
   (make-instance 'henchman
                  :children children
                  :children-locations children-locations))
+
+(defun scroll-view (child &key (inside-width (expt 10 6)) (inside-height (expt 10 6)))
+  (make-instance 'scroll-view
+                 :child child
+                 :inside-width inside-width
+                 :inside-height inside-height))

@@ -509,13 +509,13 @@
                 3
                 (background
                  color2
-                 (uniform-padding 3 (label "Breakfast" :size 18)))))
+                 (uniform-padding 3 (label "Not clipped cell." :size 18)))))
              (bounded-cell ()
                (uniform-padding
                 3
                 (background
                  color2
-                 (uniform-padding 3 (clipper (label "Breakfast" :size 18)))))))
+                 (uniform-padding 3 (clipper (label "Clipped cell." :size 18)))))))
       (scene *scene-width* *scene-height*
              (stack
               (background (list 1.0 1.0 1.0)
@@ -529,7 +529,8 @@
                  (grid nil
                        nil
                        `((:column (:cell ,(unbounded-cell))
-                                  (:cell ,(bounded-cell)))))))))))))
+                                  (:cell ,(bounded-cell))
+                                  (:cell ,(unbounded-cell)))))))))))))
 
 (defun glass-1 ()
   (scene *scene-width* *scene-height*
@@ -598,6 +599,65 @@
                               (make-child color3)
                               (make-child color4))))))))
 
+(defun scroll-view-1 ()
+  (labels ((make-child (color)
+             (glass 0.2 (background color
+                                    (filler)))))
+    (let* ((color1 (list 1.0 0.3 0.3))
+           (color2 (list 0.3 1.0 0.3))
+           (color3 (list 0.3 0.3 1.0))
+           (color4 (list 0.7 0.3 1.0))
+           (scroll-view (scroll-view (sizer
+                                      (background
+                                       (list 1.0 1.0 1.0)
+                                       (henchman
+                                        '((:left 10 :top 10 :width 100 :height 100)
+                                          (:right 10 :top 10 :width 100 :height 100)
+                                          (:left 10 :bottom 10 :width 100 :height 100)
+                                          (:right 10 :bottom 10 :width 100 :height 100))
+                                        (list (make-child color1)
+                                              (make-child color2)
+                                              (make-child color3)
+                                              (make-child color4))))
+                                      :max-width 500
+                                      :max-height 500)))
+           (hscroll (horizontal-scrollbar 0 100 10))
+           (vscroll (vertical-scrollbar 0 100 10))
+           scene)
+      (setf scene (scene *scene-width* *scene-height*
+                         (stack
+                          (background (list 1.0 1.0 1.0)
+                                      (filler))
+                          (grid '((400 :px) (19 :px))
+                                '((400 :px) (19 :px))
+                                `((:row (:cell ,scroll-view)
+                                        (:cell ,vscroll))
+                                  (:row (:cell ,hscroll)))))))
+      (setf (scenic:horizontal-offset scroll-view) 50)
+      (setf (scenic:vertical-offset scroll-view) 50)
+      (scenic:add-event-handler scroll-view :scroll-view-measured :bubble
+                                (lambda (o evt)
+                                  (declare (ignore o))
+                                  (setf (scenic:page-size hscroll) (scenic::outer-width evt))
+                                  (setf (scenic:max-value hscroll) (scenic::inner-width evt))
+                                  (setf (scenic:page-size vscroll)
+                                        (scenic::outer-height evt))
+                                  (setf (scenic:max-value vscroll)
+                                        (scenic::inner-height evt))))
+      (scenic:add-event-handler hscroll :position-changed nil
+                                (lambda (o evt)
+                                  (declare (ignore o evt))
+                                  (setf (scenic:horizontal-offset scroll-view)
+                                        (scenic:current-min-position hscroll))
+                                  (scenic:invalidate scroll-view)))
+      (scenic:add-event-handler vscroll :position-changed nil
+                                (lambda (o evt)
+                                  (declare (ignore o evt))
+                                  (setf (scenic:vertical-offset scroll-view)
+                                        (scenic:current-min-position vscroll))
+                                  (scenic:invalidate scroll-view)))
+      scene)))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -619,4 +679,5 @@
   (test-scene (clipper-1))
   (test-scene (glass-1))
   (test-scene (henchman-1))
-  (test-scene (henchman-glass)))
+  (test-scene (henchman-glass))
+  (test-scene (scroll-view-1)))

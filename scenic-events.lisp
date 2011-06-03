@@ -30,3 +30,9 @@
   ((key :accessor key :initarg :key :initform nil)
    (modifiers :accessor modifiers :initarg :modifiers :initform nil)))
 
+;;; SCROLL-VIEW-MEASURED event.
+(defclass scroll-view-measured-event (event)
+  ((inner-width :accessor inner-width :initarg :inner-width :initform nil)
+   (inner-height :accessor inner-height :initarg :inner-height :initform nil)
+   (outer-width :accessor outer-width :initarg :outer-width :initform nil)
+   (outer-height :accessor outer-height :initarg :outer-height :initform nil)))

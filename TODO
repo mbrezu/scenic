@@ -1,6 +1,11 @@
 
 -*- org -*-
 
+* Open Issues
+** Some events don't need the :bubble/:cascade classification
+   Would it be OK to use nil as the 'propagation' argument to
+   add-event-handler?
+
 * DONE layout options for boxes
 ** DONE add layout options
 ** DONE tests for layout options (separate demos for vertical and horizontal)
@@ -39,6 +44,29 @@
 * DONE canvas class (top/left/bottom/right/width/height positioning)
   called henchman
 * TODO scroll view;
+** DONE first cut (no scrollbars integration)
+** TODO add scrollbars (integrate them with a helper function)
+** TODO scrollbars should disappear when not needed
+** TODO the paint method/event should have a 'paint rect'
+   argument so that we now what we need to paint; this is necessary
+   for datagrids and such, so that they don't paint themselves
+   completely all the time.
+* TODO fix the scrollbar bug;
+  When dragging, it is always assumed we are dragging the middle of
+  the walker; we should drag according to the position of the mouse
+  relative to the walker when the dragging started;
+* TODO scrollbar bug;
+  the walker should touch the right/bottom arrow if the current min
+  pos + page size is max pos (maybe round the width/height up?)
+
+  REPRO: see the scroll-view-1 test
+* TODO fix the box layout bug
+  (if there is not enough space, some elements are not measured; they
+  should be measured with space 0)
+* TODO break the events into a separate package
+* TODO break the containers into a separate package
+* TODO break the tests into more suites
+** TODO move tests to separate folder
 * TODO text box;
 * TODO popups/dialogs;
 * TODO menubar/menu;
@@ -48,3 +76,4 @@
 * TODO unit tests (e.g. for the grid layout)
 * TODO tree widget
 * TODO datagrid widget
+* TODO minesweeper and solitaire demos :-)

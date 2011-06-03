@@ -1,6 +1,8 @@
 
 (in-package :scenic)
 
+(declaim (optimize (debug 3)))
+
 ;;; SLIDER classes.
 
 (defclass slider (widget orientable)
