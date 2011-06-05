@@ -45,13 +45,13 @@
   called henchman
 * TODO scroll view;
 ** DONE first cut (no scrollbars integration)
-** TODO add scrollbars (integrate them with a helper function)
+** DONE add scrollbars (integrate them with a helper function)
 ** TODO scrollbars should disappear when not needed (enhance helper function)
 ** TODO the paint method/event should have a 'paint rect'
    argument so that we now what we need to paint; this is necessary
    for datagrids and such, so that they don't paint themselves
    completely all the time.
-* TODO fix the scrollbar bug;
+* DONE fix the scrollbar bug;
   When dragging, it is always assumed we are dragging the middle of
   the walker; we should drag according to the position of the mouse
   relative to the walker when the dragging started;

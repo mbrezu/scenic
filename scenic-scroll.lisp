@@ -53,20 +53,22 @@
       (get-walker-coordinates object)
     (draw-button-raw left top width height nil)))
 
-(defun over-walker (slider x y)
-  (multiple-value-bind (left top width height)
-      (get-walker-coordinates slider)
-    (in-rectangle x y left top width height)))
-
 (defmethod initialize-instance :after ((instance slider) &rest initargs)
   (declare (ignore initargs))
-  (let ((dragging nil))
+  (let ((dragging nil)
+        (rel-pos 0))
     (add-event-handler instance :mouse-button-down :bubble
                        (lambda (instance event)
-                         (when (and (= 1 (mouse-button event))
-                                    (over-walker instance (mouse-x event) (mouse-y event)))
-                           (setf dragging t)
-                           (capture-mouse instance))))
+                         (when (= 1 (mouse-button event))
+                           (multiple-value-bind (left top width height)
+                               (get-walker-coordinates instance)
+                             (when (in-rectangle (mouse-x event) (mouse-y event)
+                                                 left top width height)
+                               (setf rel-pos (ifhorizontal instance
+                                                           (- (mouse-x event) left)
+                                                           (- (mouse-y event) top)))
+                               (setf dragging t)
+                               (capture-mouse instance))))))
     (add-event-handler instance :mouse-button-up :bubble
                        (lambda (instance event)
                          (when (= 1 (mouse-button event))
@@ -86,7 +88,7 @@
                                                  (min-value instance))))
                                   (multiplier (/ extent screen-dimension))
                                   (new-current-min-pos (- (* multiplier screen-position)
-                                                          (/ (page-size instance) 2))))
+                                                          (* multiplier rel-pos))))
                              (setf (current-min-position instance) new-current-min-pos)))))))
 
 (defmethod (setf current-min-position) (new-value (slider slider))
