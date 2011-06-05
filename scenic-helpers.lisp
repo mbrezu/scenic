@@ -161,3 +161,35 @@
                  :child child
                  :inside-width inside-width
                  :inside-height inside-height))
+
+(defun scroll-view-auto (child &key (inside-width (expt 10 6)) (inside-height (expt 10 6)))
+  (let* ((scroll-view (scroll-view child
+                                   :inside-width inside-width
+                                   :inside-height inside-height))
+         (hscroll (horizontal-scrollbar 0 100 10))
+         (vscroll (vertical-scrollbar 0 100 10))
+         (result (grid '(:auto (19 :px))
+                       '(:auto (19 :px))
+                       `((:row (:cell ,scroll-view)
+                               (:cell ,vscroll))
+                         (:row (:cell ,hscroll))))))
+    (add-event-handler scroll-view :scroll-view-measured :bubble
+                       (lambda (o evt)
+                         (declare (ignore o))
+                         (setf (page-size hscroll) (outer-width evt))
+                         (setf (max-value hscroll) (inner-width evt))
+                         (setf (page-size vscroll) (outer-height evt))
+                         (setf (max-value vscroll) (inner-height evt))))
+    (add-event-handler hscroll :position-changed nil
+                       (lambda (o evt)
+                         (declare (ignore o evt))
+                         (setf (horizontal-offset scroll-view)
+                               (current-min-position hscroll))
+                         (invalidate scroll-view)))
+    (add-event-handler vscroll :position-changed nil
+                       (lambda (o evt)
+                         (declare (ignore o evt))
+                         (setf (vertical-offset scroll-view)
+                               (current-min-position vscroll))
+                         (invalidate scroll-view)))
+    result))

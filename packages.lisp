@@ -45,7 +45,8 @@
            glass opacity
            henchman
            scroll-view horizontal-offset vertical-offset
-           inside-width inside-height))
+           inside-width inside-height
+           scroll-view-measured-event inner-width inner-height outer-width outer-height))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -68,7 +69,7 @@
            clipper
            glass
            henchman
-           scroll-view))
+           scroll-view scroll-view-auto))
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)

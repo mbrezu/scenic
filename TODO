@@ -46,7 +46,7 @@
 * TODO scroll view;
 ** DONE first cut (no scrollbars integration)
 ** TODO add scrollbars (integrate them with a helper function)
-** TODO scrollbars should disappear when not needed
+** TODO scrollbars should disappear when not needed (enhance helper function)
 ** TODO the paint method/event should have a 'paint rect'
    argument so that we now what we need to paint; this is necessary
    for datagrids and such, so that they don't paint themselves

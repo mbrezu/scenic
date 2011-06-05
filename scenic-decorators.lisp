@@ -103,6 +103,14 @@
     (set-measured object width height)))
 
 (defmethod layout ((object sizer) left top width height)
+  (if (min-width object)
+      (setf width (max width (min-width object))))
+  (if (max-width object)
+      (setf width (min width (max-width object))))
+  (if (min-height object)
+      (setf height (max height (min-height object))))
+  (if (max-height object)
+      (setf height (min height (max-height object))))
   (layout (child object) left top width height)
   (set-layout object left top width height))
 

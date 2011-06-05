@@ -12,16 +12,17 @@
    (current-min-position :accessor current-min-position
                          :initarg :current-min-position :initform nil)))
 
-(defgeneric get-walker-width-or-height-and-position (slider))
-
-(defmethod get-walker-width-or-height-and-position ((slider slider))
+(defun get-slider-length-position (slider)
   (let* ((screen-dimension (ifhorizontal slider
                                          (layout-width slider)
                                          (layout-height slider)))
          (extent (- (max-value slider) (min-value slider)))
          (rel-page-size (/ (page-size slider) extent))
-         (walker-width-or-height (max 10 (floor (* rel-page-size
-                                                   screen-dimension))))
+         (walker-width-or-height (min (max 10 (floor (* rel-page-size
+                                                        screen-dimension)))
+                                      (ifhorizontal slider
+                                                    (layout-width slider)
+                                                    (layout-height slider))))
          (rel-position (/ (- (current-min-position slider)
                              (min-value slider))
                           extent))
@@ -29,11 +30,9 @@
                         (- screen-dimension walker-width-or-height))))
     (values walker-width-or-height position)))
 
-(defgeneric get-walker-coordinates (slider))
-
-(defmethod get-walker-coordinates ((slider slider))
+(defun get-walker-coordinates (slider)
   (multiple-value-bind (walker-width-or-height position)
-      (get-walker-width-or-height-and-position slider)
+      (get-slider-length-position slider)
     (ifhorizontal slider
                   (values (+ (layout-left slider) position)
                           (layout-top slider)
@@ -91,10 +90,10 @@
                              (setf (current-min-position instance) new-current-min-pos)))))))
 
 (defmethod (setf current-min-position) (new-value (slider slider))
-  (when (< new-value (min-value slider))
-    (setf new-value (min-value slider)))
   (when (> new-value (- (max-value slider) (page-size slider)))
     (setf new-value (- (max-value slider) (page-size slider))))
+  (when (< new-value (min-value slider))
+    (setf new-value (min-value slider)))
   (when (not (= new-value (current-min-position slider)))
     (setf (slot-value slider 'current-min-position) new-value)
     (invalidate slider)
