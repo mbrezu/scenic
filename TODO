@@ -2,9 +2,12 @@
 -*- org -*-
 
 * Open Issues
-** Some events don't need the :bubble/:cascade classification
-   Would it be OK to use nil as the 'propagation' argument to
-   add-event-handler?
+** I have a class with :initform for some slots.
+   I want to make an instance of that class with a helper function. It
+   seems that I need to duplicate the initforms as defaults to &key
+   arguments of the helper function. Is there a way around this?
+** There's class textattr, inherited by both label and textbox.
+   How can I copy the textattr slots from label to 
 
 * DONE layout options for boxes
 ** DONE add layout options
@@ -64,11 +67,14 @@
 * TODO fix the box layout bug
   (if there is not enough space, some elements are not measured; they
   should be measured with space 0)
-* TODO break the events into a separate package
-* TODO break the containers into a separate package
-* TODO break the tests into more suites
-** TODO move tests to separate folder
+* TODO org stuff
+** TODO break the events into a separate package
+** TODO break the containers into a separate package
+** TODO break the tests into more suites
+*** TODO move tests to separate folder
 * TODO text box;
+** TODO fix the focus (should 'cascade' and 'bubble' propagate key events,
+   not just call the event on the widget that has focus))
 * TODO popups/dialogs;
 * TODO menubar/menu;
 * TODO combo box;

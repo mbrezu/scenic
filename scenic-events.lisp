@@ -36,3 +36,4 @@
    (inner-height :accessor inner-height :initarg :inner-height :initform nil)
    (outer-width :accessor outer-width :initarg :outer-width :initform nil)
    (outer-height :accessor outer-height :initarg :outer-height :initform nil)))
+

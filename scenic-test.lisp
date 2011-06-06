@@ -10,6 +10,8 @@
 (defvar *scene-height*)
 (setf *scene-height* 700)
 
+(declaim (optimize (debug 3)))
+
 ;;; A very simple scene that clears the screen.
 (defun background-clear ()
   (scene *scene-width* *scene-height*
@@ -628,6 +630,19 @@
                      :max-height 400
                      :max-width 400))))))
 
+(defun textbox-1 ()
+  (scene *scene-width* *scene-height*
+         (stack
+          (background (list 1.0 1.0 1.0)
+                      (filler))
+          (grid '(:auto)
+                '(:auto)
+                `((:row (:cell ,(uniform-padding
+                                 3
+                                 (border (list 0.0 0.0 0.0) 1
+                                         (uniform-padding 3
+                                                          (textbox "Gigel" 0)))))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -650,4 +665,5 @@
   (test-scene (glass-1))
   (test-scene (henchman-1))
   (test-scene (henchman-glass))
-  (test-scene (scroll-view-1)))
+  (test-scene (scroll-view-1))
+  (test-scene (textbox-1)))

@@ -58,14 +58,12 @@
 (defun run-scene (scene)
   (sdl:with-init ()
     (sdl:window (width scene) (height scene))
+    (sdl-cffi:sdl-enable-key-repeat 300 300)
     (setf (sdl:frame-rate) 100)
     (render-scene scene)
     (sdl:with-events ()
       (:quit-event () t)
       (:idle () (render-scene scene))
-      (:key-down-event (:key key)
-                       (when (sdl:key= key :sdl-key-escape)
-                         (sdl:push-quit-event)))
       (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
                            (declare (ignore state))
                            (scene-on-mouse-move scene
@@ -93,5 +91,23 @@
                                                                     :mouse-y y
                                                                     :mouse-button button))
                               (render-scene scene))
+      (:key-down-event (:state state :scancode scancode :key key
+                               :mod mod :mod-key mod-key :unicode unicode)
+                       (declare (ignore state scancode unicode mod-key))
+                       (when (sdl:key= key :sdl-key-escape)
+                         (sdl:push-quit-event))
+                       (scene-on-key scene
+                                     :key-down
+                                     (make-instance 'key-event
+                                                    :key key
+                                                    :modifiers mod)))
+      (:key-up-event (:state state :scancode scancode :key key
+                             :mod mod :mod-key mod-key :unicode unicode)
+                     (declare (ignore state scancode unicode mod-key))
+                     (scene-on-key scene
+                                   :key-up
+                                   (make-instance 'key-event
+                                                  :key key
+                                                  :modifiers mod)))
       (:video-expose-event () (sdl:update-display)))))
 

@@ -216,7 +216,8 @@
 
 (defmethod initialize-instance :after ((instance container1) &rest initargs)
   (declare (ignore initargs))
-  (setf (parent (child instance)) instance))
+  (when (child instance)
+    (setf (parent (child instance)) instance)))
 
 (defmethod paint-order-walk ((object container1) callback &key (after-callback nil))
   (when (funcall callback object)
@@ -225,7 +226,8 @@
     (funcall after-callback object)))
 
 (defmethod (setf child) :after (value (instance container1))
-  (setf (parent value) instance))
+  (when value
+    (setf (parent value) instance)))
 
 (defmethod measure ((object container1) available-width available-height)
   (multiple-value-bind (width height)

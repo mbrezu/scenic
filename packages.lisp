@@ -27,6 +27,7 @@
            key-event key
            scene
            filler
+           textattr
            label text font-face font-size font-color font-slant font-weight
            button
            clickable
@@ -46,7 +47,8 @@
            henchman
            scroll-view horizontal-offset vertical-offset
            inside-width inside-height
-           scroll-view-measured-event inner-width inner-height outer-width outer-height))
+           scroll-view-measured-event inner-width inner-height outer-width outer-height
+           textbox cursor-position selection-start caret-color selection-color))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -69,7 +71,8 @@
            clipper
            glass
            henchman
-           scroll-view scroll-view-auto))
+           scroll-view scroll-view-auto
+           textbox))
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)

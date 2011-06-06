@@ -115,15 +115,27 @@
 (defclass filler (widget)
   ())
 
-;;; LABEL class.
-
-(defclass label (widget)
-  ((text :accessor text :initarg :text :initform "")
-   (font-face :accessor font-face :initarg :font-face :initform "Arial")
+;;; TEXTATTR class.
+(defclass textattr ()
+  ((font-face :accessor font-face :initarg :font-face :initform "Arial")
    (font-size :accessor font-size :initarg :font-size :initform 12)
    (font-color :accessor font-color :initarg :font-color :initform (list 0.0 0.0 0.0))
    (font-slant :accessor font-slant :initarg :font-slant :initform :normal)
    (font-weight :accessor font-weight :initarg :font-weight :initform :normal)))
+
+(defmacro copyslots (source dest &rest slots)
+  `(progn
+     ,@(loop
+          for slot in slots
+          collect `(setf (,slot ,dest) (,slot ,source)))))
+
+(defun copy-textattr (source dest)
+  (copyslots source dest font-face font-size font-color font-slant font-weight))
+
+;;; LABEL class.
+
+(defclass label (widget textattr)
+  ((text :accessor text :initarg :text :initform "")))
 
 (defmethod measure ((object label) available-width available-height)
   (cl-cairo2:set-font-size (font-size object))
@@ -176,3 +188,66 @@
   (cl-cairo2:clip)
   (cl-cairo2:paint)
   (cl-cairo2:reset-clip))
+
+;;; FOCUSABLE class.
+
+(defclass focusable (eventful)
+  ((has-focus :accessor has-focus :initarg :has-focus :initform nil)))
+
+(defmethod (setf has-focus) :after (value (instance focusable))
+  (if value
+      (on-event instance :got-focus (make-instance 'event) nil)
+      (on-event instance :lost-focus (make-instance 'event) nil)))
+
+(defgeneric focusable (instance))
+
+(defmethod focusable ((instance focusable))
+  t)
+
+(defmethod focusable ((instance t))
+  nil)
+
+;;; TEXTBOX class.
+
+(defclass textbox (background textattr focusable)
+  ((cursor-position :accessor cursor-position :initarg :cursor-position :initform 0)
+   (selection-start :accessor selection-start :initarg :selection-start :initform nil)
+   (caret-color :accessor caret-color :initarg :caret-color :initform (list 0.0 0.0 0.0))
+   (selection-color :accessor selection-color
+                    :initarg :selection-color
+                    :initform (list 0.3 0.3 1.0))
+   (text :accessor text :initarg :text :initform "")))
+
+(defmethod initialize-instance :after ((instance textbox) &rest initargs)
+  (declare (ignore initargs))
+  (setf (child instance) (make-instance 'label :text (text instance)))
+  (copy-textattr instance (child instance))
+  (add-event-handler instance :key-down nil
+                     (lambda (obj event)
+                       (declare (ignore obj))
+                       (print-all t
+                                  "down"
+                                  (key event)
+                                  (modifiers event))))
+  (add-event-handler instance :key-down nil
+                     (lambda (obj event)
+                       (declare (ignore obj))
+                       (print-all t
+                                  "up"
+                                  (key event)
+                                  (modifiers event)))))
+
+(defmethod after-paint ((object textbox))
+  ;; draw caret
+  (apply #'cl-cairo2:set-source-rgb (caret-color object))
+  (multiple-value-bind (x_bearing y_bearing width height x_advance y_advance)
+      (cl-cairo2:text-extents (subseq (text object) 0 (cursor-position object)))
+    (declare (ignore x_bearing y_bearing x_advance y_advance height))
+    (let ((caret-x-pos (+ (layout-left object) width 0.5)))
+      (cl-cairo2:move-to caret-x-pos (layout-top object))
+      (cl-cairo2:line-to caret-x-pos (1- (+ (layout-top object) (layout-height object))))
+      (cl-cairo2:stroke)))
+
+  ;; draw selection
+  )
+

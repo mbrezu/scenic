@@ -193,3 +193,14 @@
                                (current-min-position vscroll))
                          (invalidate scroll-view)))
     result))
+
+(defun textbox (text cursor-position
+                 &key (selection-start nil) (caret-color (list 0.0 0.0 0.0))
+                 (selection-color (list 0.3 0.3 1.0)))
+  (make-instance 'textbox
+                 :text text
+                 :cursor-position cursor-position
+                 :selection-start selection-start
+                 :caret-color caret-color
+                 :selection-color selection-color
+                 :fill-color (list 1.0 1.0 1.0)))
