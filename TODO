@@ -55,11 +55,12 @@
   When dragging, it is always assumed we are dragging the middle of
   the walker; we should drag according to the position of the mouse
   relative to the walker when the dragging started;
-* TODO scrollbar bug;
+* DONE scrollbar bug;
   the walker should touch the right/bottom arrow if the current min
   pos + page size is max pos (maybe round the width/height up?)
 
   REPRO: see the scroll-view-1 test
+  CANNOT REPRO.
 * TODO fix the box layout bug
   (if there is not enough space, some elements are not measured; they
   should be measured with space 0)

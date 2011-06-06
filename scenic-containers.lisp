@@ -101,9 +101,8 @@
        for lo in (layout-options object)
        for child in (children object)
        do (progn
-            (when (and (> space-left 0)
-                       (or (eq :auto lo)
-                           (and (consp lo) (eq :px (second lo)))))
+            (when (or (eq :auto lo)
+                      (and (consp lo) (eq :px (second lo))))
               (let (space-increment)
                 (cond ((eq :auto lo)
                        (measure child
@@ -118,11 +117,12 @@
                                 (ifhorizontal object available-height (first lo)))
                        (setf space-increment (first lo))))
                 (decf space-left space-increment)
+                (when (< space-left 0)
+                  (setf space-left 0))
                 (incf allocated-space space-increment)))
             (when (and (consp lo) (eq :ext (second lo)))
               (incf sum-n-ext (first lo)))))
-    (when (< space-left 0)
-      (setf space-left 0))
+
     (if (> sum-n-ext 0)
         (setf (slice-size object) (truncate (/ space-left sum-n-ext)))
         (setf (slice-size object) 0))
