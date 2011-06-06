@@ -203,4 +203,5 @@
                  :selection-start selection-start
                  :caret-color caret-color
                  :selection-color selection-color
-                 :fill-color (list 1.0 1.0 1.0)))
+                 :background-color (list 1.0 1.0 1.0)
+                 :font-size 14))

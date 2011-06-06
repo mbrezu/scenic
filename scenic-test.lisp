@@ -635,13 +635,14 @@
          (stack
           (background (list 1.0 1.0 1.0)
                       (filler))
-          (grid '(:auto)
-                '(:auto)
+          (grid '((100 :px))
+                '((30 :px))
                 `((:row (:cell ,(uniform-padding
                                  3
                                  (border (list 0.0 0.0 0.0) 1
-                                         (uniform-padding 3
-                                                          (textbox "Gigel" 0)))))))))))
+                                         (uniform-padding
+                                          3
+                                           (textbox "The quick brown fox..." 0)))))))))))
 
 (defun run-all-tests ()
   (test-scene (background-clear))

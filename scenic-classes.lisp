@@ -1,7 +1,7 @@
 
 (in-package :scenic)
 
-(declaim (optimize (debug 3)))
+(declaim (optimize (debug 3) (speed 0)))
 
 (defgeneric measure (object available-width available-height))
 
@@ -155,11 +155,15 @@
 (defmethod layout ((object label) left top width height)
   (set-layout object left top (measured-width object) (measured-height object)))
 
+(defun prepare-text (textattr)
+  (cl-cairo2:set-font-size (font-size textattr))
+  (cl-cairo2:select-font-face (font-face textattr)
+                              (font-slant textattr)
+                              (font-weight textattr)))
+
 (defmethod paint ((object label))
-  (cl-cairo2:set-font-size (font-size object))
-  (cl-cairo2:select-font-face (font-face object)
-                              (font-slant object)
-                              (font-weight object))
+  (prepare-text object)
+
   (apply #'cl-cairo2:set-source-rgb (font-color object))
   (let* ((extents (cl-cairo2:get-font-extents))
          (ascent (cl-cairo2:font-ascent extents))
@@ -209,45 +213,95 @@
 
 ;;; TEXTBOX class.
 
-(defclass textbox (background textattr focusable)
+(defclass textbox (clipper textattr focusable)
   ((cursor-position :accessor cursor-position :initarg :cursor-position :initform 0)
    (selection-start :accessor selection-start :initarg :selection-start :initform nil)
    (caret-color :accessor caret-color :initarg :caret-color :initform (list 0.0 0.0 0.0))
+   (background-color :accessor background-color
+                     :initarg :background-color
+                     :initform (list 0.0 0.0 0.0))
    (selection-color :accessor selection-color
                     :initarg :selection-color
                     :initform (list 0.3 0.3 1.0))
-   (text :accessor text :initarg :text :initform "")))
+   (text :accessor text :initarg :text :initform "")
+   (scroll-view)))
+
+(defun space-width ()
+  (let (big-str-width small-str-width)
+    (multiple-value-bind (x-bearing y-bearing width height x-advance y-advance)
+        (cl-cairo2:text-extents "| |")
+      (declare (ignore x-bearing y-bearing x-advance y-advance height))
+      (setf big-str-width width))
+    (multiple-value-bind (x-bearing y-bearing width height x-advance y-advance)
+        (cl-cairo2:text-extents "||")
+      (declare (ignore x-bearing y-bearing x-advance y-advance height))
+      (setf small-str-width width))
+    (- big-str-width small-str-width)))
+
+(defun caret-x-position (textbox)
+  (let ((text (subseq (text textbox) 0 (cursor-position textbox)))
+        (adjustment 0))
+    (when (and (> (length text) 0)
+               (char= (elt text (1- (length text)))
+                      #\Space))
+      (setf adjustment (space-width)))
+    (multiple-value-bind (x-bearing y-bearing width height x-advance y-advance)
+        (cl-cairo2:text-extents text)
+      (declare (ignore x-bearing y-bearing x-advance y-advance height))
+      (+ width adjustment))))
 
 (defmethod initialize-instance :after ((instance textbox) &rest initargs)
   (declare (ignore initargs))
-  (setf (child instance) (make-instance 'label :text (text instance)))
-  (copy-textattr instance (child instance))
-  (add-event-handler instance :key-down nil
-                     (lambda (obj event)
-                       (declare (ignore obj))
-                       (print-all t
-                                  "down"
-                                  (key event)
-                                  (modifiers event))))
-  (add-event-handler instance :key-down nil
-                     (lambda (obj event)
-                       (declare (ignore obj))
-                       (print-all t
-                                  "up"
-                                  (key event)
-                                  (modifiers event)))))
+  (let* ((lbl (make-instance 'label :text (text instance)))
+         (sv (make-instance 'scroll-view :child lbl))
+         (bg (make-instance 'background :fill-color (background-color instance)
+                            :child sv)))
+    (setf (slot-value instance 'scroll-view) sv)
+    (setf (child instance) bg)
+    (copy-textattr instance lbl)
+    (add-event-handler instance :key-down nil
+                       (lambda (obj event)
+                         (declare (ignore obj))
+                         (cond ((eq :LEFT (key event))
+                                (when (> (cursor-position instance) 0)
+                                  (decf (cursor-position instance)))
+                                (invalidate instance))
+                               ((eq :RIGHT (key event))
+                                (when (< (cursor-position instance)
+                                         (length (text instance)))
+                                  (incf (cursor-position instance)))
+                                (invalidate instance)))))))
 
-(defmethod after-paint ((object textbox))
+(defmethod paint ((object textbox))
+  (prepare-text object)
+  (when (> (- (caret-x-position object)
+              (horizontal-offset (slot-value object 'scroll-view)))
+           (layout-width object))
+    (setf (horizontal-offset (slot-value object 'scroll-view))
+          (- (caret-x-position object)
+             (layout-width object))))
+  (when (< (caret-x-position object)
+           (horizontal-offset (slot-value object 'scroll-view)))
+    (setf (horizontal-offset (slot-value object 'scroll-view))
+          (caret-x-position object)))
+  ;; draw selection
+  (call-next-method))
+
+(defmethod after-paint :before ((object textbox))
   ;; draw caret
   (apply #'cl-cairo2:set-source-rgb (caret-color object))
-  (multiple-value-bind (x_bearing y_bearing width height x_advance y_advance)
-      (cl-cairo2:text-extents (subseq (text object) 0 (cursor-position object)))
-    (declare (ignore x_bearing y_bearing x_advance y_advance height))
-    (let ((caret-x-pos (+ (layout-left object) width 0.5)))
-      (cl-cairo2:move-to caret-x-pos (layout-top object))
-      (cl-cairo2:line-to caret-x-pos (1- (+ (layout-top object) (layout-height object))))
-      (cl-cairo2:stroke)))
+  (cl-cairo2:set-line-width 1.0)
+  (prepare-text object)
+  (print-all t (slot-value object 'scroll-view)
+             (horizontal-offset (slot-value object 'scroll-view))
+             (layout-left object)
+             (caret-x-position object))
+  (let ((abs-caret-x-position (- (+ (layout-left object) (caret-x-position object))
+                                 (horizontal-offset (slot-value object 'scroll-view)))))
+    (cl-cairo2:move-to abs-caret-x-position (layout-top object))
+    (cl-cairo2:line-to abs-caret-x-position
+                       (1- (+ (layout-top object) (layout-height object))))
+    (cl-cairo2:stroke))
 
-  ;; draw selection
   )
 

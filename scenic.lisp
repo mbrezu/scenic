@@ -98,21 +98,25 @@
                               (render-scene scene))
       (:key-down-event (:state state :scancode scancode :key key
                                :mod mod :mod-key mod-key :unicode unicode)
-                       (declare (ignore state scancode unicode mod-key))
+                       (declare (ignore state scancode unicode mod))
                        (when (sdl:key= key :sdl-key-escape)
                          (sdl:push-quit-event))
-                       (scene-on-key scene
-                                     :key-down
-                                     (make-instance 'key-event
-                                                    :key key
-                                                    :modifiers mod)))
+                       (scene-on-key
+                        scene
+                        :key-down
+                        (make-instance 'key-event
+                                       :key (sdl-translate-key key)
+                                       :modifiers (mapcar #'sdl-translate-key mod-key))))
       (:key-up-event (:state state :scancode scancode :key key
                              :mod mod :mod-key mod-key :unicode unicode)
-                     (declare (ignore state scancode unicode mod-key))
-                     (scene-on-key scene
-                                   :key-up
-                                   (make-instance 'key-event
-                                                  :key key
-                                                  :modifiers mod)))
+                     (declare (ignore state scancode unicode mod))
+                     (scene-on-key
+                      scene
+                      :key-up
+                      (make-instance 'key-event
+                                     :key (sdl-translate-key key)
+                                     :modifiers (mapcar #'sdl-translate-key mod-key))))
       (:video-expose-event () (sdl:update-display)))))
 
+(defun sdl-translate-key (key)
+  (intern (subseq (symbol-name key) 8) "KEYWORD"))
