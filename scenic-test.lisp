@@ -167,14 +167,14 @@
           (background (list 1.0 1.0 1.0)
                       (filler))
           (uniform-padding 10
-                           (stack
-                            (background (list 0.8 0.8 0.8)
-                                        (placeholder 16 16))
-                            (sizer (image "icons/arrow_in.png")
-                                   :max-width 16
-                                   :min-width 16
-                                   :max-height 16
-                                   :max-width 16))))))
+                           (sizer (stack
+                                   (background (list 0.8 0.8 0.8)
+                                               (filler))
+                                   (image "icons/arrow_in.png"))
+                                  :max-width 16
+                                  :min-width 16
+                                  :max-height 16
+                                  :max-width 16)))))
 
 (defun text-baseline-alignment ()
   (scene *scene-width* *scene-height*
@@ -642,7 +642,7 @@
                                  (border (list 0.0 0.0 0.0) 1
                                          (uniform-padding
                                           3
-                                           (textbox "The quick brown fox..." 0)))))))))))
+                                          (textbox "The quick brown fox..." 0)))))))))))
 
 (defun run-all-tests ()
   (test-scene (background-clear))

@@ -205,7 +205,7 @@
 
 (defmethod layout ((object stack) left top width height)
   (mapc (lambda (widget)
-          (layout widget left top (measured-width object) (measured-height object)))
+          (layout widget left top width height))
         (children object))
   (call-next-method object left top width height))
 
@@ -332,7 +332,7 @@
                            :outer-width (measured-width object)
                            :outer-height (measured-height object))
             nil)
-  (values available-width available-width))
+  (values available-width available-height))
 
 (defmethod layout ((object scroll-view) left top width height)
   (layout (child object)

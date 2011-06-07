@@ -77,8 +77,14 @@
 ** TODO fix the focus (should 'cascade' and 'bubble' propagate key events,
    not just call the event on the widget that has focus))
 ** DONE "scrolling"
-** TODO editing
-** TODO selection drawing
+** DONE editing
+** TODO bug: the caret should be pushed +0.5 px horizontally,
+   unless it is on the rightmost margin, when it should be pushed -0.5px
+** TODO selection
+*** TODO drawing
+*** TODO clipboard interaction - xclip on X, what do I do on Windows?
+* TODO add license information
+* TODO use an .asd file (initial version from Orivej Desh)
 * TODO popups/dialogs;
 * TODO menubar/menu;
 * TODO combo box;

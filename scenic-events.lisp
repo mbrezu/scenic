@@ -28,7 +28,8 @@
 
 (defclass key-event (event)
   ((key :accessor key :initarg :key :initform nil)
-   (modifiers :accessor modifiers :initarg :modifiers :initform nil)))
+   (modifiers :accessor modifiers :initarg :modifiers :initform nil)
+   (unicode :accessor unicode :initarg :unicode :initform nil)))
 
 ;;; SCROLL-VIEW-MEASURED event.
 (defclass scroll-view-measured-event (event)

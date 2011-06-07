@@ -63,9 +63,10 @@
 (defun run-scene (scene)
   (sdl:with-init ()
     (sdl:window (width scene) (height scene))
-    (sdl-cffi:sdl-enable-key-repeat 300 300)
+    (sdl-cffi:sdl-enable-key-repeat 80 80)
     (setf (sdl:frame-rate) 100)
     (render-scene scene)
+    (lispbuilder-sdl:enable-unicode)
     (sdl:with-events ()
       (:quit-event () t)
       (:idle () (render-scene scene))
@@ -98,7 +99,7 @@
                               (render-scene scene))
       (:key-down-event (:state state :scancode scancode :key key
                                :mod mod :mod-key mod-key :unicode unicode)
-                       (declare (ignore state scancode unicode mod))
+                       (declare (ignore state scancode mod))
                        (when (sdl:key= key :sdl-key-escape)
                          (sdl:push-quit-event))
                        (scene-on-key
@@ -106,16 +107,22 @@
                         :key-down
                         (make-instance 'key-event
                                        :key (sdl-translate-key key)
-                                       :modifiers (mapcar #'sdl-translate-key mod-key))))
+                                       :modifiers (mapcar #'sdl-translate-key mod-key)
+                                       :unicode (if (= 0 unicode)
+                                                    nil
+                                                    (code-char unicode)))))
       (:key-up-event (:state state :scancode scancode :key key
                              :mod mod :mod-key mod-key :unicode unicode)
-                     (declare (ignore state scancode unicode mod))
+                     (declare (ignore state scancode mod))
                      (scene-on-key
                       scene
                       :key-up
                       (make-instance 'key-event
                                      :key (sdl-translate-key key)
-                                     :modifiers (mapcar #'sdl-translate-key mod-key))))
+                                     :modifiers (mapcar #'sdl-translate-key mod-key)
+                                     :unicode (if (= 0 unicode)
+                                                    nil
+                                                    (code-char unicode)))))
       (:video-expose-event () (sdl:update-display)))))
 
 (defun sdl-translate-key (key)
