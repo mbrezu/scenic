@@ -65,7 +65,8 @@ instructions on how to install Quicklisp.
 The implementations I tested the instructions below are:
 
  * SBCL (on Ubuntu)
- * CCL (on Ubuntu and Windows XP 32bit and Windows 7 32bit)
+ * CCL (on Ubuntu and Windows XP 32bit and Windows 7 32bit and Windows
+   7 64bit)
  * CLISP (on Ubuntu and Windows XP 32bit and Windows 7 32bit)
 
 Scenic uses SDL (http://www.libsdl.org/) and Cairo
@@ -73,7 +74,8 @@ Scenic uses SDL (http://www.libsdl.org/) and Cairo
 Ubuntu, this is usually already done (and apt-get can help if not). On
 Windows, there are some DLLs in `win32-dlls.zip`. They work for
 Windows 32bit (tested on Windows XP and Windows 7). Extract the DLL
-files in the same directory as the archive.
+files in the same directory as the archive. For Windows 64 bit use
+`win64-dlls.zip`.
 
 Loading Scenic can be done by loading the Common Lisp implementation,
 setting the working directory to point to the Scenic root directory,
