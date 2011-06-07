@@ -78,7 +78,7 @@
    not just call the event on the widget that has focus))
 ** DONE "scrolling"
 ** DONE editing
-** TODO bug: the caret should be pushed +0.5 px horizontally,
+** DONE bug: the caret should be pushed +0.5 px horizontally,
    unless it is on the rightmost margin, when it should be pushed -0.5px
 ** TODO selection
 *** TODO drawing
