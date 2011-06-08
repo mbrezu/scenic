@@ -65,6 +65,7 @@
     (sdl:window (width scene) (height scene))
     (sdl-cffi:sdl-enable-key-repeat 80 80)
     (setf (sdl:frame-rate) 100)
+    (calculate-focusables scene)
     (render-scene scene)
     (lispbuilder-sdl:enable-unicode)
     (sdl:with-events ()

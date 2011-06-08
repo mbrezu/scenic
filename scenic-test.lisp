@@ -644,6 +644,32 @@
                                           3
                                           (textbox "The quick brown fox..." 0)))))))))))
 
+(defun textbox-2 ()
+  (scene *scene-width* *scene-height*
+         (stack
+          (background (list 1.0 1.0 1.0)
+                      (filler))
+          (grid '((100 :px) (100 :px) :auto)
+                '((30 :px))
+                `((:row (:cell ,(uniform-padding
+                                 3
+                                 (border (list 0.0 0.0 0.0) 1
+                                         (uniform-padding
+                                          3
+                                          (textbox "The quick brown fox..." 0)))))
+                        (:cell ,(uniform-padding
+                                 3
+                                 (border (list 0.0 0.0 0.0) 1
+                                         (uniform-padding
+                                          3
+                                          (textbox "The quick brown fox..." 0)))))
+                        (:cell ,(uniform-padding
+                                 3
+                                 (border (list 0.0 0.0 0.0) 1
+                                         (uniform-padding
+                                          3
+                                          (textbox "The quick brown fox..." 0)))))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -667,4 +693,5 @@
   (test-scene (henchman-1))
   (test-scene (henchman-glass))
   (test-scene (scroll-view-1))
-  (test-scene (textbox-1)))
+  (test-scene (textbox-1))
+  (test-scene (textbox-2)))

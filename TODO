@@ -74,8 +74,12 @@
 ** TODO break the tests into more suites
 *** TODO move tests to separate folder
 * TODO text box;
-** TODO fix the focus (should 'cascade' and 'bubble' propagate key events,
+** DONE fix the focus (should 'cascade' and 'bubble' propagate key events,
    not just call the event on the widget that has focus))
+** TODO clicking on the textbox should give it focus
+   - textbox should inherit from clickable so it has the :click event
+   - scene shoud have a 'focus-widget' method that transfers focus
+     to a particular widget
 ** DONE "scrolling"
 ** DONE editing
 ** DONE bug: the caret should be pushed +0.5 px horizontally,

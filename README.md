@@ -81,6 +81,7 @@ After placing Scenic where it can be picked up by ASDF (such as inside
 `~/.local/share/common-lisp/source`), start a Common Lisp
 implementation and run:
 
+    (require 'asdf)
     (require 'scenic)
     (in-package :scenic-test)
 
