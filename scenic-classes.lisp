@@ -328,6 +328,7 @@
     (setf (horizontal-offset (slot-value object 'scroll-view))
           (caret-x-position object)))
   ;; draw selection
+  (print-all t "draw-sel")
   (call-next-method))
 
 (defmethod after-paint ((object textbox))

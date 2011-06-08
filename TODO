@@ -84,7 +84,7 @@
 *** TODO drawing
 *** TODO clipboard interaction - xclip on X, what do I do on Windows?
 * TODO add license information
-* TODO use an .asd file (initial version from Orivej Desh)
+* DONE use an .asd file (initial version from Orivej Desh)
 * TODO popups/dialogs;
 * TODO menubar/menu;
 * TODO combo box;

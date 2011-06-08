@@ -77,11 +77,11 @@ Windows 32bit (tested on Windows XP and Windows 7). Extract the DLL
 files in the same directory as the archive. For Windows 64 bit use
 `win64-dlls.zip`.
 
-Loading Scenic can be done by loading the Common Lisp implementation,
-setting the working directory to point to the Scenic root directory,
-and running:
+After placing Scenic where it can be picked up by ASDF (such as inside
+`~/.local/share/common-lisp/source`), start a Common Lisp
+implementation and run:
 
-    (load "deploy.lisp")
+    (require 'scenic)
     (in-package :scenic-test)
 
 and then
@@ -89,12 +89,15 @@ and then
     (run-all-tests)
 
 to run all tests in sequence. See the definition of `run-all-tests`
-for the list of tests how to run only one test.
+for the list of tests and how to run only one test.
 
 # Other Notes
 
-Since Scenic is tightly linked to Cairo (it uses it for drawing in a
-lot of places), and only lightly coupled to SDL (it uses it to render
-the GUI and to get an event loop - see file `scenic.lisp`), it could
-be changed to use something else instead of SDL (maybe OpenGL and
-GLUT?) for rendering the GUI and processing events.
+ 1. Since Scenic is tightly linked to Cairo (it uses it for drawing in
+    a lot of places), and only lightly coupled to SDL (it uses it to
+    render the GUI and to get an event loop - see file `scenic.lisp`),
+    it could be changed to use something else instead of SDL (maybe
+    OpenGL and GLUT?) for rendering the GUI and processing events.
+ 2. Right now the code used to load image resources (see
+    `scenic-images.lisp`) hasn't been tested with standalone
+    executables and probably requires modification.
