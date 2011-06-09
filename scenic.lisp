@@ -1,6 +1,8 @@
 
 (in-package :scenic)
 
+(declaim (optimize (debug 3)))
+
 (defmacro pixels-of (surface)
   `(cffi:foreign-slot-value (slot-value ,surface 'sdl::foreign-pointer-to-object)
                             'sdl-cffi::sdl-Surface

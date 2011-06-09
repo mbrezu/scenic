@@ -83,7 +83,7 @@
     (scenic:add-event-handler push-button :mouse-button-up :cascade
                               (lambda (object event)
                                 (format t "button mouse button-up: ~a ~a~%" object event)))
-    (scenic:add-event-handler push-button :click :bubble
+    (scenic:add-event-handler push-button :click nil
                               (lambda (object event)
                                 (declare (ignore object event))
                                 (format t "button click~%")))
@@ -107,7 +107,7 @@
                                                              (horizontal-slider 0 50 30))
                                                        :max-width 200
                                                        :max-height 19)))))))))
-    (scenic:add-event-handler slider :position-changed :bubble
+    (scenic:add-event-handler slider :position-changed nil
                               (lambda (object event)
                                 (declare (ignore event))
                                 (print-all t
@@ -143,7 +143,7 @@
                                                       (vertical-scrollbar 0 50 30))
                                                 :max-width 19
                                                 :max-height 200)))))))
-    (scenic:add-event-handler horizontal-scrollbar :position-changed :bubble
+    (scenic:add-event-handler horizontal-scrollbar :position-changed nil
                               (lambda (object event)
                                 (declare (ignore event))
                                 (print-all t
@@ -151,7 +151,7 @@
                                            (scenic:page-size object)
                                            (scenic:min-value object)
                                            (scenic:max-value object))))
-    (scenic:add-event-handler vertical-scrollbar :position-changed :bubble
+    (scenic:add-event-handler vertical-scrollbar :position-changed nil
                               (lambda (object event)
                                 (declare (ignore event))
                                 (print-all t

@@ -48,7 +48,8 @@
            scroll-view horizontal-offset vertical-offset
            inside-width inside-height
            scroll-view-measured-event inner-width inner-height outer-width outer-height
-           textbox cursor-position selection-start caret-color selection-color))
+           textbox cursor-position selection-start caret-color selection-color
+           calculate-focusables))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)

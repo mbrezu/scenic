@@ -33,7 +33,7 @@
                            (release-mouse instance)
                            (when (and (eql :half-click (click-state clickable))
                                       is-inside)
-                             (on-event clickable :click (make-instance 'event) nil))
+                             (on-event clickable :click event nil))
                            (change-clickable-state clickable :neutral))))))
 
 ;;; BUTTON class.

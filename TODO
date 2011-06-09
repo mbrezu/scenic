@@ -76,10 +76,12 @@
 * TODO text box;
 ** DONE fix the focus (should 'cascade' and 'bubble' propagate key events,
    not just call the event on the widget that has focus))
-** TODO clicking on the textbox should give it focus
+** DONE clicking on the textbox should give it focus
    - textbox should inherit from clickable so it has the :click event
    - scene shoud have a 'focus-widget' method that transfers focus
      to a particular widget
+** TODO when clicking on a textbox, the cursor position should be updated
+   try using binary search to find the correct position
 ** DONE "scrolling"
 ** DONE editing
 ** DONE bug: the caret should be pushed +0.5 px horizontally,
