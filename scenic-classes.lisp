@@ -330,6 +330,11 @@
                          ;; for the textbox internal scroll-viewers,
                          ;; the problem is with scroll-viewers
                          ;; containing the textbox)?
+                         ;;
+                         ;; Alternative: when sending the mouse event
+                         ;; to a widget, adapt it so the mouse-x
+                         ;; actually includes the offsets of the
+                         ;; scroll-viewers.
                          (setf (slot-value o 'before-paint)
                                (lambda ()
                                  (setf (cursor-position o)
