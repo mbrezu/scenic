@@ -224,7 +224,8 @@
                     :initarg :selection-color
                     :initform (list 0.3 0.3 1.0))
    (text :accessor text :initarg :text :initform "")
-   (scroll-view)))
+   (scroll-view)
+   (before-paint :initform nil)))
 
 (defun space-width ()
   (let (big-str-width small-str-width)
@@ -238,14 +239,13 @@
       (setf small-str-width width))
     (- big-str-width small-str-width)))
 
-(defun caret-x-position (textbox)
-  (let* ((text (subseq (text textbox) 0 (cursor-position textbox)))
-         (adjustment 0)
-         (spaces-count (- (length text) (length (string-trim '(#\Space #\Tab) text)))))
+(defun string-width (str)
+  (let ((spaces-count (- (length str) (length (string-trim '(#\Space #\Tab) str))))
+        (adjustment 0))
     (when (> spaces-count 0)
       (setf adjustment (* spaces-count (space-width))))
     (multiple-value-bind (x-bearing y-bearing width height x-advance y-advance)
-        (cl-cairo2:text-extents text)
+        (cl-cairo2:text-extents str)
       (declare (ignore x-bearing y-bearing x-advance y-advance height))
       (+ width adjustment))))
 
@@ -291,10 +291,7 @@
              (invalidate instance)
              (setf (handled event) t)))
           ((or (eq :RETURN (key event))
-               (eq :TAB (key event)))
-           (print-all t
-                      (key event)
-                      (modifiers event)))
+               (eq :TAB (key event))))
           ((unicode event)
            (setf (text instance)
                  (concatenate 'string
@@ -324,24 +321,70 @@
     (add-event-handler instance :click nil
                        (lambda (o e)
                          (print-all t e)
-                         (focus-widget (get-scene o) o)))))
+                         ;; FIXME: this layout-left needs to be fixed
+                         ;; to handle correctly the case when we're
+                         ;; inside a scroll-viewer. Maybe we need a
+                         ;; function 'screen-coords' that returns the
+                         ;; (left, top) pair after compensating for
+                         ;; scroll-viewers (right now we compensate
+                         ;; for the textbox internal scroll-viewers,
+                         ;; the problem is with scroll-viewers
+                         ;; containing the textbox)?
+                         (setf (slot-value o 'before-paint)
+                               (lambda ()
+                                 (setf (cursor-position o)
+                                       (or (char-hit-test o (+ (horizontal-offset sv)
+                                                               (- (mouse-x e)
+                                                                  (layout-left o))))
+                                           (cursor-position o)))))
+                         (focus-widget (get-scene o) o)
+                         (invalidate o)))))
+
+(defun pos-on-char (textbox x-pos pos)
+  (let ((lt (< (string-width (subseq (text textbox) 0 pos))
+               x-pos)))
+    (or (and (= pos (length (text textbox)))
+             lt)
+        (and lt
+             (> (string-width (subseq (text textbox) 0 (1+ pos)))
+                x-pos)))))
+
+(defun char-hit-test (textbox x-pos)
+  (let ((txtlen (length (text textbox))))
+    (if (= 0 txtlen)
+        0
+        (let* ((avg-char-width (/ (string-width (text textbox)) txtlen))
+               (pos (round (/ x-pos avg-char-width))))
+          (if (pos-on-char textbox x-pos pos)
+              pos
+              (loop
+                 for pos1 = (1+ pos) then (1+ pos1)
+                 for pos2 = (1- pos) then (1- pos2)
+                 when (and (< pos1 txtlen)
+                           (pos-on-char textbox x-pos pos1))
+                 return pos1
+                 when (and (> pos2 0)
+                           (pos-on-char textbox x-pos pos2))
+                 return pos2
+                 until (and (> pos1 txtlen)
+                            (< pos2 0))))))))
 
 (defmethod paint ((object textbox))
   (prepare-text object)
+  (when (slot-value object 'before-paint)
+    (funcall (slot-value object 'before-paint))
+    (setf (slot-value object 'before-paint) nil))
   (with-slots (scroll-view) object
-    (when (> (- (caret-x-position object)
-                (horizontal-offset scroll-view))
-             (layout-width object))
-      (setf (horizontal-offset scroll-view)
-            (- (caret-x-position object)
-               (/ (layout-width object) 2))))
-    (when (< (caret-x-position object)
-             (horizontal-offset scroll-view))
-      (setf (horizontal-offset scroll-view)
-            (- (caret-x-position object)
-               (/ (layout-width object) 2)))
-      (when (< (horizontal-offset scroll-view) 0)
-        (setf (horizontal-offset scroll-view) 0))))
+    (let ((str-width (string-width (subseq (text object) 0 (cursor-position object)))))
+      (when (> (- str-width (horizontal-offset scroll-view))
+               (layout-width object))
+        (setf (horizontal-offset scroll-view)
+              (- str-width (/ (layout-width object) 2))))
+      (when (< str-width (horizontal-offset scroll-view))
+        (setf (horizontal-offset scroll-view)
+              (- str-width (/ (layout-width object) 2)))
+        (when (< (horizontal-offset scroll-view) 0)
+          (setf (horizontal-offset scroll-view) 0)))))
   ;; draw selection
   (print-all t "draw-selection")
   (call-next-method))
@@ -352,7 +395,9 @@
     (apply #'cl-cairo2:set-source-rgb (caret-color object))
     (cl-cairo2:set-line-width 1.0)
     (prepare-text object)
-    (let* ((rel-caret-x-position (caret-x-position object))
+    (let* ((rel-caret-x-position (string-width (subseq (text object)
+                                                       0
+                                                       (cursor-position object))))
            (abs-caret-x-position (- (+ (layout-left object) rel-caret-x-position)
                                     (horizontal-offset (slot-value object 'scroll-view)))))
       (if (= (horizontal-offset (slot-value object 'scroll-view))

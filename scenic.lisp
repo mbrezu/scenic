@@ -65,7 +65,7 @@
 (defun run-scene (scene)
   (sdl:with-init ()
     (sdl:window (width scene) (height scene))
-    (sdl-cffi:sdl-enable-key-repeat 80 80)
+    (sdl-cffi:sdl-enable-key-repeat 50 50)
     (setf (sdl:frame-rate) 100)
     (calculate-focusables scene)
     (render-scene scene)
