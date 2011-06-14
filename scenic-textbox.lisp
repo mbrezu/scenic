@@ -257,7 +257,7 @@
                  (set-layout selection-bg
                              (+ (layout-left object) start-sel-x)
                              (layout-top object)
-                             (1+ (- end-sel-x start-sel-x))
+                             (- end-sel-x start-sel-x)
                              (layout-height object))))
               (t (set-layout selection-bg
                              (layout-left object)
@@ -287,6 +287,6 @@
           (decf abs-caret-x-position 0.5))
       (cl-cairo2:move-to abs-caret-x-position (layout-top object))
       (cl-cairo2:line-to abs-caret-x-position
-                         (1- (+ (layout-top object) (layout-height object))))
+                         (+ (layout-top object) (layout-height object)))
       (cl-cairo2:stroke))))
 

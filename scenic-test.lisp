@@ -206,7 +206,7 @@
                 (list 0.3 0.3 0.3) 1
                 (background (list 0.7 0.7 0.7)
                             (uniform-padding 3
-                                             (label "s j"
+                                             (label "s o"
                                                     :size 20
                                                     :weight :bold))))))))))))
 

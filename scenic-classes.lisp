@@ -147,10 +147,11 @@
                                                                 (text object))
     (declare (ignore x_bearing y_bearing x_advance y_advance height))
     (let* ((extents (cl-cairo2:get-font-extents))
-           (ascent (cl-cairo2:font-ascent extents)))
+           (ascent (cl-cairo2:font-ascent extents))
+           (descent (cl-cairo2:font-descent extents)))
       (set-measured object
                     (min width available-width)
-                    (min ascent available-height)))))
+                    (min (+ ascent descent) available-height)))))
 
 (defmethod layout ((object label) left top width height)
   (set-layout object left top (measured-width object) (measured-height object)))
@@ -163,12 +164,10 @@
 
 (defmethod paint ((object label))
   (prepare-text object)
-
   (apply #'cl-cairo2:set-source-rgb (font-color object))
   (let* ((extents (cl-cairo2:get-font-extents))
-         (ascent (cl-cairo2:font-ascent extents))
-         (descent (cl-cairo2:font-descent extents)))
-    (cl-cairo2:move-to (layout-left object) (- (+ (layout-top object) ascent 0.5) descent))
+         (ascent (cl-cairo2:font-ascent extents)))
+    (cl-cairo2:move-to (layout-left object) (- (+ (layout-top object) ascent) 0.5))
     (cl-cairo2:show-text (text object))))
 
 ;;; ORIENTABLE class.
