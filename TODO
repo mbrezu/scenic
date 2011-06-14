@@ -55,6 +55,9 @@
    for datagrids and such, so that they don't paint themselves
    completely all the time.
 ** TODO hit-testing should work correctly with scroll views
+** TODO when sending paint/mouse events to widgets within scroll views,
+   the coordinates should be adjusted to match the ones in the
+   layout-... slots of the widgets.
 * DONE fix the scrollbar bug;
   When dragging, it is always assumed we are dragging the middle of
   the walker; we should drag according to the position of the mouse
@@ -65,7 +68,7 @@
 
   REPRO: see the scroll-view-1 test
   CANNOT REPRO.
-* TODO fix the box layout bug
+* DONE fix the box layout bug
   (if there is not enough space, some elements are not measured; they
   should be measured with space 0)
 * TODO org stuff
@@ -85,7 +88,10 @@
 ** DONE editing
 ** DONE bug: the caret should be pushed +0.5 px horizontally,
    unless it is on the rightmost margin, when it should be pushed -0.5px
-** TODO selection
+** DONE selection
+** TODO when clicking on the textbox, place the cursor on
+   the space between chars, not before the clicked char; i.e.,
+   determine the space between chars closest to the click.
 *** TODO drawing
 *** TODO clipboard interaction - xclip on X, what do I do on Windows?
 * TODO add license information
@@ -96,6 +102,20 @@
 * TODO checkbox/radio box;
 * TODO themes/widget factories;
 * TODO unit tests (e.g. for the grid layout)
+  Make tests cheap (there is no code to be written, it's only
+  necessary to redo the sequence of events and tell the test framework
+  whether the test passed or failed). This way it doesn't matter so
+  much if the tests are fragile (as in easily broken by changes to the
+  interface).
+** TODO naming of widgets (both explicit and automatic)
+** TODO recording of input events
+** TODO test channel where reactions to events are recorded
+** TODO matching a recorded session of input events and
+   reactions on the test channel with a 'blind' run of the input
+   events (and new reactions on the test channel)
+** TODO handling of asynchronous events (test channel replies
+   can arrive in different orders); markup for the start of the async
+   interval and the end? other ways to handle this.
 * TODO tree widget
 * TODO datagrid widget
 * TODO minesweeper and solitaire demos :-)

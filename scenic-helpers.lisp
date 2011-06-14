@@ -195,8 +195,8 @@
     result))
 
 (defun textbox (text cursor-position
-                 &key (selection-start nil) (caret-color (list 0.0 0.0 0.0))
-                 (selection-color (list 0.3 0.3 1.0)))
+                &key (selection-start 0) (caret-color (list 0.0 0.0 0.0))
+                (selection-color (list 0.3 0.3 1.0)))
   (make-instance 'textbox
                  :text text
                  :cursor-position cursor-position

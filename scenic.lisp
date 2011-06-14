@@ -62,6 +62,9 @@
           (sdl:blit-surface (sdl-surface scene) lispbuilder-sdl:*default-display*)
           (sdl:update-display)))))
 
+(defun translated-mods ()
+  (mapcar #'sdl-translate-key (sdl:mods-down-p)))
+
 (defun run-scene (scene)
   (sdl:with-init ()
     (sdl:window (width scene) (height scene))
@@ -75,30 +78,36 @@
       (:idle () (render-scene scene))
       (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
                            (declare (ignore state))
-                           (scene-on-mouse-move scene
-                                                (make-instance 'mouse-move-event
-                                                               :mouse-x x
-                                                               :mouse-y y
-                                                               :mouse-rel-x x-rel
-                                                               :mouse-rel-y y-rel))
+                           (scene-on-mouse-move
+                            scene
+                            (make-instance 'mouse-move-event
+                                           :mouse-x x
+                                           :mouse-y y
+                                           :mouse-rel-x x-rel
+                                           :mouse-rel-y y-rel
+                                           :modifiers (translated-mods)))
                            (render-scene scene))
       (:mouse-button-down-event (:button button :state state :x x :y y)
                                 (declare (ignore state))
-                                (scene-on-mouse-button scene
-                                                       :mouse-button-down
-                                                       (make-instance 'mouse-button-event
-                                                                      :mouse-x x
-                                                                      :mouse-y y
-                                                                      :mouse-button button))
+                                (scene-on-mouse-button
+                                 scene
+                                 :mouse-button-down
+                                 (make-instance 'mouse-button-event
+                                                :mouse-x x
+                                                :mouse-y y
+                                                :mouse-button button
+                                                :modifiers (translated-mods)))
                                 (render-scene scene))
       (:mouse-button-up-event (:button button :state state :x x :y y)
                               (declare (ignore state))
-                              (scene-on-mouse-button scene
-                                                     :mouse-button-up
-                                                     (make-instance 'mouse-button-event
-                                                                    :mouse-x x
-                                                                    :mouse-y y
-                                                                    :mouse-button button))
+                              (scene-on-mouse-button
+                               scene
+                               :mouse-button-up
+                               (make-instance 'mouse-button-event
+                                              :mouse-x x
+                                              :mouse-y y
+                                              :mouse-button button
+                                              :modifiers (translated-mods)))
                               (render-scene scene))
       (:key-down-event (:state state :scancode scancode :key key
                                :mod mod :mod-key mod-key :unicode unicode)
@@ -124,8 +133,8 @@
                                      :key (sdl-translate-key key)
                                      :modifiers (mapcar #'sdl-translate-key mod-key)
                                      :unicode (if (= 0 unicode)
-                                                    nil
-                                                    (code-char unicode)))))
+                                                  nil
+                                                  (code-char unicode)))))
       (:video-expose-event () (sdl:update-display)))))
 
 (defun sdl-translate-key (key)

@@ -9,6 +9,7 @@
                (:file "scenic-images")
                (:file "scenic-events")
                (:file "scenic-classes")
+               (:file "scenic-textbox")
                (:file "scenic-containers")
                (:file "scenic-grid")
                (:file "scenic-scene")
