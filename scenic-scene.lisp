@@ -22,7 +22,8 @@
 (defun get-scene (widget)
   (if (eql (type-of widget) 'scene)
       widget
-      (get-scene (parent widget))))
+      (if (and widget (parent widget))
+          (get-scene (parent widget)))))
 
 (defun capture-mouse (widget)
   (let ((scene (get-scene widget)))
@@ -34,9 +35,20 @@
     (setf (mouse-captors scene)
           (remove widget (mouse-captors scene)))))
 
+(defun topmost-scrollview (widget &optional top-sv)
+  (if (typep widget 'scene)
+      top-sv
+      (aif (parent widget)
+           (if (typep it 'scroll-view)
+               (topmost-scrollview it it)
+               (topmost-scrollview it top-sv))
+           top-sv)))
+
 (defun invalidate (widget)
-  (let ((scene (get-scene widget)))
+  (bwhen (scene (get-scene widget))
     (setf (dirty scene) t)
+    (awhen (topmost-scrollview widget)
+      (push it (dirty-list scene)))
     (push widget (dirty-list scene))))
 
 (defun corners-of-widget (widget)
@@ -122,11 +134,20 @@
             widget-chain))))
 
 (defun hit-test (widget x y)
-  (let (result)
+  (let (result scroll-views)
     (paint-order-walk widget
                       (lambda (object)
-                        (if (in-widget x y object)
-                            (setf result object))))
+                        (when (in-widget x y object)
+                          (when (typep object 'scroll-view)
+                            (push object scroll-views)
+                            (incf x (horizontal-offset object))
+                            (incf y (vertical-offset object)))
+                          (setf result object)))
+                      :after-callback (lambda (object)
+                                        (when (eq (car scroll-views) object)
+                                          (pop scroll-views)
+                                          (decf x (horizontal-offset object))
+                                          (decf y (vertical-offset object)))))
     result))
 
 (defun cascade-then-bubble (widget-chain event event-arg)

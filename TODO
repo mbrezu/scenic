@@ -54,7 +54,7 @@
    argument so that we now what we need to paint; this is necessary
    for datagrids and such, so that they don't paint themselves
    completely all the time.
-** TODO hit-testing should work correctly with scroll views
+** DONE hit-testing should work correctly with scroll views
 ** TODO when sending paint/mouse events to widgets within scroll views,
    the coordinates should be adjusted to match the ones in the
    layout-... slots of the widgets.
@@ -88,11 +88,11 @@
 ** DONE editing
 ** DONE bug: the caret should be pushed +0.5 px horizontally,
    unless it is on the rightmost margin, when it should be pushed -0.5px
-** DONE selection
 ** TODO when clicking on the textbox, place the cursor on
    the space between chars, not before the clicked char; i.e.,
    determine the space between chars closest to the click.
-*** TODO drawing
+** DONE selection
+*** DONE drawing, basic behavior
 *** TODO clipboard interaction - xclip on X, what do I do on Windows?
 * TODO add license information
 * DONE use an .asd file (initial version from Orivej Desh)

@@ -2,8 +2,8 @@
 (defpackage :scenic-utils
   (:use :cl)
   (:export max-box print-all draw-button-raw pass-to-child
-           ifhorizontal aif let-from-options
-           fill-list it groups))
+           ifhorizontal aif awhen let-from-options
+           fill-list it groups bif bwhen))
 
 (defpackage :scenic
   (:use :cl :scenic-utils)

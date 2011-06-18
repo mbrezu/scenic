@@ -192,7 +192,14 @@
                          (setf (vertical-offset scroll-view)
                                (current-min-position vscroll))
                          (invalidate scroll-view)))
-    result))
+    (add-event-handler scroll-view :scroll-view-offset-changed nil
+                       (lambda (o evt)
+                         (declare (ignore o evt))
+                         (setf (current-min-position vscroll)
+                               (vertical-offset scroll-view))
+                         (setf (current-min-position hscroll)
+                               (horizontal-offset scroll-view))))
+    (values result scroll-view)))
 
 (defun textbox (text cursor-position
                 &key (selection-start 0) (caret-color (list 0.0 0.0 0.0))

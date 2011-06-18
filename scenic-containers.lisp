@@ -322,6 +322,14 @@
                   :initarg :inside-height
                   :initform (expt 10 6))))
 
+(defmethod (setf horizontal-offset) :after (value (object scroll-view))
+  (declare (ignore value))
+  (on-event object :scroll-view-offset-changed (make-instance 'event) nil))
+
+(defmethod (setf vertical-offset) :after (value (object scroll-view))
+  (declare (ignore value))
+  (on-event object :scroll-view-offset-changed (make-instance 'event) nil))
+
 (defmethod measure ((object scroll-view) available-width available-height)
   (measure (child object) (inside-width object) (inside-height object))
   (set-measured object available-width available-height)
