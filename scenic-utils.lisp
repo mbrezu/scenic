@@ -112,3 +112,17 @@
          (list list))
         (t (cons (subseq list 0 n)
                  (groups (subseq list n) n)))))
+
+(defmacro gen-print-object (class slots)
+  (print-all t class)
+  (when (not (symbolp class))
+    (error "Class should be a symbol!"))
+  `(defmethod print-object ((object ,class) stream)
+     (format stream
+             ,(format nil "~a (~{~a~^, ~})"
+                      (string-upcase (symbol-name class))
+                      (mapcar (lambda (slot)
+                                (format nil "~a:~~a" slot))
+                              slots))
+             ,@(mapcar (lambda (slot) `(,slot object))
+                       slots))))

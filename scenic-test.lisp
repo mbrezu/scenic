@@ -703,6 +703,43 @@
                      :max-height 400
                      :max-width 400))))))
 
+(defun scroll-view-mouse-adjust ()
+  (labels ((make-child (text)
+             (let ((btn (button-text text)))
+               (scenic:add-event-handler btn :click nil
+                                         (lambda (o e)
+                                           (declare (ignore o e))
+                                           (print-all t text)))
+               (scenic:add-event-handler btn :mouse-move :bubble
+                                         (lambda (o e)
+                                           (declare (ignore o))
+                                           (print-all t e)))
+               btn)))
+    (multiple-value-bind (sva sv)
+        (scroll-view-auto (sizer
+                           (background
+                            (list 1.0 1.0 1.0)
+                            (henchman
+                             '((:left 10 :top 10 :width 100 :height 100)
+                               (:right 10 :top 10 :width 100 :height 100)
+                               (:left 10 :bottom 10 :width 100 :height 100)
+                               (:right 10 :bottom 10 :width 100 :height 100))
+                             (list (make-child "Button 1")
+                                   (make-child "Button 2")
+                                   (make-child "Button 3")
+                                   (make-child "Button 4"))))
+                           :max-width 500
+                           :max-height 500))
+      (setf (scenic:horizontal-offset sv) 50)
+      (setf (scenic:vertical-offset sv) 50)
+      (scene *scene-width* *scene-height*
+             (stack
+              (background (list 1.0 1.0 1.0)
+                          (filler))
+              (sizer sva
+                     :max-height 400
+                     :max-width 400))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -728,4 +765,5 @@
   (test-scene (scroll-view-1))
   (test-scene (textbox-1))
   (test-scene (textbox-2))
-  (test-scene (scroll-view-hittest)))
+  (test-scene (scroll-view-hittest))
+  (test-scene (scroll-view-mouse-adjust)))

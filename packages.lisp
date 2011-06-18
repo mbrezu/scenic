@@ -3,7 +3,7 @@
   (:use :cl)
   (:export max-box print-all draw-button-raw pass-to-child
            ifhorizontal aif awhen let-from-options
-           fill-list it groups bif bwhen))
+           fill-list it groups bif bwhen gen-print-object))
 
 (defpackage :scenic
   (:use :cl :scenic-utils)

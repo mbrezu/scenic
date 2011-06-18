@@ -7,7 +7,7 @@
    seems that I need to duplicate the initforms as defaults to &key
    arguments of the helper function. Is there a way around this?
 ** There's class textattr, inherited by both label and textbox.
-   How can I copy the textattr slots from label to 
+   How can I copy the textattr slots from label to
 
 * DONE layout options for boxes
 ** DONE add layout options
@@ -32,7 +32,7 @@
 ** DONE add aligner widgets that use a grid to align their child
    added a separate aligner widget - faster
 * DONE change the helper macros from scenic-macros into functions;
-   redefine the package and file to 'scenic-helpers'.
+  redefine the package and file to 'scenic-helpers'.
 * DONE rename the helper functions in :scenic-helper to sane alternatives;
 * DONE min/max controls (they force the min/max width/height for their child)
 * DONE clipper class
@@ -46,18 +46,19 @@
   apply-children-descriptions)
 * DONE canvas class (top/left/bottom/right/width/height positioning)
   called henchman
+* TODO the paint method/event should have a 'paint rect'
+  argument so that we now what we need to paint; this is necessary
+  for datagrids and such, so that they don't paint themselves
+  completely all the time.
 * TODO scroll view;
 ** DONE first cut (no scrollbars integration)
 ** DONE add scrollbars (integrate them with a helper function)
 ** TODO scrollbars should disappear when not needed (enhance helper function)
-** TODO the paint method/event should have a 'paint rect'
-   argument so that we now what we need to paint; this is necessary
-   for datagrids and such, so that they don't paint themselves
-   completely all the time.
 ** DONE hit-testing should work correctly with scroll views
-** TODO when sending paint/mouse events to widgets within scroll views,
+** DONE when sending paint/mouse events to widgets within scroll views,
    the coordinates should be adjusted to match the ones in the
    layout-... slots of the widgets.
+** TODO test with nested scroll-views
 * DONE fix the scrollbar bug;
   When dragging, it is always assumed we are dragging the middle of
   the walker; we should drag according to the position of the mouse

@@ -83,13 +83,7 @@
    (width :accessor width :initarg :width :initform 0)
    (height :accessor height :initarg :height :initform 0)))
 
-(defmethod print-object ((object rect) stream)
-  (format stream
-          "RECT (~a,~a,~a,~a)"
-          (left object)
-          (top object)
-          (width object)
-          (height object)))
+(gen-print-object rect (left top width height))
 
 (defun right (rect)
   (1- (+ (left rect) (width rect))))
@@ -101,11 +95,7 @@
   ((x :accessor x :initarg :x :initform 0)
    (y :accessor y :initarg :y :initform 0)))
 
-(defmethod print-object ((object point) stream)
-  (format stream
-          "POINT (~a,~a)"
-          (x object)
-          (y object)))
+(gen-print-object point (x y))
 
 (defun corners-of-rectangle (rect)
   (with-slots (left top width height) rect
@@ -258,15 +248,19 @@
 
 (defun cascade-then-bubble (widget-chain event event-arg)
   (dolist (widget widget-chain)
-    (on-event widget event event-arg :cascade)
-    (when (handled event-arg)
-      (return)))
-  ;; then mouse-move bubble;
-  (unless (handled event-arg)
-    (dolist (widget (reverse widget-chain))
-      (on-event widget event event-arg :bubble)
-      (when (handled event-arg)
-        (return)))))
+    (when (not (handled event-arg))
+      (on-event widget event event-arg :cascade))
+    (when (typep widget 'scroll-view)
+      (adjust-event-coordinates event-arg
+                                (horizontal-offset widget)
+                                (vertical-offset widget))))
+  (dolist (widget (reverse widget-chain))
+    (when (not (handled event-arg))
+      (on-event widget event event-arg :bubble))
+    (when (typep widget 'scroll-view)
+      (adjust-event-coordinates event-arg
+                                (- (horizontal-offset widget))
+                                (- (vertical-offset widget))))))
 
 (defun branch-diff (branch1 branch2)
   (cond ((null branch1) nil)
