@@ -51,28 +51,17 @@
       (push it (dirty-list scene)))
     (push widget (dirty-list scene))))
 
-(defun corners-of-widget (widget)
-  (list (list (layout-left widget)
-              (layout-top widget))
-        (list (1- (+ (layout-left widget) (layout-width widget)))
-              (layout-top widget))
-        (list (layout-left widget)
-              (1- (+ (layout-top widget) (layout-height widget))))
-        (list (1- (+ (layout-left widget) (layout-width widget)))
-              (1- (+ (layout-top widget) (layout-height widget))))))
-
-(defmethod intersect ((object1 widget) (object2 widget))
-  (dolist (corner (corners-of-widget object1))
-    (if (in-widget (first corner) (second corner) object2)
-        (return-from intersect t))))
-
 (defun widget-paint-member (object list)
   (cond ((null list)
          nil)
         ((or (eq object (first list))
-             (and (intersect object (first list))
+             (and (paint-order-number object)
                   (> (paint-order-number object)
-                     (paint-order-number (first list)))))
+                     (paint-order-number (first list)))
+                  (and (affected-rect object)
+                       (affected-rect (first list))
+                       (rect-intersect (affected-rect object)
+                                       (affected-rect (first list))))))
          t)
         (t (widget-paint-member object (rest list)))))
 
@@ -88,6 +77,128 @@
         (max (third bbox1) (third bbox2))
         (max (fourth bbox1) (fourth bbox2))))
 
+(defclass rect ()
+  ((left :accessor left :initarg :left :initform 0)
+   (top :accessor top :initarg :top :initform 0)
+   (width :accessor width :initarg :width :initform 0)
+   (height :accessor height :initarg :height :initform 0)))
+
+(defmethod print-object ((object rect) stream)
+  (format stream
+          "RECT (~a,~a,~a,~a)"
+          (left object)
+          (top object)
+          (width object)
+          (height object)))
+
+(defun right (rect)
+  (1- (+ (left rect) (width rect))))
+
+(defun bottom (rect)
+  (1- (+ (top rect) (height rect))))
+
+(defclass point ()
+  ((x :accessor x :initarg :x :initform 0)
+   (y :accessor y :initarg :y :initform 0)))
+
+(defmethod print-object ((object point) stream)
+  (format stream
+          "POINT (~a,~a)"
+          (x object)
+          (y object)))
+
+(defun corners-of-rectangle (rect)
+  (with-slots (left top width height) rect
+    (list (make-instance 'point :x left :y top)
+          (make-instance 'point :x (1- (+ left width)) :y top)
+          (make-instance 'point :x left :y (1- (+ top height)))
+          (make-instance 'point :x (1- (+ left width)) :y (1- (+ top height))))))
+
+(defun in-rect (x y rect)
+  (with-slots (left top width height) rect
+    (and (<= left x)
+         (< x (+ left width))
+         (<= top y)
+         (< y (+ top height)))))
+
+(defun rect-intersect (rect1 rect2)
+  (labels ((rect-intersection ()
+             (let ((left (max (left rect1) (left rect2)))
+                   (top (max(top rect1) (top rect2)))
+                   (right (min (right rect1) (right rect2)))
+                   (bottom (min (bottom rect1) (bottom rect2))))
+               (make-instance 'rect
+                              :left left
+                              :top top
+                              :width (1+ (- right left))
+                              :height (1+ (- bottom top)))))
+           (intersect-p ()
+             (or (dolist (corner (corners-of-rectangle rect1))
+                   (if (in-rect (x corner) (y corner) rect2)
+                       (return t)))
+                 (dolist (corner (corners-of-rectangle rect2))
+                   (if (in-rect (x corner) (y corner) rect1)
+                       (return t))))))
+    (when (intersect-p)
+      (rect-intersection))))
+
+(defun layout-rect (widget)
+  (make-instance 'rect
+                 :left (layout-left widget)
+                 :top (layout-top widget)
+                 :width (layout-width widget)
+                 :height (layout-height widget)))
+
+(defun intersects-clip-rect (widget offset-x offset-y clip-rect)
+  (let ((widget-rect (layout-rect widget)))
+    (decf (left widget-rect) offset-x)
+    (decf (top widget-rect) offset-y)
+    (if (null clip-rect)
+        t
+        (rect-intersect widget-rect clip-rect))))
+
+(defun visible-rect (widget offset-x offset-y clip-rect)
+  (let ((visible-rect (layout-rect widget)))
+    (decf (left visible-rect) offset-x)
+    (decf (top visible-rect) offset-y)
+    (if (null clip-rect)
+        visible-rect
+        (rect-intersect visible-rect clip-rect))))
+
+(defun assign-paint-numbers (root-widget)
+  (let ((number 0)
+        (offset-x 0)
+        (offset-y 0)
+        (clip-rect-stack nil)
+        (clipper-stack nil))
+    (paint-order-walk root-widget
+                      (lambda (object)
+                        (setf (paint-order-number object) nil)
+                        (setf (affected-rect object)
+                              (visible-rect object
+                                            offset-x offset-y
+                                            (car clip-rect-stack)))
+                        (when (affected-rect object)
+                          (setf (paint-order-number object) number)
+                          (incf number)
+                          (when (clips-content object)
+                            (push (affected-rect object)
+                                  clip-rect-stack)
+                            (push object clipper-stack))
+                          (when (typep object 'scroll-view)
+                            (incf offset-x (horizontal-offset object))
+                            (incf offset-y (vertical-offset object)))
+                          t))
+                      :after-callback (lambda (object)
+                                        (when (and (eq object (car clipper-stack))
+                                                   (typep object 'scroll-view))
+                                          (incf offset-x (horizontal-offset object))
+                                          (incf offset-y (vertical-offset object)))
+                                        (when (and (eq object (car clipper-stack))
+                                                   (clips-content object))
+                                          (pop clipper-stack)
+                                          (pop clip-rect-stack))))))
+
 (defun paint-scene (scene)
   (if (null (dirty-list scene))
       (paint-order-walk (widget scene)
@@ -97,12 +208,7 @@
                         :after-callback (lambda (object)
                                           (after-paint object)))
       (progn
-        (let ((number 0))
-          (paint-order-walk (widget scene)
-                            (lambda (object)
-                              (setf (paint-order-number object) number)
-                              (incf number)
-                              t)))
+        (assign-paint-numbers (widget scene))
         (paint-order-walk (widget scene)
                           (lambda (object)
                             (when (widget-paint-member object (dirty-list scene))

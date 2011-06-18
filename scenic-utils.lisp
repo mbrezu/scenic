@@ -8,9 +8,12 @@
 (defmacro print-all (stream &rest exprs)
   (let ((format-string (with-output-to-string (str)
                          (dolist (expr exprs)
-                           (format str "~a: " expr)
-                           (format str "~~a")
-                           (format str "~%")))))
+                           (cond ((stringp expr)
+                                  (format str "~~a"))
+                                 (t
+                                  (format str "~a: " expr)
+                                  (format str "~~a")
+                                  (format str "~%")))))))
     `(format ,stream ,format-string ,@exprs)))
 
 (defun draw-button-raw (left top width height pressed)

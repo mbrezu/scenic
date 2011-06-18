@@ -322,6 +322,9 @@
                   :initarg :inside-height
                   :initform (expt 10 6))))
 
+(defmethod clips-content ((object scroll-view))
+  t)
+
 (defmethod (setf horizontal-offset) :after (value (object scroll-view))
   (declare (ignore value))
   (on-event object :scroll-view-offset-changed (make-instance 'event) nil))

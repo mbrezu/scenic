@@ -21,6 +21,8 @@
 
 (defgeneric intersect (object1 object2))
 
+(defgeneric clips-content (object))
+
 ;;; EVENTFUL class.
 
 (defclass eventful ()
@@ -48,9 +50,14 @@
    (layout-left :accessor layout-left :initarg :layout-left :initform 0)
    (layout-top :accessor layout-top :initarg :layout-top :initform 0)
    (layout-width :accessor layout-width :initarg :layout-width :initform nil)
-   (layout-height :accessor layout-height :initarg :layout-height :initform nil)
+   (layout-height :accessor layout-height :initarg :layout-height :initform nil)n
    (parent :accessor parent :initarg :parent :initform nil)
-   (paint-order-number :accessor paint-order-number :initarg :paint-order-number :initform -1)))
+   (paint-order-number :accessor paint-order-number
+                       :initarg :paint-order-number
+                       :initform -1)
+   (affected-rect :accessor affected-rect
+                  :initarg :affected-rect
+                  :initform nil)))
 
 (defmethod print-object ((object widget) stream)
   (format stream
@@ -98,6 +105,9 @@
   (funcall callback object)
   (when after-callback
     (funcall after-callback object)))
+
+(defmethod clips-content ((object widget))
+  nil)
 
 ;;; PLACEHOLDER class.
 

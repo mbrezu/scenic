@@ -154,6 +154,9 @@
 (defclass clipper (container1)
   ())
 
+(defmethod clips-content ((object clipper))
+  t)
+
 (defmethod paint ((instance clipper))
   (cl-cairo2:save)
   (cl-cairo2:rectangle (layout-left instance)
@@ -175,6 +178,9 @@
    (cairo-surface :accessor cairo-surface
                   :initarg :cairo-surface
                   :initform :center)))
+
+(defmethod clips-content ((object glass))
+  t)
 
 (defmethod paint ((instance glass))
   (setf (cairo-surface instance)
