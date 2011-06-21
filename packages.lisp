@@ -10,6 +10,7 @@
   (:export run-scene
            eventful add-event-handler on-event
            widget measured-width measured-height
+           name auto-name
            set-measured
            layout-left layout-top layout-width layout-height
            set-layout

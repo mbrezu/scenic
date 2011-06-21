@@ -108,8 +108,8 @@
   whether the test passed or failed). This way it doesn't matter so
   much if the tests are fragile (as in easily broken by changes to the
   interface).
-** TODO naming of widgets (both explicit and automatic)
-** TODO recording of input events
+** DONE naming of widgets (both explicit and automatic)
+** DONE recording of input events
 ** TODO test channel where reactions to events are recorded
 ** TODO matching a recorded session of input events and
    reactions on the test channel with a 'blind' run of the input
@@ -117,6 +117,8 @@
 ** TODO handling of asynchronous events (test channel replies
    can arrive in different orders); markup for the start of the async
    interval and the end? other ways to handle this.
+* TODO scenes have a name, the name of the scene is placed in the
+  window title;
 * TODO tree widget
 * TODO datagrid widget
 * TODO minesweeper and solitaire demos :-)

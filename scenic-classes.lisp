@@ -50,14 +50,30 @@
    (layout-left :accessor layout-left :initarg :layout-left :initform 0)
    (layout-top :accessor layout-top :initarg :layout-top :initform 0)
    (layout-width :accessor layout-width :initarg :layout-width :initform nil)
-   (layout-height :accessor layout-height :initarg :layout-height :initform nil)n
+   (layout-height :accessor layout-height :initarg :layout-height :initform nil)
    (parent :accessor parent :initarg :parent :initform nil)
+   (name :accessor name :initarg :name :initform nil)
+   (auto-name :accessor auto-name :initarg :auto-name :initform nil)
    (paint-order-number :accessor paint-order-number
                        :initarg :paint-order-number
                        :initform -1)
    (affected-rect :accessor affected-rect
                   :initarg :affected-rect
                   :initform nil)))
+
+(defun get-widget-chain (widget-chain)
+  (if (null widget-chain)
+      nil
+      (let ((parent-of-first (parent (first widget-chain))))
+        (if (and parent-of-first (not (eql (type-of parent-of-first) 'scene)))
+            (get-widget-chain (cons parent-of-first
+                                    widget-chain))
+            widget-chain))))
+
+(defun full-name (widget)
+  (format nil "~{~a~^/~}"
+          (mapcar (lambda (widget) (or (name widget) (auto-name widget)))
+                  (get-widget-chain widget))))
 
 (defmethod print-object ((object widget) stream)
   (format stream

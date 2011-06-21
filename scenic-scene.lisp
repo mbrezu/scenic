@@ -220,15 +220,6 @@
 (defmethod layout ((object scene) left top width height)
   (layout (widget object) left top width height))
 
-(defun get-widget-chain (widget-chain)
-  (if (null widget-chain)
-      nil
-      (let ((parent-of-first (parent (first widget-chain))))
-        (if (and parent-of-first (not (eql (type-of parent-of-first) 'scene)))
-            (get-widget-chain (cons parent-of-first
-                                    widget-chain))
-            widget-chain))))
-
 (defun hit-test (widget x y)
   (let (result scroll-views)
     (paint-order-walk widget

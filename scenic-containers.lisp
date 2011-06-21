@@ -24,8 +24,12 @@
     (funcall after-callback object)))
 
 (defmethod (setf children) :after (value (instance container))
-  (mapc (lambda (child) (setf (parent child) instance))
-        (children instance)))
+  (loop
+     for child in (children instance)
+     for idx = 1 then (1+ idx)
+     do
+       (setf (parent child) instance)
+       (setf (auto-name child) (format nil "~a" idx))))
 
 ;;; BOX class.
 
@@ -227,7 +231,8 @@
 
 (defmethod (setf child) :after (value (instance container1))
   (when value
-    (setf (parent value) instance)))
+    (setf (parent value) instance)
+    (setf (auto-name value) "1")))
 
 (defmethod measure ((object container1) available-width available-height)
   (multiple-value-bind (width height)
