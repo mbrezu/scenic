@@ -49,7 +49,8 @@
            inside-width inside-height
            scroll-view-measured-event inner-width inner-height outer-width outer-height
            textbox cursor-position selection-start caret-color selection-color
-           calculate-focusables))
+           calculate-focusables
+           *test-channel-enabled* *event-recording-enabled* *session-record*))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
