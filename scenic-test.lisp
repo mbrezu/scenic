@@ -2,6 +2,7 @@
 (in-package :scenic-test)
 
 (defun test-scene (scene &optional scenic:*test-channel-enabled*)
+  (scenic:reset-event-log)
   (scenic:run-scene scene)
   (print (reverse scenic:*session-record*))
   (scenic:reset-event-log))

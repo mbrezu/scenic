@@ -70,7 +70,7 @@
 (defvar *session-record* nil)
 
 (defun reset-event-log ()
-  (when *event-recording-enabled*
+  (when (or *event-recording-enabled* *test-channel-enabled*)
     (setf *session-record* nil)))
 
 (defun record-event (event)
@@ -143,7 +143,6 @@
     (lispbuilder-sdl:enable-unicode)
     (sdl:with-events ()
       (:quit-event () t)
-      (:idle () (render-scene scene))
       (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
                            (declare (ignore state))
                            (let ((event-arg (make-instance 'mouse-move-event
@@ -195,7 +194,8 @@
                          (record-event event-arg)
                          (scene-on-key scene
                                        :key-down
-                                       event-arg)))
+                                       event-arg)
+                         (render-scene scene)))
       (:key-up-event (:state state :scancode scancode :key key
                              :mod mod :mod-key mod-key :unicode unicode)
                      (declare (ignore state scancode mod))
@@ -209,7 +209,8 @@
                        (record-event event-arg)
                        (scene-on-key scene
                                      :key-up
-                                     event-arg)))
+                                     event-arg)
+                       (render-scene scene)))
       (:video-expose-event () (sdl:update-display)))))
 
 (defun sdl-translate-key (key)
