@@ -29,7 +29,7 @@
      for idx = 1 then (1+ idx)
      do
        (setf (parent child) instance)
-       (setf (auto-name child) (format nil "~a" idx))))
+       (setf (auto-name child) (make-widget-auto-name child idx))))
 
 ;;; BOX class.
 
@@ -232,7 +232,7 @@
 (defmethod (setf child) :after (value (instance container1))
   (when value
     (setf (parent value) instance)
-    (setf (auto-name value) "1")))
+    (setf (auto-name value) (make-widget-auto-name value 1))))
 
 (defmethod measure ((object container1) available-width available-height)
   (multiple-value-bind (width height)

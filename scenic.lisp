@@ -73,9 +73,9 @@
   (when *event-recording-enabled*
     (setf *session-record* nil)))
 
-(defun record-event (event event-kind)
+(defun record-event (event)
   (when *event-recording-enabled*
-    (push (list 'event event-kind event) *session-record*)))
+    (push (cons 'event (serialize event)) *session-record*)))
 
 (defun test-channel-write (data)
   (when *test-channel-enabled*
@@ -152,7 +152,7 @@
                                                            :mouse-rel-x x-rel
                                                            :mouse-rel-y y-rel
                                                            :modifiers (translated-mods))))
-                             (record-event event-arg :mouse-motion-event)
+                             (record-event event-arg)
                              (scene-on-mouse-move scene event-arg)
                              (render-scene scene)))
       (:mouse-button-down-event (:button button :state state :x x :y y)
@@ -163,7 +163,7 @@
                                                   :mouse-y y
                                                   :mouse-button button
                                                   :modifiers (translated-mods))))
-                                  (record-event event-arg :mouse-button-down-event)
+                                  (record-event event-arg)
                                   (scene-on-mouse-button scene
                                                          :mouse-button-down
                                                          event-arg)
@@ -175,7 +175,7 @@
                                                               :mouse-y y
                                                               :mouse-button button
                                                               :modifiers (translated-mods))))
-                                (record-event event-arg :mouse-button-up-event)
+                                (record-event event-arg)
                                 (scene-on-mouse-button scene
                                                        :mouse-button-up
                                                        event-arg)
@@ -192,7 +192,7 @@
                                                       (code-char unicode)))))
                          (when (sdl:key= key :sdl-key-escape)
                            (sdl:push-quit-event))
-                         (record-event event-arg :key-down-event)
+                         (record-event event-arg)
                          (scene-on-key scene
                                        :key-down
                                        event-arg)))
@@ -206,7 +206,7 @@
                                        :unicode (if (= 0 unicode)
                                                     nil
                                                     (code-char unicode)))))
-                       (record-event event-arg :key-up-event)
+                       (record-event event-arg)
                        (scene-on-key scene
                                      :key-up
                                      event-arg)))

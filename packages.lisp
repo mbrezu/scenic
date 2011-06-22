@@ -3,7 +3,8 @@
   (:use :cl)
   (:export max-box print-all draw-button-raw pass-to-child
            ifhorizontal aif awhen let-from-options
-           fill-list it groups bif bwhen gen-print-object))
+           fill-list it groups bif bwhen
+           gen-print-object gen-serializer))
 
 (defpackage :scenic
   (:use :cl :scenic-utils)
@@ -51,7 +52,9 @@
            scroll-view-measured-event inner-width inner-height outer-width outer-height
            textbox cursor-position selection-start caret-color selection-color
            calculate-focusables
-           *test-channel-enabled* *event-recording-enabled* *session-record*))
+           *test-channel-enabled* *event-recording-enabled* *session-record*
+           reset-event-log test-channel-write
+           serialize))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)

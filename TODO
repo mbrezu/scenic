@@ -122,3 +122,5 @@
 * TODO tree widget
 * TODO datagrid widget
 * TODO minesweeper and solitaire demos :-)
+* TODO the focus event should be sent to the
+  whole widget chain

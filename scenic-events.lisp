@@ -3,6 +3,8 @@
 
 (defgeneric adjust-event-coordinates (event offset-x offset-y))
 
+(defgeneric serialize (object))
+
 ;;; EVENT class.
 
 (defclass event ()
@@ -10,6 +12,13 @@
 
 (defmethod adjust-event-coordinates ((event event) offset-x offset-y)
   (declare (ignore event offset-x offset-y)))
+
+(gen-print-object event ())
+
+(gen-serializer event (handled))
+
+;; (defmethod serialize ((object event))
+;;   (list 'event :handled (handled object)))
 
 ;;; MOUSE-EVENT class.
 
@@ -24,6 +33,8 @@
 
 (gen-print-object mouse-event (mouse-x mouse-y modifiers))
 
+(gen-serializer mouse-event (handled mouse-x mouse-y modifiers))
+
 ;;; MOUSE-MOVE-EVENT
 
 (defclass mouse-move-event (mouse-event)
@@ -32,12 +43,16 @@
 
 (gen-print-object mouse-move-event (mouse-x mouse-y modifiers mouse-rel-x mouse-rel-y))
 
+(gen-serializer mouse-move-event (handled mouse-x mouse-y modifiers mouse-rel-x mouse-rel-y))
+
 ;;; MOUSE-BUTTON-EVENT
 
 (defclass mouse-button-event (mouse-event)
   ((mouse-button :accessor mouse-button :initarg :mouse-button :initform nil)))
 
 (gen-print-object mouse-button-event (mouse-x mouse-y modifiers mouse-button))
+
+(gen-serializer mouse-button-event (handled mouse-x mouse-y modifiers))
 
 ;;; KEY-EVENT class.
 
@@ -47,6 +62,8 @@
    (unicode :accessor unicode :initarg :unicode :initform nil)))
 
 (gen-print-object key-event (key modifiers unicode))
+
+(gen-serializer key-event (handled key modifiers unicode))
 
 ;;; SCROLL-VIEW-MEASURED event.
 (defclass scroll-view-measured-event (event)
@@ -58,4 +75,5 @@
 (gen-print-object scroll-view-measured-event
                   (inner-width inner-height outer-width outer-height))
 
-
+(gen-serializer scroll-view-measured-event
+                (handled inner-width inner-height outer-width outer-height))

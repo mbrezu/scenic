@@ -61,6 +61,16 @@
                   :initarg :affected-rect
                   :initform nil)))
 
+(defun make-widget-auto-name (widget count)
+   (format nil "~a-~a" (class-name (class-of widget)) count))
+
+(defmethod initialize-instance :after ((object widget) &rest initargs)
+  (declare (ignore initargs))
+  (setf (auto-name object) (make-widget-auto-name object 1)))
+
+;; (defmethod on-event :before ((object widget) event event-args propagation)
+;;   (test-channel-write (list (full-name object) event (serialize event-args))))
+
 (defun get-widget-chain (widget-chain)
   (if (null widget-chain)
       nil
@@ -73,7 +83,7 @@
 (defun full-name (widget)
   (format nil "~{~a~^/~}"
           (mapcar (lambda (widget) (or (name widget) (auto-name widget)))
-                  (get-widget-chain widget))))
+                  (get-widget-chain (list widget)))))
 
 (defmethod print-object ((object widget) stream)
   (format stream
@@ -114,6 +124,9 @@
   (set-layout object left top width height))
 
 (defmethod paint ((object widget)))
+
+(defmethod paint :before ((object widget))
+  (test-channel-write (list (full-name object) :paint (format nil "~a" object))))
 
 (defmethod after-paint ((object widget)))
 
@@ -224,9 +237,11 @@
   ((has-focus :accessor has-focus :initarg :has-focus :initform nil)))
 
 (defmethod (setf has-focus) :after (value (instance focusable))
-  (if value
-      (on-event instance :got-focus (make-instance 'event) nil)
-      (on-event instance :lost-focus (make-instance 'event) nil)))
+  (let ((widget-chain (get-widget-chain (list instance)))
+        (event-arg (make-instance 'event)))
+    (if value
+        (cascade-then-bubble widget-chain :got-focus event-arg)
+        (cascade-then-bubble widget-chain :lost-focus event-arg))))
 
 (defgeneric focusable (instance))
 

@@ -114,7 +114,6 @@
                  (groups (subseq list n) n)))))
 
 (defmacro gen-print-object (class slots)
-  (print-all t class)
   (when (not (symbolp class))
     (error "Class should be a symbol!"))
   `(defmethod print-object ((object ,class) stream)
@@ -126,3 +125,11 @@
                               slots))
              ,@(mapcar (lambda (slot) `(,slot object))
                        slots))))
+
+(defmacro gen-serializer (class slots)
+  (when (not (symbolp class))
+    (error "Class should be a symbol!"))
+  `(defmethod scenic:serialize ((object ,class))
+     (list ',class
+           ,@(mapcan (lambda (slot) `(,(make-keyword slot) (,slot object)))
+                     slots))))
