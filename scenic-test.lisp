@@ -1,11 +1,11 @@
 
 (in-package :scenic-test)
 
-(defun test-scene (scene &optional scenic:*test-channel-enabled*)
-  (scenic:reset-event-log)
-  (scenic:run-scene scene)
-  (print (reverse scenic:*session-record*))
-  (scenic:reset-event-log))
+(defun test-scene (scene &optional record)
+  (let ((scenic:*event-recording-enabled* record)
+        (scenic:*test-channel-enabled* record))
+    (scenic:run-scene scene)
+    (reverse scenic:*session-record*)))
 
 (defvar *scene-width*)
 (setf *scene-width* 700)

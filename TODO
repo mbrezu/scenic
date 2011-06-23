@@ -122,5 +122,8 @@
 * TODO tree widget
 * TODO datagrid widget
 * TODO minesweeper and solitaire demos :-)
-* TODO the focus event should be sent to the
+* DONE the focus event should be sent to the
   whole widget chain
+* TODO bug: in the scroll view demos only the sliders are painted
+  (after removing the idle render-scene stuff; probably need to add
+  some "invalidate" calls)
