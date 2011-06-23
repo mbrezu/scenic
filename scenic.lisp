@@ -30,7 +30,7 @@
        (cl-cairo2:destroy cl-cairo2:*context*)
        ,g-sdl-surface)))
 
-(defun render-scene (scene)
+(defun render-scene (scene &optional force-repaint-all)
   (unless (sdl-surface scene)
     (setf (sdl-surface scene)
           (sdl:create-surface (width scene) (height scene))))
@@ -38,6 +38,8 @@
     (setf (dirty scene) nil)
     (draw-with-cairo (sdl-surface scene)
       (measure-layout scene)
+      (when force-repaint-all
+        (invalidate-scene scene))
       (paint-scene scene))
     (sdl:set-point-* (sdl-surface scene) :x 0 :y 0)
     (if (rectangle-to-redraw scene)
@@ -179,7 +181,7 @@
     (setf (sdl:frame-rate) 100)
     (calculate-focusables scene)
     (reset-session-record)
-    (render-scene scene)
+    (render-scene scene t)
     (lispbuilder-sdl:enable-unicode)
     (sdl:with-events ()
       (:quit-event () t)

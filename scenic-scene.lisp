@@ -19,6 +19,10 @@
    (focusables :accessor focusables :initarg :focusables :initform nil)
    (focused-index :accessor focused-index :initarg :focused-index :initform nil)))
 
+(defun invalidate-scene (scene)
+  (setf (dirty scene) t)
+  (setf (dirty-list scene) nil))
+
 (defun get-scene (widget)
   (if (eql (type-of widget) 'scene)
       widget

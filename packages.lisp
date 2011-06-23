@@ -27,7 +27,7 @@
            mouse-rel-x mouse-rel-y mouse-button-event
            widget-list
            key-event key
-           scene
+           scene invalidate-scene
            filler
            textattr
            label text font-face font-size font-color font-slant font-weight
