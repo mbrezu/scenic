@@ -75,9 +75,9 @@
   (when (or *event-recording-enabled* *test-channel-enabled*)
     (setf *session-record* nil)))
 
-(defun record-event (event)
+(defun record-event (event-kind event-arg)
   (when *event-recording-enabled*
-    (push (cons 'event (serialize event)) *session-record*)))
+    (push (list* 'event event-kind (serialize event-arg)) *session-record*)))
 
 (defun test-channel-write (data)
   (when *test-channel-enabled*
@@ -95,7 +95,7 @@
          (break-by (rest list) pred (push (first list) acc)))
         (t (values (reverse acc) list))))
 
-(defun test-render-scene (scene)
+(defun test-render-scene (scene &optional force-repaint-all)
   (when (dirty scene)
     (setf (dirty scene) nil)
     (let* ((cairo-surface (cl-cairo2:create-image-surface :argb32
@@ -103,28 +103,30 @@
            (cl-cairo2:*context* (cl-cairo2:create-context cairo-surface)))
       (cl-cairo2:destroy cairo-surface)
       (measure-layout scene)
+      (when force-repaint-all
+        (invalidate-scene scene))
       (paint-scene scene)
       (cl-cairo2:destroy cl-cairo2:*context*))))
 
 (defun emulate-event (scene event)
   (let ((event-kind (second event))
-        (event-arg (apply #'make-instance (cdr event))))
-    (case event-kind
-      ((mouse-motion-event)
+        (event-arg (apply #'make-instance (cddr event))))
+    (ecase event-kind
+      ((:mouse-motion-event)
        (scene-on-mouse-move scene event-arg)
-       (render-scene scene))
-      ((mouse-button-down-event)
+       (test-render-scene scene))
+      ((:mouse-button-down-event)
        (scene-on-mouse-button scene :mouse-button-down event-arg)
-       (render-scene scene))
-      ((mouse-button-up-event)
+       (test-render-scene scene))
+      ((:mouse-button-up-event)
        (scene-on-mouse-button scene :mouse-button-up event-arg)
-       (render-scene scene))
-      ((key-down-event)
+       (test-render-scene scene))
+      ((:key-down-event)
        (scene-on-key scene :key-down event-arg)
-       (render-scene scene))
-      ((key-up-event)
+       (test-render-scene scene))
+      ((:key-up-event)
        (scene-on-key scene :key-up event-arg)
-       (render-scene scene)))))
+       (test-render-scene scene)))))
 
 (defun print-first-diff (list1 list2 &optional (line 1))
   (cond ((and (null list1) (null list2))
@@ -150,13 +152,18 @@
           event
           test-replies)
 
+      (print-all t (length session-record))
       (setf (values test-replies session-record)
             (break-by session-record
                       (lambda (elem) (eq (car elem) 'test-channel))))
 
+      (print-all t (length test-replies) (length session-record))
+
       (print-all t test-replies)
 
-      (run-compare test-replies (lambda () (test-render-scene scene)))
+      (run-compare test-replies (lambda ()
+                                  (calculate-focusables scene)
+                                  (test-render-scene scene t)))
 
       (loop
          (unless session-record
@@ -171,6 +178,7 @@
          (setf (values test-replies session-record)
                (break-by session-record
                          (lambda (elem) (eq (car elem) 'test-channel))))
+         (print-all t (length test-replies) (length session-record))
          (print-all t test-replies)
          (run-compare test-replies (lambda () (emulate-event scene event)))))))
 
@@ -193,7 +201,7 @@
                                                            :mouse-rel-x x-rel
                                                            :mouse-rel-y y-rel
                                                            :modifiers (translated-mods))))
-                             (record-event event-arg)
+                             (record-event :mouse-motion-event event-arg)
                              (scene-on-mouse-move scene event-arg)
                              (render-scene scene)))
       (:mouse-button-down-event (:button button :state state :x x :y y)
@@ -204,7 +212,7 @@
                                                   :mouse-y y
                                                   :mouse-button button
                                                   :modifiers (translated-mods))))
-                                  (record-event event-arg)
+                                  (record-event :mouse-button-down-event event-arg)
                                   (scene-on-mouse-button scene
                                                          :mouse-button-down
                                                          event-arg)
@@ -216,7 +224,7 @@
                                                               :mouse-y y
                                                               :mouse-button button
                                                               :modifiers (translated-mods))))
-                                (record-event event-arg)
+                                (record-event :mouse-button-up-event event-arg)
                                 (scene-on-mouse-button scene
                                                        :mouse-button-up
                                                        event-arg)
@@ -233,7 +241,7 @@
                                                       (code-char unicode)))))
                          (when (sdl:key= key :sdl-key-escape)
                            (sdl:push-quit-event))
-                         (record-event event-arg)
+                         (record-event :key-down-event event-arg)
                          (scene-on-key scene
                                        :key-down
                                        event-arg)
@@ -248,7 +256,7 @@
                                        :unicode (if (= 0 unicode)
                                                     nil
                                                     (code-char unicode)))))
-                       (record-event event-arg)
+                       (record-event :key-up-event event-arg)
                        (scene-on-key scene
                                      :key-up
                                      event-arg)
