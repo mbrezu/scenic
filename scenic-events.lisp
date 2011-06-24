@@ -52,7 +52,7 @@
 
 (gen-print-object mouse-button-event (mouse-x mouse-y modifiers mouse-button))
 
-(gen-serializer mouse-button-event (handled mouse-x mouse-y modifiers))
+(gen-serializer mouse-button-event (handled mouse-x mouse-y modifiers mouse-button))
 
 ;;; KEY-EVENT class.
 

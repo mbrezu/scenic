@@ -1,7 +1,7 @@
 
 (in-package :scenic)
 
-(declaim (optimize (debug 3) (speed 0)))
+(declaim (optimize (debug 3) (speed 0) safety))
 
 (defgeneric measure (object available-width available-height))
 
