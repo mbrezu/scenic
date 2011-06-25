@@ -13,6 +13,7 @@ Run the test.
 
 ## Pass/Fail Criteria
 
-Three colored rectangles (red, green, blue) must appear on a white background.
+Three colored rectangles (red, green, blue) must appear on a white
+background.
 
 
