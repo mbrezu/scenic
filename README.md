@@ -40,22 +40,6 @@ bottleneck. I don't get that feeling with most other languages (and
 when I do get it, I tend to think that the language must share some of
 the blame, or that I'm not getting enough for my effort).
 
-# WARNING - DANGER, DANGER, DANGER
-
-Scenic contains a hack to make LISPBUILDER-SDL create SDL surfaces
-that are compatible with Cairo (see file `sdl-patch.lisp`). If you
-load Scenic into a Common Lisp image that you also use for other
-projects that use LISPBUILDER-SDL, it will break LISPBUILDER-SDL
-surface creation.
-
-This will probably be fixed by patching LISPBUILDER-SDL (see
-http://code.google.com/p/lispbuilder/issues/detail?id=23), but until
-then this ugly hack is necessary to let Scenic use Cairo to draw on
-SDL surfaces.
-
-(LISPBUILDER-SDL is currently fixed in SVN, will wait for the change
-to propagate to Quicklisp before removing my patch and this warning).
-
 # Install
 
 I assume that your Common Lisp implementation has Quicklisp

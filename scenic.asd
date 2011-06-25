@@ -4,8 +4,7 @@
   :depends-on (#:lispbuilder-sdl
                #:cl-cairo2
                #:gzip-stream)
-  :components ((:file "sdl-patch")
-               (:file "packages")
+  :components ((:file "packages")
                (:file "scenic-utils")
                (:file "scenic-resources")
                (:file "scenic-events")
