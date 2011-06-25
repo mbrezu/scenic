@@ -1,0 +1,25 @@
+
+-*- markdown -*-
+
+# Name: Aligner-1
+
+## Description
+
+The aligner widget is tested. It can align its content horizontally
+and vertically. There are four options for each orientation: left,
+center, stretch and right (horizontally) and top, center, stretch and
+bottom (vertically). 'Stretch' means that the content fills the
+aligner in the specified direction.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+A 4x4 grid covers the scene. There is a cell for each combination of
+alignment options (4 horizontal, 4 vertical, 16 combinations). Check
+that the aligned content (a button with text describing the horizontal
+and vertical alignment used for the button) for each cell is aligned
+correctly.
+

@@ -71,7 +71,12 @@
             (make-auto-test :name "grid-layout-options-3"
                             :scene-function #'grid-layout-options-3
                             :scene-session-file "test-data/grid-layout-options-3.gz"
-                            :description-file "test-data/grid-layout-options.txt")))
+                            :description-file "test-data/grid-layout-options.txt")
+            (make-auto-test :name "aligner-1"
+                            :scene-function #'aligner-1
+                            :scene-session-file "test-data/aligner-1.gz"
+                            :description-file "test-data/aligner-1.txt")
+            ))
 
 (defun find-test (name)
   (find name *tests* :test #'string-equal :key #'auto-test-name))
