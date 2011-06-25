@@ -88,5 +88,5 @@
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)
-  (:export run-all-tests))
+  (:export run-all-tests run-auto-tests))
 
