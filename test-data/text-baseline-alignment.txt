@@ -1,0 +1,16 @@
+
+-*- markdown -*-
+
+# Name: Test Baseline Alignment
+
+## Description
+
+Three labels are displayed.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Check that the baselines for the text of the labels are aligned.

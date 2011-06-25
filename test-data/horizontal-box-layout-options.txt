@@ -1,0 +1,18 @@
+
+-*- markdown -*-
+
+# Name: Horizontal Box Layout Options
+
+## Description
+
+The scene is filled with colored rectangles placed in a horizontal box.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Check that the labels on the colored rectangles actually match the
+size of the rectangles.
+

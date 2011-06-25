@@ -1,0 +1,18 @@
+
+-*- markdown -*-
+
+# Name: Grid Basic
+
+## Description
+
+The scene is filled with a grid with a simple layout.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Check that a grid with 9 cells (3x3) appears.
+
+

@@ -1,0 +1,24 @@
+
+-*- markdown -*-
+
+# Name: Grid Offset
+
+## Description
+
+The scene is filled with a grid. The grid layout is specified using
+grid offsets (see the code of the scene function, `grid-offset`).
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Check that a grid with 24 cells (6x4) appears.
+
+The cells should be divided in four regions, corresponding to the grid
+offsets. The first three regions are 2x3 regions and are layed out one
+next to the other. The fourth region is 6x1 and is layed out below the
+other three.
+
+

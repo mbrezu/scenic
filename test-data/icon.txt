@@ -1,0 +1,16 @@
+
+-*- markdown -*-
+
+# Name: Icon
+
+## Description
+
+An icon is displayed.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Check that the icon appears.

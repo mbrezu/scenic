@@ -31,7 +31,47 @@
             (make-auto-test :name "scrollbars"
                             :scene-function #'scrollbars
                             :scene-session-file "test-data/scrollbars.gz"
-                            :description-file "test-data/scrollbars.txt")))
+                            :description-file "test-data/scrollbars.txt")
+            (make-auto-test :name "icon"
+                            :scene-function #'icon
+                            :scene-session-file "test-data/icon.gz"
+                            :description-file "test-data/icon.txt")
+            (make-auto-test :name "text-baseline-alignment"
+                            :scene-function #'text-baseline-alignment
+                            :scene-session-file "test-data/text-baseline-alignment.gz"
+                            :description-file "test-data/text-baseline-alignment.txt")
+            (make-auto-test :name "vertical-box-layout-options"
+                            :scene-function #'vertical-box-layout-options
+                            :scene-session-file "test-data/vertical-box-layout-options.gz"
+                            :description-file "test-data/vertical-box-layout-options.txt")
+            (make-auto-test :name "horizontal-box-layout-options"
+                            :scene-function #'horizontal-box-layout-options
+                            :scene-session-file "test-data/horizontal-box-layout-options.gz"
+                            :description-file "test-data/horizontal-box-layout-options.txt")
+            (make-auto-test :name "grid-basic"
+                            :scene-function #'grid-basic
+                            :scene-session-file "test-data/grid-basic.gz"
+                            :description-file "test-data/grid-basic.txt")
+            (make-auto-test :name "grid-offset"
+                            :scene-function #'grid-offset
+                            :scene-session-file "test-data/grid-offset.gz"
+                            :description-file "test-data/grid-offset.txt")
+            (make-auto-test :name "grid-spans"
+                            :scene-function #'grid-spans
+                            :scene-session-file "test-data/grid-spans.gz"
+                            :description-file "test-data/grid-spans.txt")
+            (make-auto-test :name "grid-layout-options"
+                            :scene-function #'grid-layout-options
+                            :scene-session-file "test-data/grid-layout-options.gz"
+                            :description-file "test-data/grid-layout-options.txt")
+            (make-auto-test :name "grid-layout-options-2"
+                            :scene-function #'grid-layout-options-2
+                            :scene-session-file "test-data/grid-layout-options-2.gz"
+                            :description-file "test-data/grid-layout-options.txt")
+            (make-auto-test :name "grid-layout-options-3"
+                            :scene-function #'grid-layout-options-3
+                            :scene-session-file "test-data/grid-layout-options-3.gz"
+                            :description-file "test-data/grid-layout-options.txt")))
 
 (defun find-test (name)
   (find name *tests* :test #'string-equal :key #'auto-test-name))
@@ -65,12 +105,13 @@
   (let ((total-tests 0)
         (failed-tests 0))
     (mapc (lambda (test)
-            (format t "Running test '~a':" (auto-test-name test))
+            (format t "Running test ~40a" (format nil "'~a':" (auto-test-name test)))
             (incf total-tests)
             (format t "~a~%" (if (run-auto-test test) "PASS" (progn
                                                                (incf failed-tests)
                                                                "FAIL"))))
           *tests*)
+    (terpri)
     (if (= 0 failed-tests)
       (format t "~a tests ran. ALL PASS!" total-tests)
       (format t "~a tests ran. ~a tests failed. SOME FAILED!" total-tests failed-tests))

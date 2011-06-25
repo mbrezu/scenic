@@ -1,0 +1,26 @@
+
+-*- markdown -*-
+
+# Name: Grid Spans
+
+## Description
+
+The scene is filled with a grid. The grid layout is specified using
+grid offsets (see the code of the scene function, `grid-offset`). Some
+of the cells have row spans or cell spans greater than one.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Check that a grid with 24 cells (6x4) appears.
+
+The cells should be divided in four regions, corresponding to the grid
+offsets. The first three regions are 2x3 regions and are layed out one
+next to the other. The fourth region is 6x1 and is layed out below the
+other three.
+
+Additionally, the cell at (1,1) (counting from 0) has a row span of 2
+and the cell at (1, 3) has a cell span of 3.
