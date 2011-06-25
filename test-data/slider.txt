@@ -1,0 +1,17 @@
+
+-*- markdown -*-
+
+# Name: Slider
+
+## Description
+
+A slider on a white background, in the top-left corner of the window.
+
+## Test Sequence
+
+Drag the slider all the way to the right.
+
+## Pass/Fail Criteria
+
+Check that the displayed information about the slider position matches
+the position of the slider.

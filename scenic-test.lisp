@@ -47,8 +47,7 @@
          (stack
           (background (list 1.0 1.0 1.0)
                       (filler))
-          (uniform-padding 1
-                           (label "Hello, world!" :size 20)))))
+          (label "Hello, world!" :size 20))))
 
 ;;; Button test
 (defun buttons ()
@@ -138,12 +137,17 @@
     (scenic:add-event-handler slider :position-changed nil
                               (lambda (object event)
                                 (declare (ignore event))
-                                (print-all t
-                                           (scenic:current-min-position object)
-                                           (scenic:page-size object)
-                                           (scenic:min-value object)
-                                           (scenic:max-value object))))
-
+                                (when *manual-test-run*
+                                  (print-all t
+                                             (scenic:current-min-position object)
+                                             (scenic:page-size object)
+                                             (scenic:min-value object)
+                                             (scenic:max-value object)))
+                                (scenic:test-channel-write
+                                 (list (scenic:current-min-position object)
+                                       (scenic:page-size object)
+                                       (scenic:min-value object)
+                                       (scenic:max-value object)))))
     scn))
 
 (defun scrollbars ()
@@ -174,19 +178,31 @@
     (scenic:add-event-handler horizontal-scrollbar :position-changed nil
                               (lambda (object event)
                                 (declare (ignore event))
-                                (print-all t
-                                           (scenic:current-min-position object)
-                                           (scenic:page-size object)
-                                           (scenic:min-value object)
-                                           (scenic:max-value object))))
+                                (when *manual-test-run*
+                                  (print-all t
+                                             (scenic:current-min-position object)
+                                             (scenic:page-size object)
+                                             (scenic:min-value object)
+                                             (scenic:max-value object)))
+                                (scenic:test-channel-write
+                                 (list (scenic:current-min-position object)
+                                             (scenic:page-size object)
+                                             (scenic:min-value object)
+                                             (scenic:max-value object)))))
     (scenic:add-event-handler vertical-scrollbar :position-changed nil
                               (lambda (object event)
                                 (declare (ignore event))
-                                (print-all t
-                                           (scenic:current-min-position object)
-                                           (scenic:page-size object)
-                                           (scenic:min-value object)
-                                           (scenic:max-value object))))
+                                (when *manual-test-run*
+                                  (print-all t
+                                             (scenic:current-min-position object)
+                                             (scenic:page-size object)
+                                             (scenic:min-value object)
+                                             (scenic:max-value object)))
+                                (scenic:test-channel-write
+                                 (list (scenic:current-min-position object)
+                                             (scenic:page-size object)
+                                             (scenic:min-value object)
+                                             (scenic:max-value object)))))
     scn))
 
 (defun icon ()

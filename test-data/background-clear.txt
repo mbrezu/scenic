@@ -1,0 +1,17 @@
+
+-*- markdown -*-
+
+# Name: Background Clear
+
+## Description
+
+The most basic test, just clear the window background to white.
+
+## Test Sequence
+
+Run the test :-)
+
+## Pass/Fail Criteria
+
+The background of the window should be all white (#ffffff).
+

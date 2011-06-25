@@ -1,0 +1,18 @@
+
+-*- markdown -*-
+
+# Name: Colored Rectangles
+
+## Description
+
+Three colored rectangles are displayed on a white background.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Three colored rectangles (red, green, blue) must appear on a white background.
+
+

@@ -1,0 +1,20 @@
+
+-*- markdown -*-
+
+# Name: Hello World
+
+## Description
+
+The message 'Hello world' is displayed in the upper left corner of the
+window, on a white background.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+The text appears correctly, with the baselines of all letters properly
+aligned.
+
+

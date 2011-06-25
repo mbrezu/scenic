@@ -1,0 +1,18 @@
+
+-*- markdown -*-
+
+# Name: Slider
+
+## Description
+
+A colored rectangle, with two scrollbars on the right and bottom.
+
+## Test Sequence
+
+Drag the scrollbars all the way to the right/bottom. Use the scrollbar
+buttons to move the scrollbar walker.
+
+## Pass/Fail Criteria
+
+Check that the displayed information about the scrollbar positions
+matches the actual positions.
