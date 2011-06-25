@@ -118,7 +118,8 @@
 
 (defun store-test-information (test session-record)
   (scenic:write-gzipped-resource (auto-test-scene-session-file test)
-                                 (format nil "~s" session-record)))
+                                 (let ((*package* (find-package "KEYWORD")))
+                                   (format nil "~s" session-record))))
 
 (defun record-auto-test-session (test-name)
   (let ((test (find-test test-name)))
