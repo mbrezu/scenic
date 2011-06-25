@@ -30,7 +30,7 @@
     (read-stream-to-string file)))
 
 (defun write-gzipped-resource (resource-name content)
-  (gzip-stream:with-open-gzip-file (file resource-name
+  (gzip-stream:with-open-gzip-file (file (scenic:resource resource-name)
                                          :direction :output
                                          :if-exists :supersede
                                          :if-does-not-exist :create)
@@ -39,6 +39,6 @@
     nil))
 
 (defun read-gzipped-resource (resource-name)
-  (gzip-stream:with-open-gzip-file (file resource-name :direction :input)
+  (gzip-stream:with-open-gzip-file (file (scenic:resource resource-name) :direction :input)
     (setf file (flexi-streams:make-flexi-stream file :external-format :utf-8))
     (read-stream-to-string file)))

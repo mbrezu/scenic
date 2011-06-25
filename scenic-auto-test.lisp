@@ -1,6 +1,8 @@
 
 (in-package :scenic-test)
 
+(declaim (optimize debug safety))
+
 (defstruct auto-test name scene-function scene-session-file description-file)
 
 (defvar *tests*)
