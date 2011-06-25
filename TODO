@@ -128,3 +128,12 @@
 * DONE bug: in the scroll view demos only the sliders are painted
   (after removing the idle render-scene stuff; probably need to add
   some "invalidate" calls)
+* TODO see why the whole scene is repainted in scroll-view-mouse-adjust
+  ... when I press the button in the left upper corner.
+
+  Probably because the scroll-view itself is marked for
+  repainting. Idea: widgets that don't do any painting (such as the
+  scroll view) should not 'make dirty' the widgets they intersect
+  with. The reason we need the scroll-view is that it takes care of
+  displacing the button (which we need to repaint) and setting the
+  clip rectangle correctly.

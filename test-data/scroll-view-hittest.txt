@@ -1,0 +1,21 @@
+
+-*- markdown -*-
+
+# Name: Scroll View Hittest
+
+## Description
+
+Buttons are placed in a scroll view, and hit-testing inside the scroll
+view is tested.
+
+## Test Sequence
+
+Click on the buttons inside the scroll view. Click around the buttons
+(close to them).
+
+## Pass/Fail Criteria
+
+Check that the buttons "click" correctly (which also means that
+hit-testing works correctly).
+
+

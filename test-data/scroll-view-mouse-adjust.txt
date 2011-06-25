@@ -1,0 +1,36 @@
+
+-*- markdown -*-
+
+# Name: Scroll View Mouse Adjust
+
+## Description
+
+Buttons are placed in a scroll view. Mouse overs the buttons should be
+displayed with adjusted coordinates (the coordinates should be larger
+because of the scroll view offsets).
+
+For instance, if a button with width 100 and height 100 is placed at
+coordinates (0,0) relative to the scroll view, but the scroll view has
+a horizontal offset of 50, then the button will be displayed at (-50,
+0). Furthermore, clicks at (0,0) must be sent to the button as clicks
+at (50, 0) because the button is unaware that it is displayed 50
+pixels to the left (in other words, the presence of the scroll view is
+transparent to the button). This adjustment of mouse coordinates is
+verified by this test.
+
+## Test Sequence
+
+Move the mouse over the visible parts of the buttons.
+
+## Pass/Fail Criteria
+
+Check that the mouse events have coordinates that are larger than the
+mouse coordinates relative to the upper left corners of the
+scene. They should be larger because `scenic` adjusts the mouse event
+coordinates to account for the scroll view offsets.
+
+The test sets the scroll view to have a horizontal offset of 50 and a
+vertical offset of 60, so the mouse coordinates should be larger by 50
+pixels (x coordinate) and respectively 60 pixels (y coordinate).
+
+

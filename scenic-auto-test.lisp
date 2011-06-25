@@ -103,7 +103,15 @@
             (make-auto-test :name "textbox-2"
                             :scene-function #'textbox-2
                             :scene-session-file "test-data/textbox-2.gz"
-                            :description-file "test-data/textbox-2.txt")))
+                            :description-file "test-data/textbox-2.txt")
+            (make-auto-test :name "scroll-view-hittest"
+                            :scene-function #'scroll-view-hittest
+                            :scene-session-file "test-data/scroll-view-hittest.gz"
+                            :description-file "test-data/scroll-view-hittest.txt")
+            (make-auto-test :name "scroll-view-mouse-adjust"
+                            :scene-function #'scroll-view-mouse-adjust
+                            :scene-session-file "test-data/scroll-view-mouse-adjust.gz"
+                            :description-file "test-data/scroll-view-mouse-adjust.txt")))
 
 (defun find-test (name)
   (find name *tests* :test #'string-equal :key #'auto-test-name))
@@ -139,9 +147,11 @@
     (mapc (lambda (test)
             (format t "Running test ~40a" (format nil "'~a':" (auto-test-name test)))
             (incf total-tests)
-            (format t "~a~%" (if (run-auto-test test) "PASS" (progn
-                                                               (incf failed-tests)
-                                                               "FAIL"))))
+            (multiple-value-bind (result reason)
+                (run-auto-test test)
+              (format t "~a~%" (if result "PASS" (progn
+                                                   (incf failed-tests)
+                                                   (format nil "~a~%~a~%" "FAIL" reason))))))
           *tests*)
     (terpri)
     (if (= 0 failed-tests)

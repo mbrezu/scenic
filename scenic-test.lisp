@@ -696,7 +696,7 @@
                                 (declare (ignore o e))
                                 (when *manual-test-run*
                                   (print-all t (scenic:text textbox)))
-                                (scenic:test-channel-write (list 'text (scenic:text textbox)))))
+                                (scenic:test-channel-write (list :text (scenic:text textbox)))))
     scene))
 
 (defun textbox-2 ()
@@ -735,28 +735,31 @@
                                 (declare (ignore o e))
                                 (when *manual-test-run*
                                   (print-all t (scenic:text text1)))
-                                (scenic:test-channel-write (list 'text1 (scenic:text text1)))))
+                                (scenic:test-channel-write (list :text1 (scenic:text text1)))))
     (scenic:add-event-handler text2 :text-changed nil
                               (lambda (o e)
                                 (declare (ignore o e))
                                 (when *manual-test-run*
                                   (print-all t (scenic:text text2)))
-                                (scenic:test-channel-write (list 'text2 (scenic:text text2)))))
+                                (scenic:test-channel-write (list :text2 (scenic:text text2)))))
     (scenic:add-event-handler text3 :text-changed nil
                               (lambda (o e)
                                 (declare (ignore o e))
                                 (when *manual-test-run*
                                   (print-all t (scenic:text text3)))
-                                (scenic:test-channel-write (list 'text3 (scenic:text text3)))))
+                                (scenic:test-channel-write (list :text3 (scenic:text text3)))))
     scene))
 
 (defun scroll-view-hittest ()
   (labels ((make-child (text)
              (let ((btn (button-text text)))
-               (scenic:add-event-handler btn :click nil
-                                         (lambda (o e)
-                                           (declare (ignore o e))
-                                           (print-all t text)))
+               (scenic:add-event-handler
+                btn :click nil
+                (lambda (o e)
+                  (declare (ignore o e))
+                  (when *manual-test-run*
+                    (print-all t text))
+                  (scenic:test-channel-write (list text "clicked"))))
                btn)))
     (multiple-value-bind (sva sv)
         (scroll-view-auto (sizer
@@ -786,14 +789,11 @@
 (defun scroll-view-mouse-adjust ()
   (labels ((make-child (text)
              (let ((btn (button-text text)))
-               (scenic:add-event-handler btn :click nil
-                                         (lambda (o e)
-                                           (declare (ignore o e))
-                                           (print-all t text)))
                (scenic:add-event-handler btn :mouse-move :bubble
                                          (lambda (o e)
                                            (declare (ignore o))
-                                           (print-all t e)))
+                                           (when *manual-test-run*
+                                             (print-all t e))))
                btn)))
     (multiple-value-bind (sva sv)
         (scroll-view-auto (sizer
@@ -811,7 +811,7 @@
                            :max-width 500
                            :max-height 500))
       (setf (scenic:horizontal-offset sv) 50)
-      (setf (scenic:vertical-offset sv) 50)
+      (setf (scenic:vertical-offset sv) 60)
       (scene *scene-width* *scene-height*
              (stack
               (background (list 1.0 1.0 1.0)
