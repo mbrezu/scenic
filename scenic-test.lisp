@@ -15,6 +15,8 @@
 
 (declaim (optimize (debug 3)))
 
+(defvar *manual-test-run* t)
+
 ;;; A very simple scene that clears the screen.
 (defun background-clear ()
   (scene *scene-width* *scene-height*
@@ -73,23 +75,46 @@
                                                  (toggle "Toggle Button")))))))))))
     (scenic:add-event-handler push-button :mouse-move :cascade
                               (lambda (object event)
-                                (format t "button mouse move: ~a ~a~%" object event)))
+                                (scenic:test-channel-write
+                                 (format nil "button mouse move: ~a ~a~%" object event))))
     (scenic:add-event-handler push-button :mouse-enter :cascade
                               (lambda (object event)
-                                (format t "button enter: ~a ~a~%" object event)))
+                                (scenic:test-channel-write
+                                 (format nil "button enter: ~a ~a~%" object event))))
     (scenic:add-event-handler push-button :mouse-leave :cascade
                               (lambda (object event)
-                                (format t "button mouse leave: ~a ~a~%" object event)))
+                                (scenic:test-channel-write
+                                 (format nil "button mouse leave: ~a ~a~%" object event))))
     (scenic:add-event-handler push-button :mouse-button-down :cascade
                               (lambda (object event)
-                                (format t "button mouse button-down: ~a ~a~%" object event)))
+                                (scenic:test-channel-write
+                                 (format nil "button mouse button-down: ~a ~a~%"
+                                         object event))))
     (scenic:add-event-handler push-button :mouse-button-up :cascade
                               (lambda (object event)
-                                (format t "button mouse button-up: ~a ~a~%" object event)))
+                                (scenic:test-channel-write
+                                 (format nil "button mouse button-up: ~a ~a~%"
+                                         object event))))
     (scenic:add-event-handler push-button :click nil
                               (lambda (object event)
                                 (declare (ignore object event))
-                                (format t "button click~%")))
+                                (when *manual-test-run*
+                                  (format t "push button clicked~%"))
+                                (scenic:test-channel-write
+                                 (format nil "push button clicked"))))
+    (scenic:add-event-handler toggle-button :state-changed nil
+                              (lambda (object event)
+                                (declare (ignore object event))
+                                (when *manual-test-run*
+                                  (format t "toggle button ~a~%"
+                                          (if (scenic:state toggle-button)
+                                              "on"
+                                              "off")))
+                                (scenic:test-channel-write
+                                 (format nil "toggle button ~a"
+                                         (if (scenic:state toggle-button)
+                                             "on"
+                                             "off")))))
     scn))
 
 (defun slider ()

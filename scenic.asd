@@ -2,11 +2,12 @@
 (asdf:defsystem #:scenic
   :serial t
   :depends-on (#:lispbuilder-sdl
-               #:cl-cairo2)
+               #:cl-cairo2
+               #:gzip-stream)
   :components ((:file "sdl-patch")
                (:file "packages")
                (:file "scenic-utils")
-               (:file "scenic-images")
+               (:file "scenic-resources")
                (:file "scenic-events")
                (:file "scenic-classes")
                (:file "scenic-textbox")
@@ -18,4 +19,5 @@
                (:file "scenic-scroll")
                (:file "scenic-helpers")
                (:file "scenic")
-               (:file "scenic-test")))
+               (:file "scenic-test")
+               (:file "scenic-auto-test")))

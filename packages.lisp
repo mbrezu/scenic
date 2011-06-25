@@ -4,7 +4,8 @@
   (:export max-box print-all draw-button-raw pass-to-child
            ifhorizontal aif awhen let-from-options
            fill-list it groups bif bwhen
-           gen-print-object gen-serializer))
+           gen-print-object gen-serializer
+           pass-fail-query))
 
 (defpackage :scenic
   (:use :cl :scenic-utils)
@@ -54,7 +55,12 @@
            calculate-focusables
            *test-channel-enabled* *event-recording-enabled* *session-record*
            reset-event-log test-channel-write
-           serialize))
+           serialize
+           replay-scene-session
+           resource read-stream-to-string
+           read-resource
+           write-gzipped-resource
+           read-gzipped-resource))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)

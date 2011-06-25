@@ -100,5 +100,5 @@ for the list of tests and how to run only one test.
     it could be changed to use something else instead of SDL (maybe
     OpenGL and GLUT?) for rendering the GUI and processing events.
  2. Right now the code used to load image resources (see
-    `scenic-images.lisp`) hasn't been tested with standalone
+    `scenic-resources.lisp`) hasn't been tested with standalone
     executables and probably requires modification.

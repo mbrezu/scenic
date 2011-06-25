@@ -94,3 +94,5 @@
   (draw-button object (or (state object)
                           (eql :half-click (click-state object)))))
 
+(defmethod (setf state) :after (new-value (object toggle-button))
+  (on-event object :state-changed (make-instance 'event) nil))

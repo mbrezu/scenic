@@ -1,0 +1,23 @@
+
+-*- markdown -*-
+
+# Name: Buttons
+
+## Description
+
+There are two buttons, a push button and a toggle button.
+
+## Test Sequence
+
+Click the push button. Click the toggle button. Repeat once.
+
+## Pass/Fail Criteria
+
+Messages printed:
+
+ * push button clicked
+ * toggle button on
+ * push button clicked
+ * toggle button off
+
+

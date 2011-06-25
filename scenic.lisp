@@ -128,38 +128,32 @@
        (scene-on-key scene :key-up event-arg)
        (test-render-scene scene)))))
 
-(defun print-first-diff (list1 list2 &optional (line 1))
-  (cond ((and (null list1) (null list2))
+(defun get-first-diff (actual expected &optional (line 1))
+  (cond ((and (null actual) (null expected))
          nil)
-        ((null list1) (print (list "1" line (car list2))))
-        ((null list2) (print (list "2" line (car list1))))
-        ((equal (car list1) (car list2))
-         (print-first-diff (cdr list1) (cdr list2) (1+ line)))
-        (t (print (list "1" line (car list1)))
-           (print (list "2" line (car list2))))))
+        ((null actual) (list "Expected output has extra item." line (car expected)))
+        ((null expected) (list "Actual outptu has extra item." line (car actual)))
+        ((equal (car actual) (car expected))
+         (get-first-diff (cdr actual) (cdr expected) (1+ line)))
+        (t (list "Expected and actual items differ." line (car expected) (car actual)))))
 
-(defun test-replay-scene-session (scene session-record)
+(defun replay-scene-session (scene session-record)
   (labels ((run-compare (test-replies action)
              (reset-session-record)
              (funcall action)
              (when (not (equal (reverse *session-record*) test-replies))
-               (print-all t (reverse *session-record*))
-               (print ">>> first diff:")
-               (print-first-diff (reverse *session-record*) test-replies)
-               (return-from test-replay-scene-session nil))
+               (return-from replay-scene-session
+                 (values
+                  nil
+                  (get-first-diff (reverse *session-record*) test-replies))))
              (reset-session-record)))
     (let ((*test-channel-enabled* t)
           event
           test-replies)
 
-      (print-all t (length session-record))
       (setf (values test-replies session-record)
             (break-by session-record
                       (lambda (elem) (eq (car elem) 'test-channel))))
-
-      (print-all t (length test-replies) (length session-record))
-
-      (print-all t test-replies)
 
       (run-compare test-replies (lambda ()
                                   (calculate-focusables scene)
@@ -167,19 +161,17 @@
 
       (loop
          (unless session-record
-           (return-from test-replay-scene-session t))
+           (return-from replay-scene-session (values t nil)))
 
          (setf event (car session-record))
-         (print-all t event)
          (unless (eq 'event (car event))
-           (return-from test-replay-scene-session nil))
+           (return-from replay-scene-session (values nil
+                                                     "Expected event in session record.")))
 
          (setf session-record (cdr session-record))
          (setf (values test-replies session-record)
                (break-by session-record
                          (lambda (elem) (eq (car elem) 'test-channel))))
-         (print-all t (length test-replies) (length session-record))
-         (print-all t test-replies)
          (run-compare test-replies (lambda () (emulate-event scene event)))))))
 
 (defun run-scene (scene)

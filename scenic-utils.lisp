@@ -133,3 +133,13 @@
      (list ',class
            ,@(mapcan (lambda (slot) `(,(make-keyword slot) (,slot object)))
                      slots))))
+
+(defun pass-fail-query ()
+  (loop
+     (format t "~%Did the test pass? [Y/N] ")
+     (let ((reply (read-char)))
+       (when (or (char-equal reply #\y)
+                 (char-equal reply #\n))
+         (return (char-equal reply #\y)))
+       (format t "~%Please type 'Y' or 'N'."))))
+

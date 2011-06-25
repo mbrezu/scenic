@@ -1,0 +1,17 @@
+
+-*- markdown -*-
+
+# Name: [fill in the name]
+
+## Description
+
+[fill in the scene description]
+
+## Test Sequence
+
+[fill in the test sequence]
+
+## Pass/Fail Criteria
+
+[fill in the pass/fail criteria]
+
