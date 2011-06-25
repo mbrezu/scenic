@@ -76,7 +76,34 @@
                             :scene-function #'aligner-1
                             :scene-session-file "test-data/aligner-1.gz"
                             :description-file "test-data/aligner-1.txt")
-            ))
+            (make-auto-test :name "clipper-1"
+                            :scene-function #'clipper-1
+                            :scene-session-file "test-data/clipper-1.gz"
+                            :description-file "test-data/clipper-1.txt")
+            (make-auto-test :name "glass-1"
+                            :scene-function #'glass-1
+                            :scene-session-file "test-data/glass-1.gz"
+                            :description-file "test-data/glass-1.txt")
+            (make-auto-test :name "henchman-1"
+                            :scene-function #'henchman-1
+                            :scene-session-file "test-data/henchman-1.gz"
+                            :description-file "test-data/henchman-1.txt")
+            (make-auto-test :name "henchman-glass"
+                            :scene-function #'henchman-glass
+                            :scene-session-file "test-data/henchman-glass.gz"
+                            :description-file "test-data/henchman-glass.txt")
+            (make-auto-test :name "scroll-view-1"
+                            :scene-function #'scroll-view-1
+                            :scene-session-file "test-data/scroll-view-1.gz"
+                            :description-file "test-data/scroll-view-1.txt")
+            (make-auto-test :name "textbox-1"
+                            :scene-function #'textbox-1
+                            :scene-session-file "test-data/textbox-1.gz"
+                            :description-file "test-data/textbox-1.txt")
+            (make-auto-test :name "textbox-2"
+                            :scene-function #'textbox-2
+                            :scene-session-file "test-data/textbox-2.gz"
+                            :description-file "test-data/textbox-2.txt")))
 
 (defun find-test (name)
   (find name *tests* :test #'string-equal :key #'auto-test-name))
@@ -118,7 +145,7 @@
           *tests*)
     (terpri)
     (if (= 0 failed-tests)
-      (format t "~a tests ran. ALL PASS!" total-tests)
-      (format t "~a tests ran. ~a tests failed. SOME FAILED!" total-tests failed-tests))
+        (format t "~a tests ran. ALL PASS!" total-tests)
+        (format t "~a tests ran. ~a tests failed. SOME FAILED!" total-tests failed-tests))
     nil))
 

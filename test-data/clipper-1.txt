@@ -1,0 +1,22 @@
+
+-*- markdown -*-
+
+# Name: Clipper-1
+
+## Description
+
+Test the clipper widget, which restricts output of its child to the
+layout boundaries of the clipper widget.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Three large cells must appear on the left side of the scene. They all
+have some text in their upper part. The text in the first and third
+cells is displayed in its entirety, even though this means writing
+outside the cells. Check thah the text in the middle cell is clipped
+at cell boundaries.
+

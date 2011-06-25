@@ -102,7 +102,7 @@
 * TODO combo box;
 * TODO checkbox/radio box;
 * TODO themes/widget factories;
-* TODO unit tests (e.g. for the grid layout)
+* unit tests (e.g. for the grid layout)
   Make tests cheap (there is no code to be written, it's only
   necessary to redo the sequence of events and tell the test framework
   whether the test passed or failed). This way it doesn't matter so
@@ -110,13 +110,14 @@
   interface).
 ** DONE naming of widgets (both explicit and automatic)
 ** DONE recording of input events
-** TODO test channel where reactions to events are recorded
-** TODO matching a recorded session of input events and
+** DONE test channel where reactions to events are recorded
+** DONE matching a recorded session of input events and
    reactions on the test channel with a 'blind' run of the input
    events (and new reactions on the test channel)
 ** TODO handling of asynchronous events (test channel replies
    can arrive in different orders); markup for the start of the async
    interval and the end? other ways to handle this.
+* TODO optimization settings all in one place (reader macro with declaim?)
 * TODO scenes have a name, the name of the scene is placed in the
   window title;
 * TODO tree widget

@@ -1,0 +1,19 @@
+
+-*- markdown -*-
+
+# Name: Henchman-Glass
+
+## Description
+
+Some squares placed in glass widgets are overlapped using a henchman
+container.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+The squares should look pale and their colors must combine (because of
+the non 1.0 opacity of their glass containers). The corners of the
+combined squares must display the uncombined colors. 

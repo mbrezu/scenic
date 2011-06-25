@@ -20,6 +20,9 @@
    (selection-bg)
    (before-paint :initform nil)))
 
+(defmethod (setf text) :after (new-value (object textbox))
+  (on-event object :text-changed (make-instance 'event) nil))
+
 (defun space-width ()
   (let (big-str-width small-str-width)
     (multiple-value-bind (x-bearing y-bearing width height x-advance y-advance)
@@ -145,13 +148,14 @@
           ((eq :BACKSPACE (key event))
            (handle-backspace instance event lbl))
           ((or (eq :RETURN (key event))
-               (eq :TAB (key event))))
+               (eq :TAB (key event))
+               (eq :ESCAPE (key event))))
           ((unicode event)
            (handle-insert-char instance event lbl))
           (t ;; (print-all t
-           ;;            (key event)
-           ;;            (modifiers event))
-           ))))
+             ;;            (key event)
+             ;;            (modifiers event))
+             ))))
 
 (defmethod initialize-instance :after ((instance textbox) &rest initargs)
   (declare (ignore initargs))

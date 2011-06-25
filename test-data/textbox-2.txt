@@ -1,0 +1,20 @@
+
+-*- markdown -*-
+
+# Name: Textbox-2
+
+## Description
+
+Three textboxes are displayed and tested.
+
+## Test Sequence
+
+Use keyboard navigation. Use editing. Use mouse navigation. Use
+selection. Use Tab and Shift-Tab to switch between textboxes. Use the
+mouse to change focus from one textbox to another.
+
+## Pass/Fail Criteria
+
+Check that the textboxes behave as expected.
+
+

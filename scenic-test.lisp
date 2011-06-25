@@ -186,9 +186,9 @@
                                              (scenic:max-value object)))
                                 (scenic:test-channel-write
                                  (list (scenic:current-min-position object)
-                                             (scenic:page-size object)
-                                             (scenic:min-value object)
-                                             (scenic:max-value object)))))
+                                       (scenic:page-size object)
+                                       (scenic:min-value object)
+                                       (scenic:max-value object)))))
     (scenic:add-event-handler vertical-scrollbar :position-changed nil
                               (lambda (object event)
                                 (declare (ignore event))
@@ -200,9 +200,9 @@
                                              (scenic:max-value object)))
                                 (scenic:test-channel-write
                                  (list (scenic:current-min-position object)
-                                             (scenic:page-size object)
-                                             (scenic:min-value object)
-                                             (scenic:max-value object)))))
+                                       (scenic:page-size object)
+                                       (scenic:min-value object)
+                                       (scenic:max-value object)))))
     scn))
 
 (defun icon ()
@@ -675,44 +675,80 @@
                      :max-width 400))))))
 
 (defun textbox-1 ()
-  (scene *scene-width* *scene-height*
-         (stack
-          (background (list 1.0 1.0 1.0)
-                      (filler))
-          (grid '((100 :px))
-                '((30 :px))
-                `((:row (:cell ,(uniform-padding
-                                 3
-                                 (border (list 0.0 0.0 0.0) 1
-                                         (uniform-padding
-                                          3
-                                          (textbox "The quick brown fox..." 0)))))))))))
+  (let (scene textbox)
+    (setf scene
+          (scene *scene-width* *scene-height*
+                 (stack
+                  (background (list 1.0 1.0 1.0)
+                              (filler))
+                  (grid '((100 :px))
+                        '((30 :px))
+                        `((:row (:cell ,(uniform-padding
+                                         3
+                                         (border
+                                          (list 0.0 0.0 0.0) 1
+                                          (uniform-padding
+                                           3
+                                           (setf textbox
+                                                 (textbox "The quick brown fox..." 0))))))))))))
+    (scenic:add-event-handler textbox :text-changed nil
+                              (lambda (o e)
+                                (declare (ignore o e))
+                                (when *manual-test-run*
+                                  (print-all t (scenic:text textbox)))
+                                (scenic:test-channel-write (list 'text (scenic:text textbox)))))
+    scene))
 
 (defun textbox-2 ()
-  (scene *scene-width* *scene-height*
-         (stack
-          (background (list 1.0 1.0 1.0)
-                      (filler))
-          (grid '((100 :px) (100 :px) :auto)
-                '((30 :px))
-                `((:row (:cell ,(uniform-padding
-                                 3
-                                 (border (list 0.0 0.0 0.0) 1
-                                         (uniform-padding
-                                          3
-                                          (textbox "The quick brown fox..." 0)))))
-                        (:cell ,(uniform-padding
-                                 3
-                                 (border (list 0.0 0.0 0.0) 1
-                                         (uniform-padding
-                                          3
-                                          (textbox "The quick brown fox..." 0)))))
-                        (:cell ,(uniform-padding
-                                 3
-                                 (border (list 0.0 0.0 0.0) 1
-                                         (uniform-padding
-                                          3
-                                          (textbox "The quick brown fox..." 0)))))))))))
+  (let (scene text1 text2 text3)
+    (setf scene
+          (scene *scene-width* *scene-height*
+                 (stack
+                  (background (list 1.0 1.0 1.0)
+                              (filler))
+                  (grid '((100 :px) (100 :px) :auto)
+                        '((30 :px))
+                        `((:row (:cell ,(uniform-padding
+                                         3
+                                         (border (list 0.0 0.0 0.0) 1
+                                                 (uniform-padding
+                                                  3
+                                                  (setf text1
+                                                        (textbox "The quick brown fox..." 0))))))
+                                (:cell ,(uniform-padding
+                                         3
+                                         (border (list 0.0 0.0 0.0) 1
+                                                 (uniform-padding
+                                                  3
+                                                  (setf text2
+                                                        (textbox "The quick brown fox..." 0))))))
+                                (:cell ,(uniform-padding
+                                         3
+                                         (border
+                                          (list 0.0 0.0 0.0) 1
+                                          (uniform-padding
+                                           3
+                                           (setf text3
+                                                 (textbox "The quick brown fox..." 0))))))))))))
+    (scenic:add-event-handler text1 :text-changed nil
+                              (lambda (o e)
+                                (declare (ignore o e))
+                                (when *manual-test-run*
+                                  (print-all t (scenic:text text1)))
+                                (scenic:test-channel-write (list 'text1 (scenic:text text1)))))
+    (scenic:add-event-handler text2 :text-changed nil
+                              (lambda (o e)
+                                (declare (ignore o e))
+                                (when *manual-test-run*
+                                  (print-all t (scenic:text text2)))
+                                (scenic:test-channel-write (list 'text2 (scenic:text text2)))))
+    (scenic:add-event-handler text3 :text-changed nil
+                              (lambda (o e)
+                                (declare (ignore o e))
+                                (when *manual-test-run*
+                                  (print-all t (scenic:text text3)))
+                                (scenic:test-channel-write (list 'text3 (scenic:text text3)))))
+    scene))
 
 (defun scroll-view-hittest ()
   (labels ((make-child (text)

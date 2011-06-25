@@ -1,0 +1,20 @@
+
+-*- markdown -*-
+
+# Name: Glass-1
+
+## Description
+
+Test the glass widget, which displays its child with customizable
+opacity.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+The three squares that appear near the top of the scene (red, green
+and respectively blue) must look rather pale (compare to the colors in
+the "Colored rectangles" test). This is because they are placed in
+glass widgets with opacities less than 1.0.

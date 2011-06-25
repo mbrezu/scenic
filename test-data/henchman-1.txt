@@ -1,0 +1,21 @@
+
+-*- markdown -*-
+
+# Name: Henchman-1
+
+## Description
+
+Test the 'henchman' container, which arranges its children rather
+mindlessly, but according to orders (which it doesn't discuss).
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+You must see four colored squares (red in the upper left corner, green
+in the lower left corner, blue in the upper right corner and
+magentaish in the lower right corner).
+
+They should be ten pixels away from the edges of the scene.

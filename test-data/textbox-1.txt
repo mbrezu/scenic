@@ -1,0 +1,19 @@
+
+-*- markdown -*-
+
+# Name: Textbox-1
+
+## Description
+
+A textbox is displayed and tested.
+
+## Test Sequence
+
+Use keyboard navigation. Use editing. Use mouse navigation. Use
+selection.
+
+## Pass/Fail Criteria
+
+Check that the textbox behaves as expected.
+
+

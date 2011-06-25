@@ -1,0 +1,25 @@
+
+-*- markdown -*-
+
+# Name: Scroll-View-1
+
+## Description
+
+Four colored squares are placed in a scroll-view widget with attached
+scrollbars.
+
+## Test Sequence
+
+Scroll both scrollbars to their maximum values (the square in the
+lower right corner becomes completely visible).
+
+Scroll both scrollbars back until their walkers are at the middle of
+their respective possible excursions.
+
+## Pass/Fail Criteria
+
+Check that the lower right corner is visible when scrollbars are at
+maximum values. Check that all four squares are visible when the
+scrollbars are at middle-excursion.
+
+
