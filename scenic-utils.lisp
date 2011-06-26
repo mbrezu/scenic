@@ -117,14 +117,15 @@
   (when (not (symbolp class))
     (error "Class should be a symbol!"))
   `(defmethod print-object ((object ,class) stream)
-     (format stream
-             ,(format nil "~a (~{~a~^, ~})"
-                      (string-upcase (symbol-name class))
-                      (mapcar (lambda (slot)
-                                (format nil "~a:~~a" slot))
-                              slots))
-             ,@(mapcar (lambda (slot) `(,slot object))
-                       slots))))
+     (write-string (string-upcase (format nil
+                                          ,(format nil "~a (~{~a~^, ~})"
+                                                   (symbol-name class)
+                                                   (mapcar (lambda (slot)
+                                                             (format nil "~a:~~a" slot))
+                                                           slots))
+                                          ,@(mapcar (lambda (slot) `(,slot object))
+                                                    slots)))
+                   stream)))
 
 (defmacro gen-serializer (class slots)
   (when (not (symbolp class))

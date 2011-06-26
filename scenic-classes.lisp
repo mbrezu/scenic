@@ -62,7 +62,7 @@
                   :initform nil)))
 
 (defun make-widget-auto-name (widget count)
-   (format nil "~a-~a" (class-name (class-of widget)) count))
+  (format nil "~a-~a" (class-name (class-of widget)) count))
 
 (defmethod initialize-instance :after ((object widget) &rest initargs)
   (declare (ignore initargs))
@@ -86,13 +86,14 @@
                   (get-widget-chain (list widget)))))
 
 (defmethod print-object ((object widget) stream)
-  (format stream
-          "~a (~a,~a,~a,~a)"
-          (type-of object)
-          (layout-left object)
-          (layout-top object)
-          (layout-width object)
-          (layout-height object)))
+  (write-string (string-upcase (format nil
+                                       "~a (~a,~a,~a,~a)"
+                                       (type-of object)
+                                       (layout-left object)
+                                       (layout-top object)
+                                       (layout-width object)
+                                       (layout-height object)))
+                stream))
 
 (defun in-rectangle (x y left top width height)
   (and (<= left x)
