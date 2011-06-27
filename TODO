@@ -137,3 +137,9 @@
   with. The reason we need the scroll-view is that it takes care of
   displacing the button (which we need to repaint) and setting the
   clip rectangle correctly.
+* TODO auto-testing fails because fonts are rendered with slightly different sizes
+  on different systems.
+
+  One solution is to use monospace by default and setup a list of
+  acceptable dimensions. This means I'm not testing the actual font
+  measuring code, but it will have to do for now.
