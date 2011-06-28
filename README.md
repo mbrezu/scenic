@@ -78,7 +78,9 @@ for the list of tests and how to run only one test.
 
 `run-auto-tests` runs all the tests without user intervention,
 checking that what happens during the test agrees with a predetermined
-scenario.
+scenario. Right now some of the tests may fail, as fonts have slightly
+different sizes on systems with different settings (even if the DPI is
+the same).
 
 To interactively run all the tests in sequence, use `run-all-tests`.
 
