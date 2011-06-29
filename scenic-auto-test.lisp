@@ -126,14 +126,16 @@
     (unless test
       (error (format nil "Can't find test ~a!" test-name)))
     (format t "~a~%" (scenic:read-resource (auto-test-description-file test)))
-    (let ((*manual-test-run* t))
+    (let ((*manual-test-run* t)
+          (scenic::*text-info-auto-test* t))
       (let ((session-record (test-scene (funcall (auto-test-scene-function test))
                                         t)))
-        (when (pass-fail-query)
+        (when (yes-no-query "Did the test pass?")
           (store-test-information test session-record))))))
 
 (defun run-auto-test (test)
-  (let* ((*manual-test-run* nil))
+  (let* ((*manual-test-run* nil)
+         (scenic::*text-info-auto-test* t))
     (let ((session-record
            (with-input-from-string
                (str (scenic:read-gzipped-resource (auto-test-scene-session-file test)))

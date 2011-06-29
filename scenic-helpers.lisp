@@ -61,7 +61,7 @@
   (make-instance 'filler))
 
 (defun label (text &key
-              (face "Arial") (size 12) (color '(0 0 0))
+              (face "Courier") (size 12) (color '(0 0 0))
               (slant :normal) (weight :normal))
   (make-instance 'label
                  :text text
@@ -211,4 +211,5 @@
                  :caret-color caret-color
                  :selection-color selection-color
                  :background-color (list 1.0 1.0 1.0)
+                 :font-face "Courier"
                  :font-size 14))

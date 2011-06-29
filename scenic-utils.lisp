@@ -135,12 +135,20 @@
            ,@(mapcan (lambda (slot) `(,(make-keyword slot) (,slot object)))
                      slots))))
 
-(defun pass-fail-query ()
+(defun yes-no-query (prompt)
   (loop
-     (format t "~%Did the test pass? [Y/N] ")
+     (format t "~%~a [Y/N] " prompt)
      (let ((reply (read-char)))
        (when (or (char-equal reply #\y)
                  (char-equal reply #\n))
          (return (char-equal reply #\y)))
        (format t "~%Please type 'Y' or 'N'."))))
 
+(defmacro -> (obj &rest forms)
+  (if forms
+      (if (consp (car forms))
+          `(!> ,(list* (caar forms) obj (cdar forms))
+               ,@(cdr forms))
+          `(!> ,(list (car forms) obj)
+               ,@(cdr forms)))
+      obj))

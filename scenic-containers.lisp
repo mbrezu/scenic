@@ -82,9 +82,6 @@
    (layout-options :accessor layout-options :initarg :layout-options :initform nil)
    (slice-size :accessor slice-size :initarg :slice-size :initform nil)))
 
-(defmethod clean-paint ((object box))
-  t)
-
 (defun fill-in-layout-options (box)
   (setf (layout-options box)
         (fill-list (layout-options box) (length (children box)) '(1 :ext))))
@@ -197,9 +194,6 @@
 (defclass stack (container)
   ())
 
-(defmethod clean-paint ((object stack))
-  t)
-
 (defmethod measure ((object stack) available-width available-height)
   (let ((max-width 0)
         (max-height 0))
@@ -257,9 +251,6 @@
   ((children-locations :accessor children-locations
                        :initarg :children-locations
                        :initform nil)))
-
-(defmethod clean-paint ((object henchman))
-  t)
 
 (defmethod measure ((object henchman) available-width available-height)
   (set-measured object available-width available-height)
@@ -335,9 +326,6 @@
                   :initform (expt 10 6))))
 
 (defmethod clips-content ((object scroll-view))
-  t)
-
-(defmethod clean-paint ((object scroll-view))
   t)
 
 (defmethod (setf horizontal-offset) :after (value (object scroll-view))

@@ -39,20 +39,9 @@
     (setf (mouse-captors scene)
           (remove widget (mouse-captors scene)))))
 
-(defun topmost-scrollview (widget &optional top-sv)
-  (if (typep widget 'scene)
-      top-sv
-      (aif (parent widget)
-           (if (typep it 'scroll-view)
-               (topmost-scrollview it it)
-               (topmost-scrollview it top-sv))
-           top-sv)))
-
 (defun invalidate (widget)
   (bwhen (scene (get-scene widget))
     (setf (dirty scene) t)
-    (awhen (topmost-scrollview widget)
-      (push it (dirty-list scene)))
     (push widget (dirty-list scene))))
 
 (defun widget-paint-member (object list)
@@ -63,7 +52,6 @@
                (and (paint-order-number object)
                     (> (paint-order-number object)
                        (paint-order-number head))
-                    (not (clean-paint head))
                     (and (affected-rect object)
                          (affected-rect head)
                          (rect-intersect (affected-rect object)
@@ -71,11 +59,12 @@
          t)
         (t (widget-paint-member object (rest list)))))
 
-(defun bounding-box (widget)
-  (list (layout-left widget)
-        (layout-top widget)
-        (1- (+ (layout-left widget) (layout-width widget)))
-        (1- (+ (layout-top widget) (layout-height widget)))))
+(defun visible-bounding-box (widget)
+  (with-slots (affected-rect) widget
+    (list (left affected-rect)
+          (top affected-rect)
+          (right affected-rect)
+          (bottom affected-rect))))
 
 (defun common-bounding-box (bbox1 bbox2)
   (list (min (first bbox1) (first bbox2))
@@ -207,17 +196,21 @@
         (assign-paint-numbers (widget scene))
         (paint-order-walk (widget scene)
                           (lambda (object)
-                            (when (widget-paint-member object (dirty-list scene))
-                              (paint object)
-                              (push object (dirty-list scene)))
+                            (cond ((widget-paint-member object (dirty-list scene))
+                                   (paint object)
+                                   (push object (dirty-list scene)))
+                                  ((typep object 'scroll-view)
+                                   (paint object)))
                             t)
                           :after-callback (lambda (object)
-                                            (when (widget-paint-member object
-                                                                       (dirty-list scene))
-                                              (after-paint object))))
+                                            (cond ((widget-paint-member object
+                                                                        (dirty-list scene))
+                                                   (after-paint object))
+                                                  ((typep object 'scroll-view)
+                                                   (after-paint object)))))
         (setf (rectangle-to-redraw scene)
               (reduce #'common-bounding-box
-                      (mapcar #'bounding-box (dirty-list scene))))))
+                      (mapcar #'visible-bounding-box (dirty-list scene))))))
   (setf (dirty-list scene) nil))
 
 (defmethod measure ((object scene) available-width available-height)

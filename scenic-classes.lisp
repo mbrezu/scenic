@@ -23,13 +23,6 @@
 
 (defgeneric clips-content (object))
 
-(defgeneric clean-paint (object)
-  (:documentation
-   "T for widgets that don't repaint (change pixel colors) their
-   surface, but calling their paint method is necessary, because they
-   setup painting for children. E.g. set clip rectangle, translate the
-   context etc."))
-
 ;;; EVENTFUL class.
 
 (defclass eventful ()
@@ -67,9 +60,6 @@
    (affected-rect :accessor affected-rect
                   :initarg :affected-rect
                   :initform nil)))
-
-(defmethod clean-paint ((object widget))
-  nil)
 
 (defun make-widget-auto-name (widget count)
   (format nil "~a-~a" (class-name (class-of widget)) count))
@@ -184,24 +174,55 @@
 
 ;;; LABEL class.
 
+(defstruct test-text-info width ascent height)
+
+(defvar *test-text-info*)
+
+(setf *test-text-info*
+      (list (cons 10 (make-test-text-info :width 6.0d0 :ascent 9.0d0 :height 12.0d0))
+            (cons 12 (make-test-text-info :width 7.0d0 :ascent 10.0d0 :height 14.0d0))
+            (cons 14 (make-test-text-info :width 8.0d0 :ascent 12.0d0 :height 16.0d0))
+            (cons 16 (make-test-text-info :width 9.9d0 :ascent 14.0d0 :height 19.0d0))
+            (cons 18 (make-test-text-info :width 11.0d0 :ascent 15.0d0 :height 20.0d0))
+            (cons 20 (make-test-text-info :width 12.0d0 :ascent 17.0d0 :height 23.0d0))
+            (cons 22 (make-test-text-info :width 13.0d0 :ascent 19.0d0 :height 26.0d0))
+            (cons 24 (make-test-text-info :width 14.0d0 :ascent 20.0d0 :height 27.0d0))
+            (cons 26 (make-test-text-info :width 15.8d0 :ascent 22.0d0 :height 30.0d0))
+            (cons 28 (make-test-text-info :width 16.8d0 :ascent 23.0d0 :height 31.0d0))
+            (cons 30 (make-test-text-info :width 17.8d0 :ascent 25.0d0 :height 34.0d0))))
+
+(defun get-test-text-info (size)
+  (or (cdr (assoc size *test-text-info*)) (error "Unknown size")))
+
+(defvar *text-info-auto-test*)
+
+(setf *text-info-auto-test* nil)
+
 (defclass label (widget textattr)
   ((text :accessor text :initarg :text :initform "")))
 
 (defmethod measure ((object label) available-width available-height)
-  (cl-cairo2:set-font-size (font-size object))
-  (cl-cairo2:select-font-face (font-face object)
-                              (font-slant object)
-                              (font-weight object))
-  (multiple-value-bind
-        (x_bearing y_bearing width height x_advance y_advance) (cl-cairo2:text-extents
-                                                                (text object))
-    (declare (ignore x_bearing y_bearing x_advance y_advance height))
-    (let* ((extents (cl-cairo2:get-font-extents))
-           (ascent (cl-cairo2:font-ascent extents))
-           (descent (cl-cairo2:font-descent extents)))
-      (set-measured object
-                    (min width available-width)
-                    (min (+ ascent descent) available-height)))))
+  (if *text-info-auto-test*
+      (let ((text-info (get-test-text-info (font-size object))))
+        (set-measured object
+                      (min (* (length (text object)) (test-text-info-width text-info))
+                           available-width)
+                      (min (test-text-info-height text-info) available-height)))
+      (progn
+        (cl-cairo2:set-font-size (font-size object))
+        (cl-cairo2:select-font-face (font-face object)
+                                    (font-slant object)
+                                    (font-weight object))
+        (multiple-value-bind
+              (x_bearing y_bearing width height x_advance y_advance)
+            (cl-cairo2:text-extents (text object))
+          (declare (ignore x_bearing y_bearing x_advance y_advance height))
+          (let* ((extents (cl-cairo2:get-font-extents))
+                 (ascent (cl-cairo2:font-ascent extents))
+                 (descent (cl-cairo2:font-descent extents)))
+            (set-measured object
+                          (min width available-width)
+                          (min (+ ascent descent) available-height)))))))
 
 (defmethod layout ((object label) left top width height)
   (set-layout object left top (measured-width object) (measured-height object)))
@@ -215,10 +236,15 @@
 (defmethod paint ((object label))
   (prepare-text object)
   (apply #'cl-cairo2:set-source-rgb (font-color object))
-  (let* ((extents (cl-cairo2:get-font-extents))
-         (ascent (cl-cairo2:font-ascent extents)))
-    (cl-cairo2:move-to (layout-left object) (- (+ (layout-top object) ascent) 0.5))
-    (cl-cairo2:show-text (text object))))
+  (if *text-info-auto-test*
+      (let* ((text-info (get-test-text-info (font-size object))))
+        (cl-cairo2:move-to (layout-left object)
+                           (- (+ (layout-top object) (test-text-info-ascent text-info))
+                              0.5)))
+      (let* ((extents (cl-cairo2:get-font-extents))
+             (ascent (cl-cairo2:font-ascent extents)))
+        (cl-cairo2:move-to (layout-left object) (- (+ (layout-top object) ascent) 0.5))))
+  (cl-cairo2:show-text (text object)))
 
 ;;; ORIENTABLE class.
 

@@ -34,9 +34,6 @@
                    :initarg :row-slice-size
                    :initform nil)))
 
-(defmethod clean-paint ((object grid))
-  t)
-
 (defmethod initialize-instance :after ((instance grid) &rest initargs)
   (declare (ignore initargs))
   (apply-children-descriptions instance (children-descriptions instance) 0 0))
