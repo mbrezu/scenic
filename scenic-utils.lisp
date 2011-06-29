@@ -147,8 +147,8 @@
 (defmacro -> (obj &rest forms)
   (if forms
       (if (consp (car forms))
-          `(!> ,(list* (caar forms) obj (cdar forms))
+          `(-> ,(list* (caar forms) obj (cdar forms))
                ,@(cdr forms))
-          `(!> ,(list (car forms) obj)
+          `(-> ,(list (car forms) obj)
                ,@(cdr forms)))
       obj))

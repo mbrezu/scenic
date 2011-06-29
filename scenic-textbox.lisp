@@ -35,15 +35,18 @@
       (setf small-str-width width))
     (- big-str-width small-str-width)))
 
-(defun string-width (str)
-  (let ((spaces-count (- (length str) (length (string-trim '(#\Space #\Tab) str))))
-        (adjustment 0))
-    (when (> spaces-count 0)
-      (setf adjustment (* spaces-count (space-width))))
-    (multiple-value-bind (x-bearing y-bearing width height x-advance y-advance)
-        (cl-cairo2:text-extents str)
-      (declare (ignore x-bearing y-bearing x-advance y-advance height))
-      (+ width adjustment))))
+(defun string-width (textbox str)
+  (if *text-info-auto-test*
+      (let ((text-info (-> textbox font-size get-test-text-info)))
+        (* (length str) (test-text-info-width text-info)))
+      (let ((spaces-count (- (length str) (length (string-trim '(#\Space #\Tab) str))))
+            (adjustment 0))
+        (when (> spaces-count 0)
+          (setf adjustment (* spaces-count (space-width))))
+        (multiple-value-bind (x-bearing y-bearing width height x-advance y-advance)
+            (cl-cairo2:text-extents str)
+          (declare (ignore x-bearing y-bearing x-advance y-advance height))
+          (+ width adjustment)))))
 
 (defun unselect-if-no-shift (textbox event)
   (when (not (shifted (modifiers event)))
@@ -153,9 +156,9 @@
           ((unicode event)
            (handle-insert-char instance event lbl))
           (t ;; (print-all t
-             ;;            (key event)
-             ;;            (modifiers event))
-             ))))
+           ;;            (key event)
+           ;;            (modifiers event))
+           ))))
 
 (defmethod initialize-instance :after ((instance textbox) &rest initargs)
   (declare (ignore initargs))
@@ -177,20 +180,6 @@
                        (make-textbox-key-down-handler lbl))
     (add-event-handler instance :click nil
                        (lambda (o e)
-                         ;; FIXME: this layout-left needs to be fixed
-                         ;; to handle correctly the case when we're
-                         ;; inside a scroll-viewer. Maybe we need a
-                         ;; function 'screen-coords' that returns the
-                         ;; (left, top) pair after compensating for
-                         ;; scroll-viewers (right now we compensate
-                         ;; for the textbox internal scroll-viewers,
-                         ;; the problem is with scroll-viewers
-                         ;; containing the textbox)?
-                         ;;
-                         ;; Alternative: when sending the mouse event
-                         ;; to a widget, adapt it so the mouse-x
-                         ;; actually includes the offsets of the
-                         ;; scroll-viewers.
                          (setf (slot-value o 'before-paint)
                                (lambda ()
                                  (setf (cursor-position o)
@@ -203,19 +192,19 @@
                          (invalidate o)))))
 
 (defun pos-on-char (textbox x-pos pos)
-  (let ((lt (< (string-width (subseq (text textbox) 0 pos))
+  (let ((lt (< (string-width textbox (subseq (text textbox) 0 pos))
                x-pos)))
     (or (and (= pos (length (text textbox)))
              lt)
         (and lt
-             (> (string-width (subseq (text textbox) 0 (1+ pos)))
+             (> (string-width textbox (subseq (text textbox) 0 (1+ pos)))
                 x-pos)))))
 
 (defun char-hit-test (textbox x-pos)
   (let ((txtlen (length (text textbox))))
     (if (= 0 txtlen)
         0
-        (let* ((avg-char-width (/ (string-width (text textbox)) txtlen))
+        (let* ((avg-char-width (/ (string-width textbox (text textbox)) txtlen))
                (pos (round (/ x-pos avg-char-width))))
           (if (and (> pos 0)
                    (< pos txtlen)
@@ -240,7 +229,8 @@
     (funcall (slot-value object 'before-paint))
     (setf (slot-value object 'before-paint) nil))
   (with-slots (scroll-view) object
-    (let ((str-width (string-width (subseq (text object) 0 (cursor-position object)))))
+    (let ((str-width (string-width object
+                                   (subseq (text object) 0 (cursor-position object)))))
       (when (> (- str-width (horizontal-offset scroll-view))
                (layout-width object))
         (setf (horizontal-offset scroll-view)
@@ -256,8 +246,8 @@
           (end-sel (max selection-start cursor-position)))
       (when selection-bg
         (cond ((not (= start-sel end-sel))
-               (let ((start-sel-x (string-width (subseq (text object) 0 start-sel)))
-                     (end-sel-x (string-width (subseq (text object) 0 end-sel))))
+               (let ((start-sel-x (string-width object (subseq (text object) 0 start-sel)))
+                     (end-sel-x (string-width object (subseq (text object) 0 end-sel))))
                  (set-layout selection-bg
                              (+ (layout-left object) start-sel-x)
                              (layout-top object)
@@ -280,9 +270,9 @@
     (apply #'cl-cairo2:set-source-rgb (caret-color object))
     (cl-cairo2:set-line-width 1.0)
     (prepare-text object)
-    (let* ((rel-caret-x-position (string-width (subseq (text object)
-                                                       0
-                                                       (cursor-position object))))
+    (let* ((rel-caret-x-position (string-width object (subseq (text object)
+                                                              0
+                                                              (cursor-position object))))
            (abs-caret-x-position (- (+ (layout-left object) rel-caret-x-position)
                                     (horizontal-offset (slot-value object 'scroll-view)))))
       (if (= (horizontal-offset (slot-value object 'scroll-view))
