@@ -1,6 +1,8 @@
 
 (in-package :scenic-test)
 
+(declaim (optimize (debug 3)))
+
 (defun test-scene (scene &optional record)
   (let ((scenic:*event-recording-enabled* record)
         (scenic:*test-channel-enabled* record))
@@ -12,8 +14,6 @@
 
 (defvar *scene-height*)
 (setf *scene-height* 700)
-
-(declaim (optimize (debug 3)))
 
 (defvar *manual-test-run* t)
 
@@ -820,6 +820,33 @@
                      :max-height 400
                      :max-width 400))))))
 
+(defun checkbox-1 ()
+  (let (w1 w2 cb1 cb2 scn)
+    (setf scn
+          (scene *scene-width* *scene-height*
+                 (stack
+                  (background (list 1.0 1.0 1.0)
+                              (filler))
+                  (uniform-padding
+                   5
+                   (vertical-box
+                    0 '(:auto)
+                    (list
+                     (horizontal-box 10
+                                     '(:auto :auto)
+                                     (list
+                                      (setf (values w1 cb1) (checkbox "Smart"))
+                                      (setf (values w2 cb2) (checkbox "Beautiful"))))))))))
+    (scenic:add-event-handler cb1 :state-changed nil
+                              (lambda (o e)
+                                (declare (ignore o e))
+                                (print-all t (scenic:state cb1))))
+    (scenic:add-event-handler cb2 :state-changed nil
+                              (lambda (o e)
+                                (declare (ignore o e))
+                                (print-all t (scenic:state cb2))))
+    scn))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -846,4 +873,5 @@
   (test-scene (textbox-1))
   (test-scene (textbox-2))
   (test-scene (scroll-view-hittest))
-  (test-scene (scroll-view-mouse-adjust)))
+  (test-scene (scroll-view-mouse-adjust))
+  (test-scene (checkbox-1)))

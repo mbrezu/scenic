@@ -128,7 +128,7 @@
 * DONE bug: in the scroll view demos only the sliders are painted
   (after removing the idle render-scene stuff; probably need to add
   some "invalidate" calls)
-* TODO see why the whole scene is repainted in scroll-view-mouse-adjust
+* DONE see why the whole scene is repainted in scroll-view-mouse-adjust
   ... when I press the button in the left upper corner.
 
   Probably because the scroll-view itself is marked for
@@ -137,7 +137,7 @@
   with. The reason we need the scroll-view is that it takes care of
   displacing the button (which we need to repaint) and setting the
   clip rectangle correctly.
-* TODO auto-testing fails because fonts are rendered with slightly different sizes
+* DONE auto-testing fails because fonts are rendered with slightly different sizes
   on different systems.
 
   One solution is to use monospace by default and setup a list of

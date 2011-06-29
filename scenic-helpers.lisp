@@ -213,3 +213,21 @@
                  :background-color (list 1.0 1.0 1.0)
                  :font-face "Courier"
                  :font-size 14))
+
+(defun checkbox (text)
+  (let (checkbox label combination)
+    (setf combination
+          (horizontal-box
+           2 '(:auto :auto)
+           (list (aligner (setf checkbox (make-instance 'checkbox :state nil)))
+                 (setf label
+                       (make-instance 'clickable
+                                      :child (uniform-padding
+                                              2
+                                              (aligner (label text :size 18))))))))
+    (add-event-handler label :click nil
+                       (lambda (o e)
+                         (declare (ignore o e))
+                         (setf (state checkbox)
+                               (not (state checkbox)))))
+    (values combination checkbox)))

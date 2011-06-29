@@ -223,7 +223,8 @@
 
 (defmethod paint-order-walk ((object container1) callback &key (after-callback nil))
   (when (funcall callback object)
-    (paint-order-walk (child object) callback :after-callback after-callback))
+    (awhen (child object)
+      (paint-order-walk it callback :after-callback after-callback)))
   (when after-callback
     (funcall after-callback object)))
 

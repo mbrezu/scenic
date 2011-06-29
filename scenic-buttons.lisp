@@ -1,6 +1,8 @@
 
 (in-package :scenic)
 
+(declaim (optimize (debug 3)))
+
 ;;; CLICKABLE class.
 
 (defclass clickable (container1)
@@ -77,12 +79,12 @@
 (defclass stateful ()
   ((state :accessor state :initarg :state :initform nil)))
 
-;;; TOGGLE-BUTTON class.
+;;; STATEFUL-BUTTON class.
 
-(defclass toggle-button (button stateful)
+(defclass stateful-button (button stateful)
   ())
 
-(defmethod initialize-instance :after ((instance toggle-button) &rest initargs)
+(defmethod initialize-instance :after ((instance stateful-button) &rest initargs)
   (declare (ignore initargs))
   (add-event-handler instance :click :bubble
                      (lambda (instance event)
@@ -90,9 +92,55 @@
                        (setf (state instance)
                              (not (state instance))))))
 
+(defmethod (setf state) :after (new-value (object stateful-button))
+  (on-event object :state-changed (make-instance 'event) nil)
+  (invalidate object))
+
+;;; TOGGLE-BUTTON class.
+
+(defclass toggle-button (stateful-button)
+  ())
+
 (defmethod paint ((object toggle-button))
   (draw-button object (or (state object)
                           (eql :half-click (click-state object)))))
 
-(defmethod (setf state) :after (new-value (object toggle-button))
-  (on-event object :state-changed (make-instance 'event) nil))
+;;; CHECKBOX class.
+
+(defclass checkbox (stateful-button)
+  ())
+
+(defmethod measure ((object checkbox) available-width available-height)
+  (set-measured object 16 16))
+
+(defmethod layout ((object checkbox) left top width height)
+  (set-layout object left top 16 16))
+
+(defmethod paint ((object checkbox))
+  (cl-cairo2:set-source-rgba 1 1 1 1)
+  (cl-cairo2:rectangle (layout-left object)
+                       (layout-top object)
+                       (layout-width object)
+                       (layout-height object))
+  (cl-cairo2:fill-path)
+  (cl-cairo2:set-source-rgba 0 0 0 1)
+  (cl-cairo2:set-line-width 1)
+  (cl-cairo2:rectangle (+ 0.5 (layout-left object))
+                       (+ 0.5 (layout-top object))
+                       (layout-width object)
+                       (layout-height object))
+  (cl-cairo2:stroke)
+  (when (state object)
+    (cl-cairo2:move-to (+ 3 (layout-left object))
+                       (+ 3 (layout-top object)))
+    (cl-cairo2:line-to (+ 13 (layout-left object))
+                       (+ 13 (layout-top object)))
+    (cl-cairo2:stroke)
+    (cl-cairo2:move-to (+ 13 (layout-left object))
+                       (+ 3 (layout-top object)))
+    (cl-cairo2:line-to (+ 3 (layout-left object))
+                       (+ 13 (layout-top object)))
+    (cl-cairo2:stroke)))
+
+
+

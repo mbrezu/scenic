@@ -60,7 +60,8 @@
            resource read-stream-to-string
            read-resource
            write-gzipped-resource
-           read-gzipped-resource))
+           read-gzipped-resource
+           checkbox))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -84,7 +85,8 @@
            glass
            henchman
            scroll-view scroll-view-auto
-           textbox))
+           textbox
+           checkbox))
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)
