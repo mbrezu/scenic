@@ -111,7 +111,11 @@
             (make-auto-test :name "scroll-view-mouse-adjust"
                             :scene-function #'scroll-view-mouse-adjust
                             :scene-session-file "test-data/scroll-view-mouse-adjust.gz"
-                            :description-file "test-data/scroll-view-mouse-adjust.txt")))
+                            :description-file "test-data/scroll-view-mouse-adjust.txt")
+            (make-auto-test :name "checkbox-1"
+                            :scene-function #'checkbox-1
+                            :scene-session-file "test-data/checkbox-1.gz"
+                            :description-file "test-data/checkbox-1.txt")))
 
 (defun find-test (name)
   (find name *tests* :test #'string-equal :key #'auto-test-name))

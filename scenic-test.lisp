@@ -820,8 +820,13 @@
                      :max-height 400
                      :max-width 400))))))
 
+(defmacro set2val1 (var form)
+  (let ((g-val (gensym "VAL")))
+    `(let (,g-val)
+       (setf (values ,g-val ,var) ,form))))
+
 (defun checkbox-1 ()
-  (let (w1 w2 cb1 cb2 scn)
+  (let (cb1 cb2 scn)
     (setf scn
           (scene *scene-width* *scene-height*
                  (stack
@@ -835,16 +840,21 @@
                      (horizontal-box 10
                                      '(:auto :auto)
                                      (list
-                                      (setf (values w1 cb1) (checkbox "Smart"))
-                                      (setf (values w2 cb2) (checkbox "Beautiful"))))))))))
+                                      (set2val1 cb1 (checkbox "Smart"))
+                                      (set2val1 cb2 (checkbox "Beautiful"))))))))))
     (scenic:add-event-handler cb1 :state-changed nil
                               (lambda (o e)
                                 (declare (ignore o e))
-                                (print-all t (scenic:state cb1))))
+                                (let ((message (if (scenic:state cb1) "Smart" "Dumb")))
+                                  (when *manual-test-run* (print message))
+                                  (scenic:test-channel-write message))))
     (scenic:add-event-handler cb2 :state-changed nil
                               (lambda (o e)
                                 (declare (ignore o e))
-                                (print-all t (scenic:state cb2))))
+                                (let ((message (if (scenic:state cb2) "Beautiful" "Ugly")))
+                                  (when *manual-test-run*
+                                    (print message))
+                                  (scenic:test-channel-write message))))
     scn))
 
 (defun run-all-tests ()
