@@ -5,7 +5,7 @@
            ifhorizontal aif awhen let-from-options
            fill-list it groups bif bwhen
            gen-print-object gen-serializer
-           yes-no-query ->))
+           yes-no-query -> set2val1))
 
 (defpackage :scenic
   (:use :cl :scenic-utils)

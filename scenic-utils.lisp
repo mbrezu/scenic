@@ -145,10 +145,28 @@
        (format t "~%Please type 'Y' or 'N'."))))
 
 (defmacro -> (obj &rest forms)
+  "Similar to the -> macro from clojure, but with a tweak: if there is
+  a $ symbol somewhere in the form, the object is not added as the
+  first argument to the form, but instead replaces the $ symbol."
   (if forms
       (if (consp (car forms))
-          `(-> ,(list* (caar forms) obj (cdar forms))
-               ,@(cdr forms))
+          (let* ((first-form (first forms))
+                 (other-forms (rest forms))
+                 (pos (position '$ first-form)))
+            (if pos
+                `(-> ,(append (subseq first-form 0 pos)
+                              (list obj)
+                              (subseq first-form (1+ pos)))
+                     ,@other-forms)
+                `(-> ,(list* (first first-form) obj (rest first-form))
+                     ,@other-forms)))
           `(-> ,(list (car forms) obj)
                ,@(cdr forms)))
       obj))
+
+(defmacro set2val1 (var form)
+  "The FORM returns at least two values. This macro sets the second
+  value to the given VAR, and returns the first value."
+  (let ((g-val (gensym "VAL")))
+    `(let (,g-val)
+       (setf (values ,g-val ,var) ,form))))

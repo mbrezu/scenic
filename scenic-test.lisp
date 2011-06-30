@@ -820,11 +820,6 @@
                      :max-height 400
                      :max-width 400))))))
 
-(defmacro set2val1 (var form)
-  (let ((g-val (gensym "VAL")))
-    `(let (,g-val)
-       (setf (values ,g-val ,var) ,form))))
-
 (defun checkbox-1 ()
   (let (cb1 cb2 scn)
     (setf scn
