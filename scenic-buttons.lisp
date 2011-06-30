@@ -142,5 +142,32 @@
                        (+ 13 (layout-top object)))
     (cl-cairo2:stroke)))
 
+;;; RADIO-BUTTON class.
 
+(defclass radio-button (stateful-button)
+  ())
+
+(defmethod measure ((object radio-button) available-width available-height)
+  (set-measured object 16 16))
+
+(defmethod layout ((object radio-button) left top width height)
+  (set-layout object left top 16 16))
+
+(defmethod paint ((object radio-button))
+  (cl-cairo2:set-source-rgba 1 1 1 1)
+  (cl-cairo2:rectangle (layout-left object)
+                       (layout-top object)
+                       (layout-width object)
+                       (layout-height object))
+  (cl-cairo2:fill-path)
+  (cl-cairo2:set-source-rgba 0 0 0 1)
+  (cl-cairo2:set-line-width 1)
+  (cl-cairo2:arc (+ 8 (layout-left object)) (+ 8 (layout-top object))
+                 6 0 (* 2 pi))
+  (cl-cairo2:stroke)
+  (when (state object)
+    (cl-cairo2:arc (+ 8 (layout-left object)) (+ 8 (layout-top object))
+                   3
+                   0 (* 2 pi))
+    (cl-cairo2:fill-path)))
 

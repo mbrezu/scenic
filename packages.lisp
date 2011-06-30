@@ -61,7 +61,8 @@
            read-resource
            write-gzipped-resource
            read-gzipped-resource
-           checkbox))
+           checkbox
+           radio-button))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -86,7 +87,9 @@
            henchman
            scroll-view scroll-view-auto
            textbox
-           checkbox))
+           checkbox
+           radio-button
+           group-stateful-buttons))
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)

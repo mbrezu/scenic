@@ -1,0 +1,33 @@
+
+-*- markdown -*-
+
+# Name: Radio Button 1
+
+## Description
+
+There are two radio buttons, labeled "Smart" and respectively "Beautiful".
+
+## Test Sequence
+
+Click the "Smart" checkbox (on the square).
+Click the "Beautiful" checkbox (on the square).
+Click the "Smart" checkbox (on the text).
+Click the "Beautiful" checkbox (on the text).
+
+## Pass/Fail Criteria
+
+The radio buttons toggle their state regardless of the clicks being on
+the box or on the text.
+
+Messages printed:
+
+ * "Ugly"
+ * "Smart"
+ * "Dumb"
+ * "Beautiful"
+ * "Ugly"
+ * "Smart"
+ * "Dumb"
+ * "Beautiful"
+
+

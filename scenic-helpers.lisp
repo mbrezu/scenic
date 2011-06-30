@@ -214,12 +214,12 @@
                  :font-face "Courier"
                  :font-size 14))
 
-(defun checkbox (text)
-  (let (checkbox label combination)
+(defun wrap-stateful-button (stateful-button text)
+  (let (label combination)
     (setf combination
           (horizontal-box
            2 '(:auto :auto)
-           (list (aligner (setf checkbox (make-instance 'checkbox :state nil)))
+           (list (aligner stateful-button)
                  (setf label
                        (make-instance 'clickable
                                       :child (uniform-padding
@@ -228,6 +228,24 @@
     (add-event-handler label :click nil
                        (lambda (o e)
                          (declare (ignore o e))
-                         (setf (state checkbox)
-                               (not (state checkbox)))))
-    (values combination checkbox)))
+                         (setf (state stateful-button)
+                               (not (state stateful-button)))))
+    (values combination stateful-button)))
+
+(defun checkbox (text)
+  (wrap-stateful-button (make-instance 'checkbox :state nil)
+                        text))
+
+(defun radio-button (text)
+  (wrap-stateful-button (make-instance 'radio-button :state nil)
+                        text))
+
+(defun group-stateful-buttons (&rest buttons)
+  (dolist (b buttons)
+    (scenic:add-event-handler b :state-changed nil
+                              (lambda (obj e)
+                                (declare (ignore e))
+                                (when (state obj)
+                                  (dolist (b buttons)
+                                    (unless (eq obj b)
+                                      (setf (state b) nil))))))))

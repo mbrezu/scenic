@@ -852,6 +852,39 @@
                                   (scenic:test-channel-write message))))
     scn))
 
+(defun radio-button-1 ()
+  (let (rb1 rb2 scn)
+    (setf scn
+          (scene *scene-width* *scene-height*
+                 (stack
+                  (background (list 1.0 1.0 1.0)
+                              (filler))
+                  (uniform-padding
+                   5
+                   (vertical-box
+                    0 '(:auto)
+                    (list
+                     (horizontal-box 10
+                                     '(:auto :auto)
+                                     (list
+                                      (set2val1 rb1 (radio-button "Smart"))
+                                      (set2val1 rb2 (radio-button "Beautiful"))))))))))
+    (scenic:add-event-handler rb1 :state-changed nil
+                              (lambda (o e)
+                                (declare (ignore o e))
+                                (let ((message (if (scenic:state rb1) "Smart" "Dumb")))
+                                  (when *manual-test-run* (print message))
+                                  (scenic:test-channel-write message))))
+    (scenic:add-event-handler rb2 :state-changed nil
+                              (lambda (o e)
+                                (declare (ignore o e))
+                                (let ((message (if (scenic:state rb2) "Beautiful" "Ugly")))
+                                  (when *manual-test-run*
+                                    (print message))
+                                  (scenic:test-channel-write message))))
+    (group-stateful-buttons rb1 rb2)
+    scn))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -879,4 +912,5 @@
   (test-scene (textbox-2))
   (test-scene (scroll-view-hittest))
   (test-scene (scroll-view-mouse-adjust))
-  (test-scene (checkbox-1)))
+  (test-scene (checkbox-1))
+  (test-scene (radio-button-1)))
