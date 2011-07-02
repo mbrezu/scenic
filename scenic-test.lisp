@@ -6,8 +6,7 @@
 (defun test-scene (scene &optional record)
   (let ((scenic:*event-recording-enabled* record)
         (scenic:*test-channel-enabled* record))
-    (scenic:run-scene scene)
-    (reverse scenic:*session-record*)))
+    (scenic:run-scene scene)))
 
 (defvar *scene-width*)
 (setf *scene-width* 700)
@@ -39,7 +38,9 @@
                                                (background (list 0.3 1.0 0.3)
                                                            (placeholder 100 100))
                                                (background (list 0.3 0.3 1.0)
-                                                           (placeholder 100 100)))))))))
+                                                           (placeholder 100 100))))))
+
+          )))
 
 ;;; Hello world!
 (defun hello-world ()
@@ -150,6 +151,32 @@
                                        (scenic:max-value object)))))
     scn))
 
+(defun scrollbar ()
+  (let (scn horizontal-scrollbar vertical-scrollbar)
+    (setf scn (scene *scene-width* *scene-height*
+                     (stack
+                      (background (list 1.0 1.0 1.0)
+                                  (filler))
+                      (sizer (setf horizontal-scrollbar
+                                   (vertical-scrollbar 0 50 30))
+                             :max-height 200
+                             :max-width 19))))
+    (scenic:add-event-handler horizontal-scrollbar :position-changed nil
+                              (lambda (object event)
+                                (declare (ignore event))
+                                (when *manual-test-run*
+                                  (print-all t
+                                             (scenic:current-min-position object)
+                                             (scenic:page-size object)
+                                             (scenic:min-value object)
+                                             (scenic:max-value object)))
+                                (scenic:test-channel-write
+                                 (list (scenic:current-min-position object)
+                                       (scenic:page-size object)
+                                       (scenic:min-value object)
+                                       (scenic:max-value object)))))
+    scn))
+
 (defun scrollbars ()
   (let (scn horizontal-scrollbar vertical-scrollbar)
     (setf scn (scene *scene-width* *scene-height*
@@ -159,11 +186,11 @@
                       (uniform-padding 5
                                        (horizontal-box
                                         0
-                                        '(:auto :auto)
+                                        '(:auto (1 :auto))
                                         (list
                                          (vertical-box
                                           0
-                                          '(:auto :auto)
+                                          '(:auto (1 :auto))
                                           (list (background
                                                  (list 0.3 0.4 0.5)
                                                  (placeholder 200 200))

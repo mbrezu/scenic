@@ -100,7 +100,7 @@
 * TODO popups/dialogs;
 * TODO menubar/menu;
 * TODO combo box;
-* TODO checkbox/radio box;
+* DONE checkbox/radio box;
 * TODO themes/widget factories;
 * unit tests (e.g. for the grid layout)
   Make tests cheap (there is no code to be written, it's only
@@ -143,3 +143,16 @@
   One solution is to use monospace by default and setup a list of
   acceptable dimensions. This means I'm not testing the actual font
   measuring code, but it will have to do for now.
+* TODO interface with bordeaux-threads
+** TODO animations? (with threads or simply with the idle event)
+*** TODO use a thread with SLEEP to schedule animation events
+** TODO so we can serialize thread based scenarios for automated testing
+* TODO visibility for widgets
+  - t or nil, if t the widget is measured and painted, if nil the
+    widget has dimensions 0,0 and is not painted
+** TODO update the grid to allow priority for :auto columns and rows layout options
+** TODO update the boxes to allow priority for :auto layout options
+** TODO use the visibility to hide not needed scrollbars for scroll-view-auto
+*** TODO add options to scroll-view-auto to specify whether scroll
+* TODO BUG: all radio-buttons in a group can be unchecked
+  (at least one radio button must be turned on)

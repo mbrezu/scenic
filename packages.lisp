@@ -5,7 +5,9 @@
            ifhorizontal aif awhen let-from-options
            fill-list it groups bif bwhen
            gen-print-object gen-serializer
-           yes-no-query -> set2val1))
+           yes-no-query -> set2val1
+           validate-layout-spec is-auto sorted-auto-indices
+           intersperse))
 
 (defpackage :scenic
   (:use :cl :scenic-utils)
@@ -18,7 +20,7 @@
            set-layout
            parent
            measure layout paint-scene
-           container box stack children space-between-cells
+           container stack children space-between-cells
            padding left-padding top-padding right-padding bottom-padding child
            border stroke-color stroke-width
            background fill-color
@@ -69,7 +71,7 @@
   (:export grid))
 
 (defpackage :scenic-helpers
-  (:use :cl :scenic :scenic-grid)
+  (:use :cl :scenic :scenic-grid :scenic-utils)
   (:export scene background border
            placeholder
            padding uniform-padding

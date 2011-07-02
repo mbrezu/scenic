@@ -5,6 +5,45 @@
 
 (declaim (optimize (debug 3)))
 
+;; The 'layout spec' is a list of layout options, one layout option
+;; specified for each child. A grid has two layout specs, one for the
+;; columns and one for the rows.
+;;
+;; The layout option for a child can be:
+;;
+;; * :auto - the child will take as much space as it requires;
+;; * '(n :auto) - the child will take as much space as it requires,
+;;                but will be considered using 'n' as precedence; smaller n,
+;;                higher precedence; simple :auto will be considered after all
+;;                the '(n :auto) have been considered, in the order in which
+;;                they appear.
+;; * '(n :px) - n is the size in pixels for the child;
+;; * '(n :ext) - the child will fill the space proportionally;
+;;
+;; If the option is '(n ext), n is used to determine the child's share
+;; in the remaining space (if all exts have n 1, they will receive an
+;; equal share of the remaining space in the widget; if there is an
+;; ext with n 2 and the others have n 1, the one with n 2 will receive
+;; a double allowance of space).
+;;
+;; The algorithm for calculating the sizes is as follows:
+;;
+;; 1. All '(n px) layout options are summed and their sum is
+;; subtracted from the available space for the box.
+;;
+;; 2. All children with :auto layout options are measured (the space
+;; they are offered is what remains in the box after step 1) and their
+;; sizes are summed. This sum is subtracted to determine the space
+;; available for exts. The :auto children are considered in the
+;;
+;; 3. The '(n ext) layouts are summed, remaining space is divided by
+;; the sum to get the 'slice size'. Each ext widget gets a number of
+;; 'slices' corresponding to its n ext multiplier.
+;;
+;; If the layout options list is not specified when measuring, or
+;; there are fewer layout options than child controls, the layout
+;; options are filled with '(1 ext) items.
+
 (defclass grid (container orientable)
   ((column-layout-options :accessor column-layout-options
                           :initarg :column-layout-options
@@ -115,6 +154,10 @@
         (row-ext-sum 0)
         auto-cells)
 
+    ;; Validate widths and heigths
+    (validate-layout-spec (column-layout-options object))
+    (validate-layout-spec (row-layout-options object))
+
     ;; Calculate the dimensions of the grid.
     (setf (values column-count row-count) (get-dimensions object))
 
@@ -143,15 +186,19 @@
       ;; widths. Allocate 0 width if all the space has already been
       ;; allocated.
       (setf (column-widths object) (make-array column-count :initial-element 0))
-      (setf current-available-width (allocate-auto auto-column-widths
-                                                   (column-widths object)
-                                                   current-available-width))
+      (setf current-available-width
+            (allocate-auto auto-column-widths
+                           (sorted-auto-indices (column-layout-options object))
+                           (column-widths object)
+                           current-available-width))
 
       ;; Same operation as above for rows.
       (setf (row-heights object) (make-array row-count :initial-element 0))
-      (setf current-available-height (allocate-auto auto-row-heights
-                                                    (row-heights object)
-                                                    current-available-height)))
+      (setf current-available-height
+            (allocate-auto auto-row-heights
+                           (sorted-auto-indices (row-layout-options object))
+                           (row-heights object)
+                           current-available-height)))
 
     ;; Determine the sum of ext parameters for columns and rows.
     (setf column-ext-sum (sum-layout-option (column-layout-options object) :ext))
@@ -181,8 +228,6 @@
        for location in (children-locations object)
        for child in (children object)
        for options in (children-options object)
-       ;; If it's in auto-cells, it's already measured.
-       unless (aref auto-cells (second location) (first location))
        do (let-from-options options ((colspan 1)
                                      (rowspan 1))
             (measure child
@@ -200,8 +245,8 @@
      when (and (consp lo) (eq kind (second lo)))
      sum (first lo)))
 
-(defun allocate-auto (auto-size-array size-array current-available-space)
-  (dotimes (idx (length size-array))
+(defun allocate-auto (auto-size-array sorted-autos size-array current-available-space)
+  (dolist (idx sorted-autos)
     (let ((space (min current-available-space (aref auto-size-array idx))))
       (setf (aref size-array idx) space)
       (decf current-available-space space)))
@@ -235,10 +280,10 @@
         (aif (aref auto-cells row column)
              (multiple-value-bind (width height)
                  (measure it current-available-width current-available-height)
-               (when (eq :auto (elt column-layout-options column))
+               (when (is-auto (elt column-layout-options column))
                  (setf (aref column-widths column)
                        (max (aref column-widths column) width)))
-               (when (eq :auto (elt row-layout-options row))
+               (when (is-auto (elt row-layout-options row))
                  (setf (aref row-heights row)
                        (max (aref row-heights row) height)))))))
     (values column-widths row-heights)))
@@ -249,7 +294,7 @@
     (loop
        for lo in (column-layout-options object)
        for column-index = 0 then (1+ column-index)
-       when (eq :auto lo)
+       when (is-auto lo)
        do (loop
              for row-index from 0 to row-count
              when (aif (get-child-at object column-index row-index)
@@ -260,7 +305,7 @@
     (loop
        for lo in (row-layout-options object)
        for row-index = 0 then (1+ row-index)
-       when (eq :auto lo)
+       when (is-auto lo)
        do (loop
              for column-index from 0 to column-count
              when (aif (get-child-at object column-index row-index)
@@ -306,8 +351,16 @@
       (incf running-total (aref size-array idx)))
     result))
 
+(defmethod measure ((object grid) available-width available-height)
+  (calculate-widths-heights object available-width available-height)
+  (set-measured object
+                (reduce #'+ (column-widths object))
+                (reduce #'+ (row-heights object))))
+
 (defmethod layout ((object grid) left top width height)
-  (calculate-widths-heights object width height)
+  (when (or (not (= (reduce #'+ (column-widths object)) width))
+            (not (= (reduce #'+ (row-heights object)) height)))
+    (calculate-widths-heights object width height))
   (let ((column-left (get-offsets (column-widths object)))
         (row-top (get-offsets (row-heights object))))
     (loop
@@ -317,8 +370,8 @@
        do (let-from-options options ((colspan 1)
                                      (rowspan 1))
             (layout child
-                    (aref column-left (first location))
-                    (aref row-top (second location))
+                    (+ left (aref column-left (first location)))
+                    (+ top (aref row-top (second location)))
                     (get-size (column-widths object) (first location) colspan)
                     (get-size (row-heights object) (second location) rowspan)))))
   (call-next-method object left top width height))

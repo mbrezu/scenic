@@ -12,7 +12,7 @@
                                   (format str "~~a"))
                                  (t
                                   (format str "~a: " expr)
-                                  (format str "~~a")
+                                  (format str "~~s")
                                   (format str "~%")))))))
     `(format ,stream ,format-string ,@exprs)))
 
@@ -169,4 +169,55 @@
   value to the given VAR, and returns the first value."
   (let ((g-val (gensym "VAL")))
     `(let (,g-val)
-       (setf (values ,g-val ,var) ,form))))
+       (setf (values ,g-val ,var) ,form)
+       ,g-val)))
+
+(defun validate-layout-spec (layout-spec)
+  (cond ((null layout-spec) (values))
+        ((eq (first layout-spec) :auto) (validate-layout-spec (cdr layout-spec)))
+        ((consp (first layout-spec))
+         (let ((arg (first (first layout-spec)))
+               (kind (second (first layout-spec))))
+           (if (and (numberp arg)
+                    (or (eq :auto kind) (eq :px kind) (eq :ext kind)))
+               (validate-layout-spec (cdr layout-spec))
+               (error (format nil "Invalid layout option ~a." (first layout-spec))))))
+        (t (error (format nil "Invalid layout option ~a." (first layout-spec))))))
+
+(defun is-auto (layout-spec-cell)
+  (or (eq :auto layout-spec-cell)
+      (and (consp layout-spec-cell)
+           (= 2 (length layout-spec-cell))
+           (eq :auto (second layout-spec-cell)))))
+
+(defun sorted-auto-indices (layout-spec)
+  (labels ((adjust-layout-spec (layout-spec next-auto)
+             (when layout-spec
+               (if (is-auto (car layout-spec))
+                   (if (eq :auto (car layout-spec))
+                       (cons (list next-auto :auto)
+                             (adjust-layout-spec (cdr layout-spec) (1+ next-auto)))
+                       (cons (car layout-spec) (adjust-layout-spec (cdr layout-spec) next-auto)))
+                   (cons (car layout-spec) (adjust-layout-spec (cdr layout-spec) next-auto))))))
+    (let* ((autos (remove-if-not #'is-auto layout-spec)))
+      (when autos
+        (let ((max-option (1+ (apply #'max (mapcar (lambda (auto)
+                                                  (if (eq :auto auto)
+                                                      0
+                                                      (first auto)))
+                                                   autos)))))
+          (-> (adjust-layout-spec layout-spec max-option)
+              (loop
+                 for lo in $
+                 for pos = 0 then (1+ pos)
+                 when (is-auto lo)
+                 collect (list pos (first lo)))
+              (sort $ #'< :key #'second)
+              (mapcar #'first $)))))))
+
+(defun intersperse (list elm)
+  (cond ((>= (length list) 2)
+         (list* (car list)
+           elm
+           (intersperse (cdr list) elm)))
+        (t list)))

@@ -59,7 +59,8 @@
                        :initform -1)
    (affected-rect :accessor affected-rect
                   :initarg :affected-rect
-                  :initform nil)))
+                  :initform nil)
+   (visible :accessor visible :initarg :visible :initform t)))
 
 (defun make-widget-auto-name (widget count)
   (format nil "~a-~a" (class-name (class-of widget)) count))

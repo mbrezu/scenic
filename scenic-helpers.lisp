@@ -39,20 +39,6 @@
                  :bottom-padding padding
                  :child child))
 
-(defun vertical-box (space layout-options children)
-  (make-instance 'box
-                 :space-between-cells space
-                 :orientation :vertical
-                 :layout-options layout-options
-                 :children children))
-
-(defun horizontal-box (space layout-options children)
-  (make-instance 'box
-                 :space-between-cells space
-                 :orientation :horizontal
-                 :layout-options layout-options
-                 :children children))
-
 (defun stack (&rest children)
   (make-instance 'stack
                  :children children))
@@ -136,6 +122,26 @@
                  :row-layout-options row-layout-options
                  :children-descriptions children-descriptions))
 
+(defun vertical-box (space layout-options children)
+  (if (= space 0)
+      (grid '(:auto) layout-options `((:column ,@(mapcar (lambda (child) (list :cell child))
+                                                         children))))
+      (grid '(:auto)
+            (intersperse layout-options (list space :px))
+            `((:column ,@(mapcar (lambda (child) (list :cell child))
+                                 (intersperse children
+                                              (placeholder 0 space))))))))
+
+(defun horizontal-box (space layout-options children)
+  (if (= space 0)
+      (grid layout-options '(:auto) `((:row ,@(mapcar (lambda (child) (list :cell child))
+                                                      children))))
+      (grid (intersperse layout-options (list space :px))
+            '(:auto)
+            `((:row ,@(mapcar (lambda (child) (list :cell child))
+                              (intersperse children
+                                           (placeholder space 0))))))))
+
 (defun aligner (child &key (horizontal :center) (vertical :center))
   (make-instance 'aligner
                  :child child
@@ -168,8 +174,8 @@
                                    :inside-height inside-height))
          (hscroll (horizontal-scrollbar 0 100 10))
          (vscroll (vertical-scrollbar 0 100 10))
-         (result (grid '(:auto (19 :px))
-                       '(:auto (19 :px))
+         (result (grid '(:auto (1 :auto))
+                       '(:auto (1 :auto))
                        `((:row (:cell ,scroll-view)
                                (:cell ,vscroll))
                          (:row (:cell ,hscroll))))))

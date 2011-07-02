@@ -144,7 +144,7 @@
 
 ;;; SCROLLBAR class.
 
-(defclass scrollbar (box)
+(defclass scrollbar (container1 orientable)
   ((min-value :accessor min-value :initarg :min-value :initform nil)
    (max-value :accessor max-value :initarg :max-value :initform nil)
    (page-size :accessor page-size :initarg :page-size :initform nil)
@@ -154,34 +154,38 @@
 
 (defmethod initialize-instance :after ((instance scrollbar) &rest initargs)
   (declare (ignore initargs))
-  (let (slider btn-left btn-right)
-    (setf (space-between-cells instance) 0)
-    (setf (layout-options instance)
-          '(:auto (1 :ext) :auto))
-    (setf (children instance)
-          (list (setf btn-left
-                      (make-instance
-                       'button
-                       :child (make-instance 'arrow
-                                             :direction (ifhorizontal instance :left :up))))
-                (make-instance 'sizer
-                               :max-height (ifhorizontal instance 19)
-                               :max-width (ifhorizontal instance nil 19)
-                               :child (setf slider
-                                            (make-instance
-                                             'slider
-                                             :orientation (orientation instance)
-                                             :min-value (min-value instance)
-                                             :max-value (max-value instance)
-                                             :page-size (page-size instance)
-                                             :current-min-position
-                                             (current-min-position instance))))
-                (setf btn-right
-                      (make-instance
-                       'button
-                       :child (make-instance
-                               'arrow
-                               :direction (ifhorizontal instance :right :down))))))
+  (let* ((slider (make-instance
+                  'slider
+                  :orientation (orientation instance)
+                  :min-value (min-value instance)
+                  :max-value (max-value instance)
+                  :page-size (page-size instance)
+                  :current-min-position
+                  (current-min-position instance)))
+         (btn-left (make-instance
+                    'button
+                    :child (make-instance 'arrow
+                                          :direction (ifhorizontal instance :left :up))))
+         (btn-right (make-instance
+                     'button
+                     :child (make-instance
+                             'arrow
+                             :direction (ifhorizontal instance :right :down))))
+         (grid (ifhorizontal instance
+                             (make-instance 'scenic-grid:grid
+                                            :column-layout-options '(:auto (1 :ext) :auto)
+                                            :row-layout-options '((19 :px))
+                                            :children-descriptions `((:row (:cell ,btn-left)
+                                                                           (:cell ,slider)
+                                                                           (:cell ,btn-right))))
+                             (make-instance
+                              'scenic-grid:grid
+                              :column-layout-options '((19 :px))
+                              :row-layout-options '(:auto (1 :ext) :auto)
+                              :children-descriptions `((:column (:cell ,btn-left)
+                                                                (:cell ,slider)
+                                                                (:cell ,btn-right)))))))
+    (setf (child instance) grid)
     (setf (slider instance) slider)
     (add-event-handler slider :position-changed :bubble
                        (lambda (object event)
