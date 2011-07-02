@@ -150,8 +150,9 @@
 * TODO visibility for widgets
   - t or nil, if t the widget is measured and painted, if nil the
     widget has dimensions 0,0 and is not painted
-** TODO update the grid to allow priority for :auto columns and rows layout options
-** TODO update the boxes to allow priority for :auto layout options
+** DONE update the grid to allow priority for :auto columns and rows layout options
+** DONE update the boxes to allow priority for :auto layout options
+   actually completely removed boxes
 ** TODO use the visibility to hide not needed scrollbars for scroll-view-auto
 *** TODO add options to scroll-view-auto to specify whether scroll
 * TODO BUG: all radio-buttons in a group can be unchecked
