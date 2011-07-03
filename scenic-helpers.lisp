@@ -258,5 +258,5 @@
                                       (unless (eq obj b)
                                         (setf (state b) nil))))
                                   (when (all-unchecked)
-                                    (setf (state b) t)))))
+                                    (setf (state obj) t)))))
     (setf (state default) t)))
