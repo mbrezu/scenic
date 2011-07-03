@@ -221,18 +221,7 @@
     ;; Determine the space for px and ext rows.
     (allocate-px-ext (row-layout-options object)
                      (row-heights object)
-                     (row-slice-size object))
-
-    ;; Measure the rest of the widgets.
-    (loop
-       for location in (children-locations object)
-       for child in (children object)
-       for options in (children-options object)
-       do (let-from-options options ((colspan 1)
-                                     (rowspan 1))
-            (measure child
-                     (get-size (column-widths object) (first location) colspan)
-                     (get-size (row-heights object) (second location) rowspan))))))
+                     (row-slice-size object))))
 
 (defun get-size (size-array start length)
   (loop
@@ -358,8 +347,8 @@
                 (reduce #'+ (row-heights object))))
 
 (defmethod layout ((object grid) left top width height)
-  (when (or (not (= (reduce #'+ (column-widths object)) width))
-            (not (= (reduce #'+ (row-heights object)) height)))
+  (when (or (not (= (measured-width object) width))
+            (not (= (measured-height object) height)))
     (calculate-widths-heights object width height))
   (let ((column-left (get-offsets (column-widths object)))
         (row-top (get-offsets (row-heights object))))
@@ -369,6 +358,9 @@
        for options in (children-options object)
        do (let-from-options options ((colspan 1)
                                      (rowspan 1))
+            (measure child
+                   (get-size (column-widths object) (first location) colspan)
+                   (get-size (row-heights object) (second location) rowspan))
             (layout child
                     (+ left (aref column-left (first location)))
                     (+ top (aref row-top (second location)))

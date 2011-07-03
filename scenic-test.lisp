@@ -6,7 +6,9 @@
 (defun test-scene (scene &optional record)
   (let ((scenic:*event-recording-enabled* record)
         (scenic:*test-channel-enabled* record))
-    (scenic:run-scene scene)))
+    (scenic:run-scene scene))
+  (when record
+    (reverse scenic:*session-record*)))
 
 (defvar *scene-width*)
 (setf *scene-width* 700)
