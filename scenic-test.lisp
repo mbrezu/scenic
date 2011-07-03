@@ -911,7 +911,7 @@
                                   (when *manual-test-run*
                                     (print message))
                                   (scenic:test-channel-write message))))
-    (group-stateful-buttons rb1 rb2)
+    (group-stateful-buttons rb1 (list rb1 rb2))
     scn))
 
 (defun run-all-tests ()

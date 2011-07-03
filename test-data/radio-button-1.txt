@@ -9,25 +9,14 @@ There are two radio buttons, labeled "Smart" and respectively "Beautiful".
 
 ## Test Sequence
 
-Click the "Smart" checkbox (on the square).
-Click the "Beautiful" checkbox (on the square).
-Click the "Smart" checkbox (on the text).
-Click the "Beautiful" checkbox (on the text).
+Click the "Smart" radio button (on the square).
+Click the "Beautiful" radio button (on the square).
+Click the "Smart" radio button (on the text).
+Click the "Beautiful" radio button (on the text).
+Click the "Beautiful" radio button (anywhere).
 
 ## Pass/Fail Criteria
 
 The radio buttons toggle their state regardless of the clicks being on
 the box or on the text.
-
-Messages printed:
-
- * "Ugly"
- * "Smart"
- * "Dumb"
- * "Beautiful"
- * "Ugly"
- * "Smart"
- * "Dumb"
- * "Beautiful"
-
 

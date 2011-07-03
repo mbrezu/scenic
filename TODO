@@ -155,5 +155,5 @@
    actually completely removed boxes
 ** TODO use the visibility to hide not needed scrollbars for scroll-view-auto
 *** TODO add options to scroll-view-auto to specify whether scroll
-* TODO BUG: all radio-buttons in a group can be unchecked
+* DONE BUG: all radio-buttons in a group can be unchecked
   (at least one radio button must be turned on)
