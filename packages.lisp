@@ -20,7 +20,7 @@
            set-layout
            parent
            measure layout paint-scene
-           container stack children space-between-cells
+           container stack children
            padding left-padding top-padding right-padding bottom-padding child
            border stroke-color stroke-width
            background fill-color
@@ -64,7 +64,8 @@
            write-gzipped-resource
            read-gzipped-resource
            checkbox
-           radio-button))
+           radio-button
+           box space-between-cells))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)
@@ -91,7 +92,8 @@
            textbox
            checkbox
            radio-button
-           group-stateful-buttons))
+           group-stateful-buttons
+           simple-horizontal-box simple-vertical-box))
 
 (defpackage :scenic-test
   (:use :cl :scenic-helpers :scenic-utils)

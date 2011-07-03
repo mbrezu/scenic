@@ -260,3 +260,15 @@
                                   (when (all-unchecked)
                                     (setf (state obj) t)))))
     (setf (state default) t)))
+
+(defun simple-horizontal-box (space children)
+  (make-instance 'box
+                 :space-between-cells space
+                 :orientation :horizontal
+                 :children children))
+
+(defun simple-vertical-box (space children)
+  (make-instance 'box
+                 :space-between-cells space
+                 :orientation :vertical
+                 :children children))

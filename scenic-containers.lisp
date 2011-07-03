@@ -210,3 +210,43 @@
 (defmethod after-paint ((object scroll-view))
   (cl-cairo2:restore))
 
+;;; BOX class.
+
+(defclass box (container orientable)
+  ((space-between-cells :accessor space-between-cells :initarg :space-between-cells :initform 0)))
+
+(defmethod measure ((object box) available-width available-height)
+  (ecase (orientation object)
+    (:vertical
+     (let* ((child-sizes (mapcar #'(lambda (widget)
+                                     (measure widget available-width available-height))
+                                 (children object)))
+            (vertical-size (+ (* (1- (length child-sizes))
+                                 (space-between-cells object))
+                              (reduce #'+ (mapcar #'second child-sizes))))
+            (horizontal-size (apply #'max (mapcar #'first child-sizes))))
+       (call-next-method object horizontal-size vertical-size)))
+    (:horizontal
+     (let* ((child-sizes (mapcar #'(lambda (widget)
+                                     (measure widget available-width available-height))
+                                 (children object)))
+            (horizontal-size (+ (* (1- (length child-sizes))
+                                   (space-between-cells object))
+                                (reduce #'+ (mapcar #'first child-sizes))))
+            (vertical-size (apply #'max (mapcar #'second child-sizes))))
+       (call-next-method object horizontal-size vertical-size)))))
+
+(defmethod layout ((object box) left top width height)
+  (ecase (orientation object)
+    (:vertical
+     (let ((running-top top))
+       (dolist (widget (children object))
+         (layout widget left running-top (measured-width widget) (measured-height widget))
+         (incf running-top (+ (measured-height widget) (space-between-cells object))))))
+    (:horizontal
+     (let ((running-left left))
+       (dolist (widget (children object))
+         (layout widget running-left top (measured-width widget) (measured-height widget))
+         (incf running-left (+ (measured-width widget) (space-between-cells object)))))))
+  (call-next-method object left top width height))
+

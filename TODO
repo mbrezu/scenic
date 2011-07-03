@@ -157,3 +157,7 @@
 *** TODO add options to scroll-view-auto to specify whether scroll
 * DONE BUG: all radio-buttons in a group can be unchecked
   (at least one radio button must be turned on)
+* TODO add again the simple box layout (horizontal and vertical)
+** TODO write some tests for simple boxes
+* TODO add a dock panel layout
+** TODO write tests for the dock panel layout
