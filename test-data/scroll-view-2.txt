@@ -1,0 +1,22 @@
+
+-*- markdown -*-
+
+# Name: Scroll View 2
+
+## Description
+
+There are four scroll views widgets, each with four colored squares
+inside. The upper-left scroll view needs both horizontal and vertical
+scrollbars, the upper-right scroll view needs only the vertical
+scrollbor, the lower-left scroll view needs only the horizontal
+scrollbar, and the lower-right scroll-view needs no scrollbars.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Check that only the necessary scrollbars are displayed.
+
+

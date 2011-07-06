@@ -62,6 +62,19 @@
                   :initform nil)
    (visible :accessor visible :initarg :visible :initform t)))
 
+(defmethod measure :around ((object widget) available-width available-height)
+  (if (visible object)
+      (call-next-method)
+      (set-measured object 0 0)))
+
+(defmethod (setf visible) :around (new-value (object widget))
+  (let ((old-value (visible object)))
+    (call-next-method)
+    (unless (eq (not old-value) (not new-value))
+      (let ((scene (get-scene object)))
+        (setf (layedout scene) nil)
+        (invalidate-scene scene)))))
+
 (defun make-widget-auto-name (widget count)
   (format nil "~a-~a" (class-name (class-of widget)) count))
 

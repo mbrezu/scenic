@@ -13,7 +13,7 @@
   (:use :cl :scenic-utils)
   (:export run-scene
            eventful add-event-handler on-event
-           widget measured-width measured-height
+           widget measured-width measured-height visible
            name auto-name
            set-measured
            layout-left layout-top layout-width layout-height

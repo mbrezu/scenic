@@ -168,24 +168,38 @@
                  :inside-width inside-width
                  :inside-height inside-height))
 
-(defun scroll-view-auto (child &key (inside-width (expt 10 6)) (inside-height (expt 10 6)))
+(defun scroll-view-auto (child &key
+                         (inside-width (expt 10 6))
+                         (inside-height (expt 10 6))
+                         (always-horizontal-scrollbar t)
+                         (always-vertical-scrollbar t))
   (let* ((scroll-view (scroll-view child
                                    :inside-width inside-width
                                    :inside-height inside-height))
          (hscroll (horizontal-scrollbar 0 100 10))
          (vscroll (vertical-scrollbar 0 100 10))
-         (result (grid '(:auto (1 :auto))
-                       '(:auto (1 :auto))
-                       `((:row (:cell ,scroll-view)
-                               (:cell ,vscroll))
-                         (:row (:cell ,hscroll))))))
+         (grid (grid '(:auto (1 :auto))
+                     '(:auto (1 :auto))
+                     `((:row (:cell ,scroll-view)
+                             (:cell ,vscroll))
+                       (:row (:cell ,hscroll))))))
     (add-event-handler scroll-view :scroll-view-measured :bubble
                        (lambda (o evt)
                          (declare (ignore o))
                          (setf (page-size hscroll) (outer-width evt))
                          (setf (max-value hscroll) (inner-width evt))
                          (setf (page-size vscroll) (outer-height evt))
-                         (setf (max-value vscroll) (inner-height evt))))
+                         (setf (max-value vscroll) (inner-height evt))
+                         (when (measured-width grid)
+                           (setf (visible hscroll)
+                                 (or always-horizontal-scrollbar
+                                     (< (measured-width grid)
+                                        (inner-width evt)))))
+                         (when (measured-height grid)
+                           (setf (visible vscroll)
+                                 (or always-vertical-scrollbar
+                                     (< (measured-height grid)
+                                        (inner-height evt)))))))
     (add-event-handler hscroll :position-changed nil
                        (lambda (o evt)
                          (declare (ignore o evt))
@@ -205,7 +219,7 @@
                                (vertical-offset scroll-view))
                          (setf (current-min-position hscroll)
                                (horizontal-offset scroll-view))))
-    (values result scroll-view)))
+    (values grid scroll-view)))
 
 (defun textbox (text cursor-position
                 &key (selection-start 0) (caret-color (list 0.0 0.0 0.0))

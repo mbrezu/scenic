@@ -123,7 +123,11 @@
             (make-auto-test :name "simple-boxes"
                             :scene-function #'simple-boxes
                             :scene-session-file "test-data/simple-boxes.gz"
-                            :description-file "test-data/simple-boxes.txt")))
+                            :description-file "test-data/simple-boxes.txt")
+            (make-auto-test :name "scroll-view-2"
+                            :scene-function #'scroll-view-2
+                            :scene-session-file "test-data/scroll-view-2.gz"
+                            :description-file "test-data/scroll-view-2.txt")))
 
 (defun find-test (name)
   (find name *tests* :test #'string-equal :key #'auto-test-name))

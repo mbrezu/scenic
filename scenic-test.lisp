@@ -928,6 +928,49 @@
                  (background (list 0.9 0.3 0.7) (placeholder 100 100))
                  (background (list 0.3 0.7 0.8) (placeholder 100 100)))))))
 
+(defun scroll-view-2 ()
+  (let* ((color1 (list 1.0 0.3 0.3))
+         (color2 (list 0.3 1.0 0.3))
+         (color3 (list 0.3 0.3 1.0))
+         (color4 (list 0.7 0.3 1.0)))
+    (labels ((make-square (color)
+               (background color (filler)))
+             (make-child (inner-width inner-height)
+               (sizer
+                (scroll-view-auto (sizer (background
+                                          (list 1.0 1.0 1.0)
+                                          (henchman
+                                           '((:left 10 :top 10 :width 100 :height 100)
+                                             (:right 10 :top 10 :width 100 :height 100)
+                                             (:left 10 :bottom 10 :width 100 :height 100)
+                                             (:right 10 :bottom 10 :width 100 :height 100))
+                                           (list (make-square color1)
+                                                 (make-square color2)
+                                                 (make-square color3)
+                                                 (make-square color4))))
+                                         :max-width inner-width
+                                         :max-height inner-height)
+                                  :always-horizontal-scrollbar nil
+                                  :always-vertical-scrollbar nil)
+                :max-height 298
+                :max-width 298))
+             (black-border (child)
+               (border (list 0.0 0.0 0.0) 1 child)))
+      (scene *scene-width* *scene-height*
+             (stack
+              (background (list 1.0 1.0 1.0)
+                          (filler))
+              (uniform-padding 45
+                               (grid '((300 :px) (10 :px) (300 :px))
+                                     '((300 :px) (10 :px) (300 :px))
+                                     `((:row (:cell ,(black-border (make-child 350 350)))
+                                             (:cell ,(filler))
+                                             (:cell ,(black-border (make-child 298 350))))
+                                       (:row (:cell ,(filler)))
+                                       (:row (:cell ,(black-border (make-child 350 298)))
+                                             (:cell ,(filler))
+                                             (:cell ,(black-border (make-child 298 298))))))))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -957,4 +1000,5 @@
   (test-scene (scroll-view-mouse-adjust))
   (test-scene (checkbox-1))
   (test-scene (radio-button-1))
-  (test-scene (simple-boxes)))
+  (test-scene (simple-boxes))
+  (test-scene (scroll-view-2)))

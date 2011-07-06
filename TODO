@@ -53,7 +53,7 @@
 * TODO scroll view;
 ** DONE first cut (no scrollbars integration)
 ** DONE add scrollbars (integrate them with a helper function)
-** TODO scrollbars should disappear when not needed (enhance helper function)
+** DONE scrollbars should disappear when not needed (enhance helper function)
 ** DONE hit-testing should work correctly with scroll views
 ** DONE when sending paint/mouse events to widgets within scroll views,
    the coordinates should be adjusted to match the ones in the
@@ -156,8 +156,13 @@
 ** DONE update the grid to allow priority for :auto columns and rows layout options
 ** DONE update the boxes to allow priority for :auto layout options
    actually completely removed boxes
-** TODO use the visibility to hide not needed scrollbars for scroll-view-auto
-*** TODO add options to scroll-view-auto to specify whether scroll
+** DONE use the visibility to hide not needed scrollbars for scroll-view-auto
+*** DONE add options to scroll-view-auto to specify whether scroll
+*** TODO fix the bug: scroll-view-2:
+    horizontal scrollbars should appear if they become necessary after
+    adding the vertical scrollbar; likewise, vertical scrollbars
+    should appear if they are required after adding the horizontal
+    scrollbars.
 * DONE BUG: all radio-buttons in a group can be unchecked
   (at least one radio button must be turned on)
 * TODO add again the simple box layout (horizontal and vertical)
