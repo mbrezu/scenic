@@ -219,7 +219,8 @@
   (ecase (orientation object)
     (:vertical
      (let* ((child-sizes (mapcar #'(lambda (widget)
-                                     (measure widget available-width available-height))
+                                     (multiple-value-list
+                                      (measure widget available-width available-height)))
                                  (children object)))
             (vertical-size (+ (* (1- (length child-sizes))
                                  (space-between-cells object))
@@ -228,7 +229,8 @@
        (call-next-method object horizontal-size vertical-size)))
     (:horizontal
      (let* ((child-sizes (mapcar #'(lambda (widget)
-                                     (measure widget available-width available-height))
+                                     (multiple-value-list
+                                      (measure widget available-width available-height)))
                                  (children object)))
             (horizontal-size (+ (* (1- (length child-sizes))
                                    (space-between-cells object))

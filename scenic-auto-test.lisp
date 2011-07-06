@@ -119,7 +119,11 @@
             (make-auto-test :name "radio-button-1"
                             :scene-function #'radio-button-1
                             :scene-session-file "test-data/radio-button-1.gz"
-                            :description-file "test-data/radio-button-1.txt")))
+                            :description-file "test-data/radio-button-1.txt")
+            (make-auto-test :name "simple-boxes"
+                            :scene-function #'simple-boxes
+                            :scene-session-file "test-data/simple-boxes.gz"
+                            :description-file "test-data/simple-boxes.txt")))
 
 (defun find-test (name)
   (find name *tests* :test #'string-equal :key #'auto-test-name))

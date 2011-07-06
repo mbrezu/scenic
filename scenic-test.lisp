@@ -914,6 +914,20 @@
     (group-stateful-buttons rb1 (list rb1 rb2))
     scn))
 
+(defun simple-boxes ()
+  (scene *scene-width* *scene-height*
+         (stack
+          (background (list 1.0 1.0 1.0) (filler))
+          (simple-vertical-box
+           2
+           (list (simple-horizontal-box
+                  2
+                  (list (background (list 0.9 0.2 0.2) (placeholder 100 100))
+                        (background (list 0.2 0.9 0.2) (placeholder 100 100))
+                        (background (list 0.2 0.2 0.9) (placeholder 100 100))))
+                 (background (list 0.9 0.3 0.7) (placeholder 100 100))
+                 (background (list 0.3 0.7 0.8) (placeholder 100 100)))))))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -942,4 +956,5 @@
   (test-scene (scroll-view-hittest))
   (test-scene (scroll-view-mouse-adjust))
   (test-scene (checkbox-1))
-  (test-scene (radio-button-1)))
+  (test-scene (radio-button-1))
+  (test-scene (simple-boxes)))

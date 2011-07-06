@@ -98,7 +98,10 @@
 * TODO add license information
 * DONE use an .asd file (initial version from Orivej Desh)
 * TODO popups/dialogs;
-* TODO menubar/menu;
+** TODO when a popup is hidden, the area underneath must be redrawn
+   so the scene needs an additional slot, rectangles-to-redraw
+   which will add to the dirty list
+** TODO menubar/menu;
 * TODO combo box;
 * DONE checkbox/radio box;
 * TODO themes/widget factories;

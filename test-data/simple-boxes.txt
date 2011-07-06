@@ -1,0 +1,20 @@
+
+-*- markdown -*-
+
+# Name: Simple Boxes
+
+## Description
+
+Five colored squares are displayed in the upper left corner of the scene.
+
+## Test Sequence
+
+Run the test.
+
+## Pass/Fail Criteria
+
+Three colored squares (red, green, blue) must appear on a white
+background, in a horizontal row. Two more squares must appear below
+the red square.
+
+
