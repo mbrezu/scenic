@@ -965,9 +965,9 @@
                                      '((300 :px) (10 :px) (300 :px))
                                      `((:row (:cell ,(black-border (make-child 350 350)))
                                              (:cell ,(filler))
-                                             (:cell ,(black-border (make-child 298 350))))
+                                             (:cell ,(black-border (make-child 279 350))))
                                        (:row (:cell ,(filler)))
-                                       (:row (:cell ,(black-border (make-child 350 298)))
+                                       (:row (:cell ,(black-border (make-child 350 279)))
                                              (:cell ,(filler))
                                              (:cell ,(black-border (make-child 298 298))))))))))))
 

@@ -13,10 +13,15 @@ scrollbar, and the lower-right scroll-view needs no scrollbars.
 
 ## Test Sequence
 
-Run the test.
+Run the test. Scroll all scrollbars to the bottom/right of their
+domain.
 
 ## Pass/Fail Criteria
 
 Check that only the necessary scrollbars are displayed.
 
+Check that when scrollbars are scrolled to the bottom/right of their
+domain the bottom-right squares appear correctly inside the associated
+scrollviews (the squares are square and do not touch the bottom/right
+edge of the scroll view).
 

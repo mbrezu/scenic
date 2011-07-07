@@ -105,7 +105,7 @@
 * TODO combo box;
 * DONE checkbox/radio box;
 * TODO themes/widget factories;
-* unit tests (e.g. for the grid layout)
+* TODO unit tests (e.g. for the grid layout)
   Make tests cheap (there is no code to be written, it's only
   necessary to redo the sequence of events and tell the test framework
   whether the test passed or failed). This way it doesn't matter so
@@ -158,7 +158,7 @@
    actually completely removed boxes
 ** DONE use the visibility to hide not needed scrollbars for scroll-view-auto
 *** DONE add options to scroll-view-auto to specify whether scroll
-*** TODO fix the bug: scroll-view-2:
+*** DONE fix the bug: scroll-view-2:
     horizontal scrollbars should appear if they become necessary after
     adding the vertical scrollbar; likewise, vertical scrollbars
     should appear if they are required after adding the horizontal
