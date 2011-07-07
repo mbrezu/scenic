@@ -48,22 +48,24 @@
 ;;; MOUSE-BUTTON-EVENT
 
 (defclass mouse-button-event (mouse-event)
-  ((mouse-button :accessor mouse-button :initarg :mouse-button :initform nil)))
+  ((mouse-button :accessor mouse-button :initarg :mouse-button :initform nil)
+   (button-state :accessor button-state :initarg :button-state :initform nil)))
 
-(gen-print-object mouse-button-event (mouse-x mouse-y modifiers mouse-button))
+(gen-print-object mouse-button-event (mouse-x mouse-y modifiers mouse-button button-state))
 
-(gen-serializer mouse-button-event (handled mouse-x mouse-y modifiers mouse-button))
+(gen-serializer mouse-button-event (handled mouse-x mouse-y modifiers mouse-button button-state))
 
 ;;; KEY-EVENT class.
 
 (defclass key-event (event)
   ((key :accessor key :initarg :key :initform nil)
    (modifiers :accessor modifiers :initarg :modifiers :initform nil)
-   (unicode :accessor unicode :initarg :unicode :initform nil)))
+   (unicode :accessor unicode :initarg :unicode :initform nil)
+   (key-state :accessor key-state :initarg :key-state :initform nil)))
 
-(gen-print-object key-event (key modifiers unicode))
+(gen-print-object key-event (key modifiers unicode key-state))
 
-(gen-serializer key-event (handled key modifiers unicode))
+(gen-serializer key-event (handled key modifiers unicode key-state))
 
 ;;; SCROLL-VIEW-MEASURED event.
 (defclass scroll-view-measured-event (event)

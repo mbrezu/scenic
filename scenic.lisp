@@ -184,77 +184,102 @@
     (reset-session-record)
     (render-scene scene t)
     (lispbuilder-sdl:enable-unicode)
-    (sdl:with-events ()
-      (:quit-event () t)
-      (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
-                           (declare (ignore state))
-                           (let ((event-arg (make-instance 'mouse-move-event
-                                                           :mouse-x x
-                                                           :mouse-y y
-                                                           :mouse-rel-x x-rel
-                                                           :mouse-rel-y y-rel
-                                                           :modifiers (translated-mods))))
-                             (record-event :mouse-motion-event event-arg)
-                             (scene-on-mouse-move scene event-arg)
-                             (render-scene scene)))
-      (:mouse-button-down-event (:button button :state state :x x :y y)
+    (let (event-queue)
+      (sdl:with-events ()
+        (:quit-event () t)
+        (:idle ()
+               (when event-queue
+                 (dolist (event-arg (nreverse event-queue))
+                   (typecase event-arg
+                     (mouse-move-event
+                      (record-event :mouse-motion-event event-arg)
+                      (scene-on-mouse-move scene event-arg)
+                      (render-scene scene))
+                     (mouse-button-event
+                      (cond
+                        ((eq (button-state event-arg) :down)
+                         (record-event :mouse-button-down-event event-arg)
+                         (scene-on-mouse-button scene
+                                                :mouse-button-down
+                                                event-arg)
+                         (render-scene scene))
+                        ((eq (button-state event-arg) :up)
+                         (record-event :mouse-button-up-event event-arg)
+                         (scene-on-mouse-button scene
+                                                :mouse-button-up
+                                                event-arg)
+                         (render-scene scene))))
+                     (key-event
+                      (cond
+                        ((eq (key-state event-arg) :down)
+                         (if (and (unicode event-arg) (char= (unicode event-arg) #\Esc))
+                             (sdl:push-quit-event))
+                         (record-event :key-down-event event-arg)
+                         (scene-on-key scene
+                                       :key-down
+                                       event-arg)
+                         (render-scene scene))
+                        ((eq (key-state event-arg) :up)
+                         (record-event :key-up-event event-arg)
+                         (scene-on-key scene
+                                       :key-up
+                                       event-arg)
+                         (render-scene scene)))))))
+               (setf event-queue nil))
+        (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
+                             (declare (ignore state))
+                             (let ((event-arg (make-instance 'mouse-move-event
+                                                             :mouse-x x
+                                                             :mouse-y y
+                                                             :mouse-rel-x x-rel
+                                                             :mouse-rel-y y-rel
+                                                             :modifiers (translated-mods))))
+                               (push event-arg event-queue)))
+        (:mouse-button-down-event (:button button :state state :x x :y y)
+                                  (declare (ignore state))
+                                  (let ((event-arg (make-instance
+                                                    'mouse-button-event
+                                                    :mouse-x x
+                                                    :mouse-y y
+                                                    :mouse-button button
+                                                    :button-state :down
+                                                    :modifiers (translated-mods))))
+                                    (push event-arg event-queue)))
+        (:mouse-button-up-event (:button button :state state :x x :y y)
                                 (declare (ignore state))
-                                (let ((event-arg (make-instance
-                                                  'mouse-button-event
-                                                  :mouse-x x
-                                                  :mouse-y y
-                                                  :mouse-button button
-                                                  :modifiers (translated-mods))))
-                                  (record-event :mouse-button-down-event event-arg)
-                                  (scene-on-mouse-button scene
-                                                         :mouse-button-down
-                                                         event-arg)
-                                  (render-scene scene)))
-      (:mouse-button-up-event (:button button :state state :x x :y y)
-                              (declare (ignore state))
-                              (let ((event-arg (make-instance 'mouse-button-event
-                                                              :mouse-x x
-                                                              :mouse-y y
-                                                              :mouse-button button
-                                                              :modifiers (translated-mods))))
-                                (record-event :mouse-button-up-event event-arg)
-                                (scene-on-mouse-button scene
-                                                       :mouse-button-up
-                                                       event-arg)
-                                (render-scene scene)))
-      (:key-down-event (:state state :scancode scancode :key key
+                                (let ((event-arg
+                                       (make-instance 'mouse-button-event
+                                                      :mouse-x x
+                                                      :mouse-y y
+                                                      :button-state :up
+                                                      :mouse-button button
+                                                      :modifiers (translated-mods))))
+                                  (push event-arg event-queue)))
+        (:key-down-event (:state state :scancode scancode :key key
+                                 :mod mod :mod-key mod-key :unicode unicode)
+                         (declare (ignore state scancode mod))
+                         (let ((event-arg (make-instance
+                                           'key-event
+                                           :key (sdl-translate-key key)
+                                           :modifiers (mapcar #'sdl-translate-key mod-key)
+                                           :key-state :down
+                                           :unicode (if (= 0 unicode)
+                                                        nil
+                                                        (code-char unicode)))))
+                           (push event-arg event-queue)))
+        (:key-up-event (:state state :scancode scancode :key key
                                :mod mod :mod-key mod-key :unicode unicode)
                        (declare (ignore state scancode mod))
                        (let ((event-arg (make-instance
                                          'key-event
                                          :key (sdl-translate-key key)
                                          :modifiers (mapcar #'sdl-translate-key mod-key)
+                                         :key-state :up
                                          :unicode (if (= 0 unicode)
                                                       nil
                                                       (code-char unicode)))))
-                         (when (sdl:key= key :sdl-key-escape)
-                           (sdl:push-quit-event))
-                         (record-event :key-down-event event-arg)
-                         (scene-on-key scene
-                                       :key-down
-                                       event-arg)
-                         (render-scene scene)))
-      (:key-up-event (:state state :scancode scancode :key key
-                             :mod mod :mod-key mod-key :unicode unicode)
-                     (declare (ignore state scancode mod))
-                     (let ((event-arg (make-instance
-                                       'key-event
-                                       :key (sdl-translate-key key)
-                                       :modifiers (mapcar #'sdl-translate-key mod-key)
-                                       :unicode (if (= 0 unicode)
-                                                    nil
-                                                    (code-char unicode)))))
-                       (record-event :key-up-event event-arg)
-                       (scene-on-key scene
-                                     :key-up
-                                     event-arg)
-                       (render-scene scene)))
-      (:video-expose-event () (sdl:update-display)))))
+                         (push event-arg event-queue)))
+        (:video-expose-event () (sdl:update-display))))))
 
-(defun sdl-translate-key (key)
-  (intern (subseq (symbol-name key) 8) "KEYWORD"))
+  (defun sdl-translate-key (key)
+    (intern (subseq (symbol-name key) 8) "KEYWORD"))

@@ -969,7 +969,7 @@
                                        (:row (:cell ,(filler)))
                                        (:row (:cell ,(black-border (make-child 350 279)))
                                              (:cell ,(filler))
-                                             (:cell ,(black-border (make-child 298 298))))))))))))
+                                             (:cell ,(black-border (make-child 279 279))))))))))))
 
 (defun run-all-tests ()
   (test-scene (background-clear))
