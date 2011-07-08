@@ -175,6 +175,45 @@
                          (lambda (elem) (eq (car elem) 'test-channel))))
          (run-compare test-replies (lambda () (emulate-event scene event)))))))
 
+(defun handle-events (scene event-queue)
+  (when event-queue
+    (dolist (event-arg (nreverse event-queue))
+      (typecase event-arg
+        (mouse-move-event
+         (record-event :mouse-motion-event event-arg)
+         (scene-on-mouse-move scene event-arg)
+         (render-scene scene))
+        (mouse-button-event
+         (cond
+           ((eq (button-state event-arg) :down)
+            (record-event :mouse-button-down-event event-arg)
+            (scene-on-mouse-button scene
+                                   :mouse-button-down
+                                   event-arg)
+            (render-scene scene))
+           ((eq (button-state event-arg) :up)
+            (record-event :mouse-button-up-event event-arg)
+            (scene-on-mouse-button scene
+                                   :mouse-button-up
+                                   event-arg)
+            (render-scene scene))))
+        (key-event
+         (cond
+           ((eq (key-state event-arg) :down)
+            (if (and (unicode event-arg) (char= (unicode event-arg) #\Esc))
+                (sdl:push-quit-event))
+            (record-event :key-down-event event-arg)
+            (scene-on-key scene
+                          :key-down
+                          event-arg)
+            (render-scene scene))
+           ((eq (key-state event-arg) :up)
+            (record-event :key-up-event event-arg)
+            (scene-on-key scene
+                          :key-up
+                          event-arg)
+            (render-scene scene))))))))
+
 (defun run-scene (scene)
   (sdl:with-init ()
     (sdl:window (width scene) (height scene))
@@ -188,43 +227,7 @@
       (sdl:with-events ()
         (:quit-event () t)
         (:idle ()
-               (when event-queue
-                 (dolist (event-arg (nreverse event-queue))
-                   (typecase event-arg
-                     (mouse-move-event
-                      (record-event :mouse-motion-event event-arg)
-                      (scene-on-mouse-move scene event-arg)
-                      (render-scene scene))
-                     (mouse-button-event
-                      (cond
-                        ((eq (button-state event-arg) :down)
-                         (record-event :mouse-button-down-event event-arg)
-                         (scene-on-mouse-button scene
-                                                :mouse-button-down
-                                                event-arg)
-                         (render-scene scene))
-                        ((eq (button-state event-arg) :up)
-                         (record-event :mouse-button-up-event event-arg)
-                         (scene-on-mouse-button scene
-                                                :mouse-button-up
-                                                event-arg)
-                         (render-scene scene))))
-                     (key-event
-                      (cond
-                        ((eq (key-state event-arg) :down)
-                         (if (and (unicode event-arg) (char= (unicode event-arg) #\Esc))
-                             (sdl:push-quit-event))
-                         (record-event :key-down-event event-arg)
-                         (scene-on-key scene
-                                       :key-down
-                                       event-arg)
-                         (render-scene scene))
-                        ((eq (key-state event-arg) :up)
-                         (record-event :key-up-event event-arg)
-                         (scene-on-key scene
-                                       :key-up
-                                       event-arg)
-                         (render-scene scene)))))))
+               (handle-events scene event-queue)
                (setf event-queue nil))
         (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
                              (declare (ignore state))
@@ -281,5 +284,5 @@
                          (push event-arg event-queue)))
         (:video-expose-event () (sdl:update-display))))))
 
-  (defun sdl-translate-key (key)
-    (intern (subseq (symbol-name key) 8) "KEYWORD"))
+(defun sdl-translate-key (key)
+  (intern (subseq (symbol-name key) 8) "KEYWORD"))

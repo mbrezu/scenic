@@ -177,6 +177,10 @@
 ** DONE see if processing all the events in the idle event
    works (we'd like to add some event filtering and stuff to avoid
    multiple layouts when the user is rapidly resizing the window)
+*** TODO render-scene only at end of the batch of events
+*** TODO record batches of events for testing;
+*** TODO use the same function for testing, but with a different render-scene
+    (make it a parameter)
 ** TODO remove the :down/:up parameters from scene-on-mouse-button, scene-on-key
    because all the necessary information is now inside the event arg
 ** TODO don't record the event type (also because we now
