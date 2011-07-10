@@ -174,7 +174,7 @@
           *tests*)
     (terpri)
     (if (= 0 failed-tests)
-        (format t "~a tests ran. ALL PASS!" total-tests)
-        (format t "~a tests ran. ~a tests failed. SOME FAILED!" total-tests failed-tests))
+        (format t "~a tests ran. ALL PASS!~%" total-tests)
+        (format t "~a tests ran. ~a tests failed. SOME FAILED!~%" total-tests failed-tests))
     nil))
 

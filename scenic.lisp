@@ -76,9 +76,10 @@
   (when (or *event-recording-enabled* *test-channel-enabled*)
     (setf *session-record* nil)))
 
-(defun record-event (event-kind event-arg)
+(defun record-events (event-queue)
   (when *event-recording-enabled*
-    (push (list* 'event event-kind (serialize event-arg)) *session-record*)))
+    (push (list* 'events (mapcar #'serialize event-queue))
+          *session-record*)))
 
 (defun test-channel-write (data)
   (when *test-channel-enabled*
@@ -117,16 +118,16 @@
        (scene-on-mouse-move scene event-arg)
        (test-render-scene scene))
       ((:mouse-button-down-event)
-       (scene-on-mouse-button scene :mouse-button-down event-arg)
+       (scene-on-mouse-button scene event-arg)
        (test-render-scene scene))
       ((:mouse-button-up-event)
-       (scene-on-mouse-button scene :mouse-button-up event-arg)
+       (scene-on-mouse-button scene event-arg)
        (test-render-scene scene))
       ((:key-down-event)
-       (scene-on-key scene :key-down event-arg)
+       (scene-on-key scene event-arg)
        (test-render-scene scene))
       ((:key-up-event)
-       (scene-on-key scene :key-up event-arg)
+       (scene-on-key scene event-arg)
        (test-render-scene scene)))))
 
 (defun get-first-diff (actual expected &optional (line 1))
@@ -149,7 +150,8 @@
                   (get-first-diff (reverse *session-record*) test-replies))))
              (reset-session-record)))
     (let ((*test-channel-enabled* t)
-          event
+          (*event-recording-enabled* nil)
+          event-queue
           test-replies)
 
       (setf (values test-replies session-record)
@@ -164,8 +166,8 @@
          (unless session-record
            (return-from replay-scene-session (values t nil)))
 
-         (setf event (car session-record))
-         (unless (eq 'event (car event))
+         (setf event-queue (car session-record))
+         (unless (eq 'events (car event-queue))
            (return-from replay-scene-session (values nil
                                                      "Expected event in session record.")))
 
@@ -173,51 +175,39 @@
          (setf (values test-replies session-record)
                (break-by session-record
                          (lambda (elem) (eq (car elem) 'test-channel))))
-         (run-compare test-replies (lambda () (emulate-event scene event)))))))
+         (run-compare test-replies
+                      (lambda () (handle-events scene event-queue #'test-render-scene)))))))
 
-(defun handle-events (scene event-queue)
+(defun handle-events (scene event-queue renderer)
   (when event-queue
-    (dolist (event-arg (nreverse event-queue))
+    (setf event-queue (nreverse event-queue))
+    (record-events event-queue)
+    (dolist (event-arg event-queue)
       (typecase event-arg
         (mouse-move-event
-         (record-event :mouse-motion-event event-arg)
-         (scene-on-mouse-move scene event-arg)
-         (render-scene scene))
+         (scene-on-mouse-move scene event-arg))
         (mouse-button-event
          (cond
            ((eq (button-state event-arg) :down)
-            (record-event :mouse-button-down-event event-arg)
             (scene-on-mouse-button scene
-                                   :mouse-button-down
-                                   event-arg)
-            (render-scene scene))
+                                   event-arg))
            ((eq (button-state event-arg) :up)
-            (record-event :mouse-button-up-event event-arg)
             (scene-on-mouse-button scene
-                                   :mouse-button-up
-                                   event-arg)
-            (render-scene scene))))
+                                   event-arg))))
         (key-event
          (cond
            ((eq (key-state event-arg) :down)
             (if (and (unicode event-arg) (char= (unicode event-arg) #\Esc))
                 (sdl:push-quit-event))
-            (record-event :key-down-event event-arg)
-            (scene-on-key scene
-                          :key-down
-                          event-arg)
-            (render-scene scene))
+            (scene-on-key scene event-arg))
            ((eq (key-state event-arg) :up)
-            (record-event :key-up-event event-arg)
-            (scene-on-key scene
-                          :key-up
-                          event-arg)
-            (render-scene scene))))))))
+            (scene-on-key scene event-arg))))))
+    (funcall renderer scene)))
 
 (defun run-scene (scene)
   (sdl:with-init ()
     (sdl:window (width scene) (height scene))
-    (sdl-cffi:sdl-enable-key-repeat 50 50)
+    (sdl-cffi:sdl-enable-key-repeat 80 80)
     (setf (sdl:frame-rate) 100)
     (calculate-focusables scene)
     (reset-session-record)
@@ -227,61 +217,60 @@
       (sdl:with-events ()
         (:quit-event () t)
         (:idle ()
-               (handle-events scene event-queue)
+               (handle-events scene event-queue #'render-scene)
                (setf event-queue nil))
         (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
                              (declare (ignore state))
-                             (let ((event-arg (make-instance 'mouse-move-event
-                                                             :mouse-x x
-                                                             :mouse-y y
-                                                             :mouse-rel-x x-rel
-                                                             :mouse-rel-y y-rel
-                                                             :modifiers (translated-mods))))
-                               (push event-arg event-queue)))
+                             (push (make-instance 'mouse-move-event
+                                                  :mouse-x x
+                                                  :mouse-y y
+                                                  :mouse-rel-x x-rel
+                                                  :mouse-rel-y y-rel
+                                                  :modifiers (translated-mods))
+                                   event-queue))
         (:mouse-button-down-event (:button button :state state :x x :y y)
                                   (declare (ignore state))
-                                  (let ((event-arg (make-instance
-                                                    'mouse-button-event
-                                                    :mouse-x x
-                                                    :mouse-y y
-                                                    :mouse-button button
-                                                    :button-state :down
-                                                    :modifiers (translated-mods))))
-                                    (push event-arg event-queue)))
+                                  (push (make-instance
+                                         'mouse-button-event
+                                         :mouse-x x
+                                         :mouse-y y
+                                         :mouse-button button
+                                         :button-state :down
+                                         :modifiers (translated-mods))
+                                        event-queue))
         (:mouse-button-up-event (:button button :state state :x x :y y)
                                 (declare (ignore state))
-                                (let ((event-arg
-                                       (make-instance 'mouse-button-event
-                                                      :mouse-x x
-                                                      :mouse-y y
-                                                      :button-state :up
-                                                      :mouse-button button
-                                                      :modifiers (translated-mods))))
-                                  (push event-arg event-queue)))
+                                (push (make-instance 'mouse-button-event
+                                                     :mouse-x x
+                                                     :mouse-y y
+                                                     :button-state :up
+                                                     :mouse-button button
+                                                     :modifiers (translated-mods))
+                                      event-queue))
         (:key-down-event (:state state :scancode scancode :key key
                                  :mod mod :mod-key mod-key :unicode unicode)
                          (declare (ignore state scancode mod))
-                         (let ((event-arg (make-instance
-                                           'key-event
-                                           :key (sdl-translate-key key)
-                                           :modifiers (mapcar #'sdl-translate-key mod-key)
-                                           :key-state :down
-                                           :unicode (if (= 0 unicode)
-                                                        nil
-                                                        (code-char unicode)))))
-                           (push event-arg event-queue)))
+                         (push (make-instance
+                                'key-event
+                                :key (sdl-translate-key key)
+                                :modifiers (mapcar #'sdl-translate-key mod-key)
+                                :key-state :down
+                                :unicode (if (= 0 unicode)
+                                             nil
+                                             (code-char unicode)))
+                               event-queue))
         (:key-up-event (:state state :scancode scancode :key key
                                :mod mod :mod-key mod-key :unicode unicode)
                        (declare (ignore state scancode mod))
-                       (let ((event-arg (make-instance
-                                         'key-event
-                                         :key (sdl-translate-key key)
-                                         :modifiers (mapcar #'sdl-translate-key mod-key)
-                                         :key-state :up
-                                         :unicode (if (= 0 unicode)
-                                                      nil
-                                                      (code-char unicode)))))
-                         (push event-arg event-queue)))
+                       (push (make-instance
+                              'key-event
+                              :key (sdl-translate-key key)
+                              :modifiers (mapcar #'sdl-translate-key mod-key)
+                              :key-state :up
+                              :unicode (if (= 0 unicode)
+                                           nil
+                                           (code-char unicode)))
+                             event-queue))
         (:video-expose-event () (sdl:update-display))))))
 
 (defun sdl-translate-key (key)

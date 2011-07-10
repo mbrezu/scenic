@@ -293,10 +293,13 @@
     (setf (handled mouse-event) nil)
     (scene-handle-mouse-captors scene :mouse-move mouse-event)))
 
-(defun scene-on-mouse-button (scene event mouse-event)
+(defun scene-on-mouse-button (scene  mouse-event)
   (let ((widget-chain (get-widget-chain (list (hit-test (widget scene)
                                                         (mouse-x mouse-event)
-                                                        (mouse-y mouse-event))))))
+                                                        (mouse-y mouse-event)))))
+        (event (if (eq (button-state mouse-event) :down)
+                   :mouse-button-down
+                   :mouse-button-up)))
     (cascade-then-bubble widget-chain event mouse-event)
     (scene-handle-mouse-captors scene event mouse-event)))
 
@@ -361,9 +364,12 @@
              t)
             (t (shifted (cdr modifiers))))))
 
-(defun scene-on-key (scene event-kind key-event)
+(defun scene-on-key (scene key-event)
   (aif (focused-widget scene)
-       (let ((widget-chain (get-widget-chain (list it))))
+       (let ((widget-chain (get-widget-chain (list it)))
+             (event-kind (if (eq (key-state key-event) :down)
+                             :key-down
+                             :key-up)))
          (cascade-then-bubble widget-chain event-kind key-event)
          (when (not (handled key-event))
            (when (and (eq :key-down event-kind)
