@@ -110,26 +110,6 @@
       (paint-scene scene)
       (cl-cairo2:destroy cl-cairo2:*context*))))
 
-(defun emulate-event (scene event)
-  (let ((event-kind (second event))
-        (event-arg (apply #'make-instance (cddr event))))
-    (ecase event-kind
-      ((:mouse-motion-event)
-       (scene-on-mouse-move scene event-arg)
-       (test-render-scene scene))
-      ((:mouse-button-down-event)
-       (scene-on-mouse-button scene event-arg)
-       (test-render-scene scene))
-      ((:mouse-button-up-event)
-       (scene-on-mouse-button scene event-arg)
-       (test-render-scene scene))
-      ((:key-down-event)
-       (scene-on-key scene event-arg)
-       (test-render-scene scene))
-      ((:key-up-event)
-       (scene-on-key scene event-arg)
-       (test-render-scene scene)))))
-
 (defun get-first-diff (actual expected &optional (line 1))
   (cond ((and (null actual) (null expected))
          nil)
@@ -166,10 +146,13 @@
          (unless session-record
            (return-from replay-scene-session (values t nil)))
 
-         (setf event-queue (car session-record))
-         (unless (eq 'events (car event-queue))
+         (unless (eq 'events (caar session-record))
            (return-from replay-scene-session (values nil
                                                      "Expected event in session record.")))
+         (setf event-queue (mapcar (lambda (args)
+                                     (apply #'make-instance args))
+                                   (cdar session-record)))
+
 
          (setf session-record (cdr session-record))
          (setf (values test-replies session-record)
@@ -180,10 +163,9 @@
 
 (defun handle-events (scene event-queue renderer)
   (when event-queue
-    (setf event-queue (nreverse event-queue))
     (record-events event-queue)
     (dolist (event-arg event-queue)
-      (typecase event-arg
+      (etypecase event-arg
         (mouse-move-event
          (scene-on-mouse-move scene event-arg))
         (mouse-button-event
@@ -215,7 +197,7 @@
       (sdl:with-events ()
         (:quit-event () t)
         (:idle ()
-               (handle-events scene event-queue #'render-scene)
+               (handle-events scene (nreverse event-queue) #'render-scene)
                (setf event-queue nil))
         (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
                              (declare (ignore state))

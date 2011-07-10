@@ -160,32 +160,6 @@
                                        (scenic:max-value object)))))
     scn))
 
-(defun scrollbar ()
-  (let (scn horizontal-scrollbar vertical-scrollbar)
-    (setf scn (scene *scene-width* *scene-height*
-                     (stack
-                      (background (list 1.0 1.0 1.0)
-                                  (filler))
-                      (sizer (setf horizontal-scrollbar
-                                   (vertical-scrollbar 0 50 30))
-                             :max-height 200
-                             :max-width 19))))
-    (scenic:add-event-handler horizontal-scrollbar :position-changed nil
-                              (lambda (object event)
-                                (declare (ignore event))
-                                (when *manual-test-run*
-                                  (print-all t
-                                             (scenic:current-min-position object)
-                                             (scenic:page-size object)
-                                             (scenic:min-value object)
-                                             (scenic:max-value object)))
-                                (scenic:test-channel-write
-                                 (list (scenic:current-min-position object)
-                                       (scenic:page-size object)
-                                       (scenic:min-value object)
-                                       (scenic:max-value object)))))
-    scn))
-
 (defun scrollbars ()
   (let (scn horizontal-scrollbar vertical-scrollbar)
     (setf scn (scene *scene-width* *scene-height*
