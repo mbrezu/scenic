@@ -12,7 +12,7 @@
 (defpackage :scenic
   (:use :cl :scenic-utils)
   (:export run-scene
-           eventful add-event-handler on-event
+           eventful add-event-handler remove-event-handler on-event
            widget measured-width measured-height visible
            name auto-name
            set-measured
@@ -29,7 +29,7 @@
            mouse-event mouse-x mouse-y mouse-button modifiers mouse-move-event
            mouse-rel-x mouse-rel-y mouse-button-event
            widget-list
-           key-event key
+           key-event key unicode
            scene invalidate-scene
            filler
            textattr

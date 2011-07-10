@@ -6,7 +6,15 @@
 (defun test-scene (scene &optional record)
   (let ((scenic:*event-recording-enabled* record)
         (scenic:*test-channel-enabled* record))
-    (scenic:run-scene scene))
+    (labels ((event-handler (o e)
+               (declare (ignore o))
+               (when (and (scenic:unicode e)
+                          (char= (scenic:unicode e) #\Esc))
+                 (print-all t "Quitting~%")
+                 (sdl:push-quit-event))))
+      (scenic:add-event-handler (scenic:widget scene) :key-down :cascade #'event-handler)
+      (scenic:run-scene scene)
+      (scenic:remove-event-handler (scenic:widget scene) :key-down :cascade #'event-handler)))
   (when record
     (reverse scenic:*session-record*)))
 

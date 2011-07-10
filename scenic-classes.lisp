@@ -35,6 +35,15 @@
         (let ((fresh-handler-list (list (cons handler propagation))))
           (push (cons event fresh-handler-list) (event-handlers object))))))
 
+(defmethod remove-event-handler ((object eventful) event propagation handler)
+  (let ((handler-list (assoc event (event-handlers object))))
+    (when handler-list
+      (setf (cdr handler-list)
+            (remove-if (lambda (handler-cons)
+                         (and (eq handler (car handler-cons))
+                              (eq propagation (cdr handler-cons))))
+                       (cdr handler-list))))))
+
 (defmethod on-event ((object eventful) event event-arg propagation)
   (dolist (handler (cdr (assoc event (event-handlers object))))
     (when (or (null propagation) (eq (cdr handler) propagation))
