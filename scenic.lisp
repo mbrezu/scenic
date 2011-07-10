@@ -197,8 +197,6 @@
         (key-event
          (cond
            ((eq (key-state event-arg) :down)
-            (if (and (unicode event-arg) (char= (unicode event-arg) #\Esc))
-                (sdl:push-quit-event))
             (scene-on-key scene event-arg))
            ((eq (key-state event-arg) :up)
             (scene-on-key scene event-arg))))))

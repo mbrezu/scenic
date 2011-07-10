@@ -173,7 +173,7 @@
 ** TODO glass with opacity 0 is a special case: usable for popus/menus/dialogs
 ** TODO glass with 0 < opacity < 1 is a special case which
    invalidates the widgets it intersects and are *underneath* it.
-* TODO main loop
+* DONE main loop
 ** DONE see if processing all the events in the idle event
    works (we'd like to add some event filtering and stuff to avoid
    multiple layouts when the user is rapidly resizing the window)
@@ -186,7 +186,7 @@
 ** DONE don't record the event type (also because we now
    have all the information in the events)
 *** DONE this change implies redoing all the tests (it breaks the gzipped archives)
-** TODO special handling for ESC should be moved to test-scene
+** DONE special handling for ESC should be moved to test-scene
    (it should add an event handler that quits when ESC is pressed)
    - it should also remove that handler after the test is done (which
      means adding remove-event-handler)

@@ -10,7 +10,6 @@
                (declare (ignore o))
                (when (and (scenic:unicode e)
                           (char= (scenic:unicode e) #\Esc))
-                 (print-all t "Quitting~%")
                  (sdl:push-quit-event))))
       (scenic:add-event-handler (scenic:widget scene) :key-down :cascade #'event-handler)
       (scenic:run-scene scene)
