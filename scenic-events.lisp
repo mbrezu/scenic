@@ -79,3 +79,12 @@
 
 (gen-serializer scroll-view-measured-event
                 (handled inner-width inner-height outer-width outer-height))
+
+
+;;; TASK-EXECUTED event.
+(defclass task-executed-event (event)
+  ((task-number :accessor task-number :initarg :task-number :initform nil)))
+
+(gen-print-object task-executed-event (task-number))
+
+(gen-serializer task-executed-event (handled task-number))

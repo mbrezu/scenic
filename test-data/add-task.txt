@@ -1,0 +1,28 @@
+
+-*- markdown -*-
+
+# Name: Add Task
+
+## Description
+
+A system of tasks is used to execute UI code on the UI thread (so we
+don't need to bother making all the scenic code thread safe). Since
+tasks can be added from other threads, they can be added in various
+orders. To make sure the test is replayed in the same order, a counter
+is used to make the running order of tasks deterministic (NOTE: this
+counting scheme also needs to identify threads in the 'task number',
+this is not done yet - I need to allocate threads myself *on the UI
+thread* so the numbering is deterministic).
+
+## Test Sequence
+
+Run the test. Push the push button, "hello, world" should be
+displayed. Push the toggle button, and then push the push button
+again. "hello, world" should be displayed again after a delay of
+approximately one second.
+
+## Pass/Fail Criteria
+
+"hello, world" should appear twice, and the delay before the second
+"hello, world" should be about 1 second.
+

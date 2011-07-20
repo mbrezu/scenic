@@ -952,6 +952,40 @@
                                              (:cell ,(filler))
                                              (:cell ,(black-border (make-child 279 279))))))))))))
 
+(defun add-task ()
+  (let (scn push-button toggle-button)
+    (setf scn (scene *scene-width* *scene-height*
+                     (stack
+                      (background (list 1.0 1.0 1.0)
+                                  (filler))
+                      (uniform-padding
+                       5
+                       (vertical-box
+                        0
+                        '(:auto)
+                        (list
+                         (horizontal-box 10
+                                         '(:auto :auto)
+                                         (list
+                                          (border (list 0 0 0) 1
+                                                  (setf push-button
+                                                        (button-text "Hello, world")))
+                                          (border
+                                           (list 0 0 0) 1
+                                           (setf toggle-button
+                                                 (toggle "Delayed one second")))))))))))
+    (scenic:add-event-handler push-button :click nil
+                              (lambda (object event)
+                                (declare (ignore object event))
+                                (if (scenic:state toggle-button)
+                                    (scenic:add-task (lambda ()
+                                                       (when *manual-test-run*
+                                                         (format t "hello, world~%")))
+                                                     "delayed greeting" 1000)
+                                    (when *manual-test-run*
+                                      (format t "hello, world~%")))))
+    scn))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -982,4 +1016,5 @@
   (test-scene (checkbox-1))
   (test-scene (radio-button-1))
   (test-scene (simple-boxes))
-  (test-scene (scroll-view-2)))
+  (test-scene (scroll-view-2))
+  (test-scene (add-task)))

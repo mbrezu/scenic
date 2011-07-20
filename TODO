@@ -7,7 +7,7 @@
    seems that I need to duplicate the initforms as defaults to &key
    arguments of the helper function. Is there a way around this?
 ** There's class textattr, inherited by both label and textbox.
-   How can I copy the textattr slots from label to
+   How can I copy the textattr slots from label to textbox?
 
 * DONE layout options for boxes
 ** DONE add layout options
@@ -59,6 +59,7 @@
    the coordinates should be adjusted to match the ones in the
    layout-... slots of the widgets.
 ** TODO test with nested scroll-views
+*** TODO this could mean textboxes inside a scroll view
 * DONE fix the scrollbar bug;
   When dragging, it is always assumed we are dragging the middle of
   the walker; we should drag according to the position of the mouse
@@ -148,9 +149,10 @@
   measuring code, but it will have to do for now.
 * TODO interface with bordeaux-threads
 ** TODO animations? (with threads or simply with the idle event)
-*** TODO use a thread with SLEEP to schedule animation events
-** TODO so we can serialize thread based scenarios for automated testing
-* TODO visibility for widgets
+*** DONE use a thread with SLEEP to schedule animation events
+** DONE so we can serialize thread based scenarios for automated testing
+** TODO thread allocation scheme
+* DONE visibility for widgets
   - t or nil, if t the widget is measured and painted, if nil the
     widget has dimensions 0,0 and is not painted
 ** DONE update the grid to allow priority for :auto columns and rows layout options
@@ -165,8 +167,8 @@
     scrollbars.
 * DONE BUG: all radio-buttons in a group can be unchecked
   (at least one radio button must be turned on)
-* TODO add again the simple box layout (horizontal and vertical)
-** TODO write some tests for simple boxes
+* DONE add again the simple box layout (horizontal and vertical)
+** DONE write some tests for simple boxes
 * TODO add a dock panel layout
 ** TODO write tests for the dock panel layout
 * TODO Glass

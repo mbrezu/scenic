@@ -65,7 +65,7 @@
            read-gzipped-resource
            checkbox
            radio-button
-           box space-between-cells))
+           box space-between-cells add-task))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)

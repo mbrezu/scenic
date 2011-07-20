@@ -127,7 +127,11 @@
             (make-auto-test :name "scroll-view-2"
                             :scene-function #'scroll-view-2
                             :scene-session-file "test-data/scroll-view-2.gz"
-                            :description-file "test-data/scroll-view-2.txt")))
+                            :description-file "test-data/scroll-view-2.txt")
+            (make-auto-test :name "add-task"
+                            :scene-function #'add-task
+                            :scene-session-file "test-data/add-task.gz"
+                            :description-file "test-data/add-task.txt")))
 
 (defun find-test (name)
   (find name *tests* :test #'string-equal :key #'auto-test-name))

@@ -123,7 +123,7 @@
                                                    (mapcar (lambda (slot)
                                                              (format nil "~a:~~a" slot))
                                                            slots))
-                                          ,@(mapcar (lambda (slot) `(,slot object))
+                                          ,@(mapcar (lambda (slot) `(slot-value object ',slot))
                                                     slots)))
                    stream)))
 
@@ -132,7 +132,7 @@
     (error "Class should be a symbol!"))
   `(defmethod scenic:serialize ((object ,class))
      (list ',class
-           ,@(mapcan (lambda (slot) `(,(make-keyword slot) (,slot object)))
+           ,@(mapcan (lambda (slot) `(,(make-keyword slot) (slot-value object ',slot)))
                      slots))))
 
 (defun yes-no-query (prompt)

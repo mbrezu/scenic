@@ -134,6 +134,8 @@
           event-queue
           test-replies)
 
+      (reset-tasks)
+
       (setf (values test-replies session-record)
             (break-by session-record
                       (lambda (elem) (eq (car elem) 'test-channel))))
@@ -152,8 +154,6 @@
          (setf event-queue (mapcar (lambda (args)
                                      (apply #'make-instance args))
                                    (cdar session-record)))
-
-
          (setf session-record (cdr session-record))
          (setf (values test-replies session-record)
                (break-by session-record
@@ -181,8 +181,79 @@
            ((eq (key-state event-arg) :down)
             (scene-on-key scene event-arg))
            ((eq (key-state event-arg) :up)
-            (scene-on-key scene event-arg))))))
+            (scene-on-key scene event-arg))))
+        (task-executed-event
+         (pick-task (task-number event-arg) 5000))))
     (funcall renderer scene)))
+
+(defvar *task-queue-lock*)
+(setf *task-queue-lock* (bt:make-recursive-lock))
+
+(defvar *task-list*)
+(setf *task-list* nil)
+
+(defvar *task-counter*)
+(setf *task-counter* 0)
+
+(defclass task ()
+  ((number :accessor task-number :initarg :number :initform nil)
+   (name :accessor task-name :initarg :name :initform nil)
+   (code :accessor task-code :initarg :code :initform nil)
+   (time :accessor task-time :initarg :time :initform nil)))
+
+(gen-print-object task (number name code time))
+
+(defun pick-task (task-number timeout-ms)
+  (labels ((get-task (tasks)
+             (values (find-if (lambda (task) (= (task-number task) task-number))
+                              tasks)
+                     (remove-if (lambda (task) (= (task-number task) task-number)) tasks))))
+    (let ((start-time (get-internal-real-time))
+          (timeout-itu (* (/ timeout-ms 1000) internal-time-units-per-second))
+          task)
+      (loop
+         (bt:with-recursive-lock-held (*task-queue-lock*)
+           (setf (values task *task-list*) (get-task *task-list*)))
+         (cond (task (funcall (task-code task))
+                     (return))
+               (t (sleep 0.01)
+                  (when (> (get-internal-real-time)
+                           (+ start-time timeout-itu))
+                    (error "Timed out waiting for task to be put in queue."))))))))
+
+(defun add-task (task-code &optional task-name after-ms)
+  (labels ((add-sorted (task task-list)
+             (if (null task-list)
+                 (list task)
+                 (if (< (task-time task) (task-time (car task-list)))
+                     (cons task task-list)
+                     (cons (car task-list) (add-sorted task (cdr task-list)))))))
+    (bt:with-recursive-lock-held (*task-queue-lock*)
+      (let ((task (make-instance 'task
+                                 :number (incf *task-counter*)
+                                 :name task-name
+                                 :code task-code
+                                 :time (+ (get-internal-real-time)
+                                          (* (/ after-ms 1000)
+                                             internal-time-units-per-second)))))
+        (setf *task-list* (add-sorted task *task-list*))))))
+
+(defun get-tasks-to-execute ()
+  (labels ((split-time (tasks time &optional acc)
+             (cond ((null tasks)
+                    (values tasks (reverse acc)))
+                   ((< (task-time (car tasks)) time)
+                    (split-time (cdr tasks) time (cons (car tasks) acc)))
+                   (t (values tasks (reverse acc))))))
+    (bt:with-recursive-lock-held (*task-queue-lock*)
+      (let ((time (get-internal-real-time))
+            tasks)
+        (setf (values *task-list* tasks) (split-time *task-list* time))
+        tasks))))
+
+(defun reset-tasks ()
+  (setf *task-list* nil)
+  (setf *task-counter* 0))
 
 (defun run-scene (scene)
   (sdl:with-init ()
@@ -193,12 +264,17 @@
     (reset-session-record)
     (render-scene scene t)
     (lispbuilder-sdl:enable-unicode)
+    (reset-tasks)
     (let (event-queue)
       (sdl:with-events ()
         (:quit-event () t)
         (:idle ()
                (handle-events scene (nreverse event-queue) #'render-scene)
-               (setf event-queue nil))
+               (setf event-queue nil)
+               (dolist (task (get-tasks-to-execute))
+                 (record-events (list (make-instance 'task-executed-event
+                                                     :task-number (task-number task))))
+                 (funcall (task-code task))))
         (:mouse-motion-event (:state state :x x :y y :x-rel x-rel :y-rel y-rel)
                              (declare (ignore state))
                              (push (make-instance 'mouse-move-event

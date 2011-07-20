@@ -3,7 +3,8 @@
   :serial t
   :depends-on (#:lispbuilder-sdl
                #:cl-cairo2
-               #:gzip-stream)
+               #:gzip-stream
+               #:bordeaux-threads)
   :components ((:file "packages")
                (:file "scenic-utils")
                (:file "scenic-resources")
