@@ -125,12 +125,9 @@
              (reset-session-record)
              (funcall action)
              (when (not (equal (reverse *session-record*) test-replies))
-               ;; (print-all t (reverse *session-record*)
-               ;;            test-replies)
                (return-from replay-scene-session
-                 (values
-                  nil
-                  (get-first-diff (reverse *session-record*) test-replies))))
+                 (values nil
+                         (get-first-diff (reverse *session-record*) test-replies))))
              (reset-session-record)))
     (let ((*test-channel-enabled* t)
           (*event-recording-enabled* nil)
