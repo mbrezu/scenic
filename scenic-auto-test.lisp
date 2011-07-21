@@ -131,7 +131,11 @@
             (make-auto-test :name "add-task"
                             :scene-function #'add-task
                             :scene-session-file "test-data/add-task.gz"
-                            :description-file "test-data/add-task.txt")))
+                            :description-file "test-data/add-task.txt")
+            (make-auto-test :name "add-task-with-thread"
+                            :scene-function #'add-task-with-thread
+                            :scene-session-file "test-data/add-task-with-thread.gz"
+                            :description-file "test-data/add-task-with-thread.txt")))
 
 (defun find-test (name)
   (find name *tests* :test #'string-equal :key #'auto-test-name))
@@ -156,13 +160,19 @@
 (defun run-auto-test (test)
   (let* ((*manual-test-run* nil)
          (scenic::*text-info-auto-test* t))
-    (let ((session-record
-           (with-input-from-string
-               (str (scenic:read-gzipped-resource (auto-test-scene-session-file test)))
-             (read str))))
-      (scenic:replay-scene-session
-       (funcall (auto-test-scene-function test))
-       session-record))))
+    (handler-case
+        (let ((session-record
+               (with-input-from-string
+                   (str (scenic:read-gzipped-resource (auto-test-scene-session-file test)))
+                 (read str))))
+          (scenic:replay-scene-session
+           (funcall (auto-test-scene-function test))
+           session-record))
+      (simple-condition (ex) (values nil
+                                     (apply #'format nil
+                                            (simple-condition-format-control ex)
+                                            (simple-condition-format-arguments ex))))
+      (t () (values nil (trivial-backtrace:backtrace-string))))))
 
 (defun run-auto-tests ()
   (let ((total-tests 0)
@@ -178,7 +188,7 @@
           *tests*)
     (terpri)
     (if (= 0 failed-tests)
-        (format t "~a tests ran. ALL PASS!~%" total-tests)
-        (format t "~a tests ran. ~a tests failed. SOME FAILED!~%" total-tests failed-tests))
+        (format t "~a tests ran. ALL TESTS PASSED!~%" total-tests)
+        (format t "~a tests ran. ~a tests failed. SOME TESTS FAILED!~%" total-tests failed-tests))
     nil))
 

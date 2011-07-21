@@ -152,6 +152,7 @@
 *** DONE use a thread with SLEEP to schedule animation events
 ** DONE so we can serialize thread based scenarios for automated testing
 ** TODO thread allocation scheme
+*** TODO must be on the UI thread to allocate new threads
 * DONE visibility for widgets
   - t or nil, if t the widget is measured and painted, if nil the
     widget has dimensions 0,0 and is not painted

@@ -82,6 +82,7 @@
           *session-record*)))
 
 (defun test-channel-write (data)
+  (check-ui-thread)
   (when *test-channel-enabled*
     (push (cons 'test-channel data) *session-record*)))
 
@@ -114,7 +115,7 @@
   (cond ((and (null actual) (null expected))
          nil)
         ((null actual) (list "Expected output has extra item." line (car expected)))
-        ((null expected) (list "Actual outptu has extra item." line (car actual)))
+        ((null expected) (list "Actual output has extra item." line (car actual)))
         ((equal (car actual) (car expected))
          (get-first-diff (cdr actual) (cdr expected) (1+ line)))
         (t (list "Expected and actual items differ." line (car expected) (car actual)))))
@@ -124,6 +125,8 @@
              (reset-session-record)
              (funcall action)
              (when (not (equal (reverse *session-record*) test-replies))
+               ;; (print-all t (reverse *session-record*)
+               ;;            test-replies)
                (return-from replay-scene-session
                  (values
                   nil
@@ -134,15 +137,12 @@
           event-queue
           test-replies)
 
-      (reset-tasks)
-
       (setf (values test-replies session-record)
             (break-by session-record
                       (lambda (elem) (eq (car elem) 'test-channel))))
 
       (run-compare test-replies (lambda ()
-                                  (calculate-focusables scene)
-                                  (test-render-scene scene t)))
+                                  (init-scene scene #'test-render-scene)))
 
       (loop
          (unless session-record
@@ -161,30 +161,32 @@
          (run-compare test-replies
                       (lambda () (handle-events scene event-queue #'test-render-scene)))))))
 
+(defvar *replay-task-timeout-ms* 5000)
+
 (defun handle-events (scene event-queue renderer)
   (when event-queue
     (record-events event-queue)
     (dolist (event-arg event-queue)
       (etypecase event-arg
         (mouse-move-event
-         (scene-on-mouse-move scene event-arg))
+         (scene-on-mouse-move scene event-arg)
+         (funcall renderer scene))
         (mouse-button-event
          (cond
            ((eq (button-state event-arg) :down)
-            (scene-on-mouse-button scene
-                                   event-arg))
+            (scene-on-mouse-button scene event-arg))
            ((eq (button-state event-arg) :up)
-            (scene-on-mouse-button scene
-                                   event-arg))))
+            (scene-on-mouse-button scene event-arg)))
+         (funcall renderer scene))
         (key-event
          (cond
            ((eq (key-state event-arg) :down)
             (scene-on-key scene event-arg))
            ((eq (key-state event-arg) :up)
-            (scene-on-key scene event-arg))))
+            (scene-on-key scene event-arg)))
+         (funcall renderer scene))
         (task-executed-event
-         (pick-task (task-number event-arg) 5000))))
-    (funcall renderer scene)))
+         (pick-task (task-number event-arg) *replay-task-timeout-ms*))))))
 
 (defvar *task-queue-lock*)
 (setf *task-queue-lock* (bt:make-recursive-lock))
@@ -192,8 +194,24 @@
 (defvar *task-list*)
 (setf *task-list* nil)
 
-(defvar *task-counter*)
-(setf *task-counter* 0)
+(defvar *task-counters-per-thread*)
+(setf *task-counters-per-thread* nil)
+
+(defvar *ui-thread*)
+
+(defvar *thread-counter*)
+(setf *thread-counter* 0)
+
+(defun check-ui-thread ()
+  (unless (on-ui-thread)
+    (error "Not on UI thread")))
+
+(defun on-ui-thread ()
+  (eq (bt:current-thread) *ui-thread*))
+
+(defun allocate-thread (code)
+  (check-ui-thread)
+  (bt:make-thread code :name (format nil "scenic-thread-~a" (incf *thread-counter*))))
 
 (defclass task ()
   ((number :accessor task-number :initarg :number :initform nil)
@@ -205,9 +223,9 @@
 
 (defun pick-task (task-number timeout-ms)
   (labels ((get-task (tasks)
-             (values (find-if (lambda (task) (= (task-number task) task-number))
+             (values (find-if (lambda (task) (string= (task-number task) task-number))
                               tasks)
-                     (remove-if (lambda (task) (= (task-number task) task-number)) tasks))))
+                     (remove-if (lambda (task) (string= (task-number task) task-number)) tasks))))
     (let ((start-time (get-internal-real-time))
           (timeout-itu (* (/ timeout-ms 1000) internal-time-units-per-second))
           task)
@@ -216,12 +234,12 @@
            (setf (values task *task-list*) (get-task *task-list*)))
          (cond (task (funcall (task-code task))
                      (return))
-               (t (sleep 0.01)
+               (t (sleep 0.05)
                   (when (> (get-internal-real-time)
                            (+ start-time timeout-itu))
                     (error "Timed out waiting for task to be put in queue."))))))))
 
-(defun add-task (task-code &optional task-name after-ms)
+(defun add-task (task-code &optional task-name (after-ms 0))
   (labels ((add-sorted (task task-list)
              (if (null task-list)
                  (list task)
@@ -229,14 +247,29 @@
                      (cons task task-list)
                      (cons (car task-list) (add-sorted task (cdr task-list)))))))
     (bt:with-recursive-lock-held (*task-queue-lock*)
+      (when (null (gethash (bt:current-thread) *task-counters-per-thread*))
+        (setf (gethash (bt:current-thread) *task-counters-per-thread*) 0))
       (let ((task (make-instance 'task
-                                 :number (incf *task-counter*)
+                                 :number (format nil "~a-~a"
+                                                 (if (on-ui-thread)
+                                                     "0"
+                                                     (bt:thread-name (bt:current-thread)))
+                                                 (incf (gethash (bt:current-thread)
+                                                                *task-counters-per-thread*)))
                                  :name task-name
                                  :code task-code
                                  :time (+ (get-internal-real-time)
                                           (* (/ after-ms 1000)
                                              internal-time-units-per-second)))))
         (setf *task-list* (add-sorted task *task-list*))))))
+
+(defmacro as-ui-task (&body body)
+  `(add-task (lambda ()
+               ,@body)))
+
+(defmacro as-delayed-ui-task (delay-ms &body body)
+  `(add-task (lambda ()
+               ,@body) "" ,delay-ms))
 
 (defun get-tasks-to-execute ()
   (labels ((split-time (tasks time &optional acc)
@@ -253,18 +286,25 @@
 
 (defun reset-tasks ()
   (setf *task-list* nil)
-  (setf *task-counter* 0))
+  (setf *task-counters-per-thread* (make-hash-table))
+  (setf *thread-counter* 0)
+  (setf *ui-thread* (bt:current-thread)))
+
+(defun init-scene (scene renderer)
+  (calculate-focusables scene)
+  (reset-session-record)
+  (reset-tasks)
+  (funcall renderer scene t)
+  (when (on-scene-init scene)
+    (funcall (on-scene-init scene))))
 
 (defun run-scene (scene)
   (sdl:with-init ()
     (sdl:window (width scene) (height scene))
     (sdl-cffi:sdl-enable-key-repeat 80 80)
     (setf (sdl:frame-rate) 100)
-    (calculate-focusables scene)
-    (reset-session-record)
-    (render-scene scene t)
+    (init-scene scene #'render-scene)
     (lispbuilder-sdl:enable-unicode)
-    (reset-tasks)
     (let (event-queue)
       (sdl:with-events ()
         (:quit-event () t)

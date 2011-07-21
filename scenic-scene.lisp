@@ -17,7 +17,8 @@
    (rectangle-to-redraw :accessor rectangle-to-redraw :initarg :rectangle-to-redraw :initform nil)
    (sdl-surface :accessor sdl-surface :initarg :sdl-surface :initform nil)
    (focusables :accessor focusables :initarg :focusables :initform nil)
-   (focused-index :accessor focused-index :initarg :focused-index :initform nil)))
+   (focused-index :accessor focused-index :initarg :focused-index :initform nil)
+   (on-scene-init :accessor on-scene-init :initarg :on-scene-init :initform nil)))
 
 (defun invalidate-scene (scene)
   (setf (dirty scene) t)

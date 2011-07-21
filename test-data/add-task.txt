@@ -8,11 +8,11 @@
 A system of tasks is used to execute UI code on the UI thread (so we
 don't need to bother making all the scenic code thread safe). Since
 tasks can be added from other threads, they can be added in various
-orders. To make sure the test is replayed in the same order, a counter
-is used to make the running order of tasks deterministic (NOTE: this
-counting scheme also needs to identify threads in the 'task number',
-this is not done yet - I need to allocate threads myself *on the UI
-thread* so the numbering is deterministic).
+orders. To make sure the test is replayed in the same order, 1) a
+per-thread counter is used to identify tasks, 2) threads are created
+on the UI thread and given names from a global counter, 3) tasks are
+replayed in the test replay in the order in which they appear in the
+session record.
 
 ## Test Sequence
 

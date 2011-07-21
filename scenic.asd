@@ -4,7 +4,8 @@
   :depends-on (#:lispbuilder-sdl
                #:cl-cairo2
                #:gzip-stream
-               #:bordeaux-threads)
+               #:bordeaux-threads
+               #:trivial-backtrace)
   :components ((:file "packages")
                (:file "scenic-utils")
                (:file "scenic-resources")

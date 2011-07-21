@@ -65,7 +65,10 @@
            read-gzipped-resource
            checkbox
            radio-button
-           box space-between-cells add-task))
+           box space-between-cells
+           add-task *replay-task-timeout-ms*
+           allocate-thread on-ui-thread check-ui-thread
+           on-scene-init as-ui-task as-delayed-ui-task))
 
 (defpackage :scenic-grid
   (:use :cl :scenic :scenic-utils)

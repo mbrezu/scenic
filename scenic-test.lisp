@@ -986,6 +986,38 @@
                                       (format t "hello, world~%")))))
     scn))
 
+(defun add-task-with-thread ()
+  (let (scene)
+    (setf scene (scene *scene-width* *scene-height*
+                       (stack
+                        (background (list 1.0 1.0 1.0)
+                                    (filler)))))
+    (setf (scenic:on-scene-init scene)
+          (lambda ()
+            (scenic:allocate-thread (lambda ()
+                                      (scenic:as-ui-task
+                                        (scenic:test-channel-write 'task-1-1))
+                                      (sleep 1)
+                                      (scenic:as-ui-task
+                                        (scenic:test-channel-write 'task-1-2))
+                                      (sleep 1)
+                                      (scenic:as-ui-task
+                                        (scenic:test-channel-write 'task-1-3)
+                                        (when *manual-test-run*
+                                          (print "First thread done.")))))
+            (scenic:allocate-thread (lambda ()
+                                      (scenic:as-ui-task
+                                        (scenic:test-channel-write 'task-2-1))
+                                      (sleep 1)
+                                      (scenic:as-ui-task
+                                        (scenic:test-channel-write 'task-2-2))
+                                      (sleep 1)
+                                      (scenic:as-ui-task
+                                        (scenic:test-channel-write 'task-2-3)
+                                        (when *manual-test-run*
+                                          (print "Second thread done.")))))))
+    scene))
+
 (defun run-all-tests ()
   (test-scene (background-clear))
   (test-scene (colored-rectangles))
@@ -1017,4 +1049,5 @@
   (test-scene (radio-button-1))
   (test-scene (simple-boxes))
   (test-scene (scroll-view-2))
-  (test-scene (add-task)))
+  (test-scene (add-task))
+  (test-scene (add-task-with-thread)))
