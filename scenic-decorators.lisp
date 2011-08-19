@@ -120,13 +120,6 @@
   ((vertical :accessor vertical :initarg :vertical :initform :center)
    (horizontal :accessor horizontal :initarg :horizontal :initform :center)))
 
-(defmethod measure ((object aligner) available-width availaible-height)
-  (multiple-value-bind (width height)
-      (measure (child object) available-width availaible-height)
-    (call-next-method object
-                      (min width available-width)
-                      (min height availaible-height))))
-
 (defmethod layout ((object aligner) left top width height)
   (let ((child-width (measured-width (child object)))
         (child-height (measured-height (child object))))
