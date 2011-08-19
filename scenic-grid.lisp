@@ -359,8 +359,8 @@
        do (let-from-options options ((colspan 1)
                                      (rowspan 1))
             (measure child
-                   (get-size (column-widths object) (first location) colspan)
-                   (get-size (row-heights object) (second location) rowspan))
+                     (get-size (column-widths object) (first location) colspan)
+                     (get-size (row-heights object) (second location) rowspan))
             (layout child
                     (+ left (aref column-left (first location)))
                     (+ top (aref row-top (second location)))
