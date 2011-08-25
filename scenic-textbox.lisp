@@ -192,15 +192,15 @@
                          (invalidate o)))))
 
 (defun pos-on-char (textbox x-pos pos)
-  (let ((lt (< (string-width textbox (subseq (text textbox) 0 pos))
-               x-pos)))
+  (let ((lt (<= (string-width textbox (subseq (text textbox) 0 pos))
+                x-pos)))
     (or (and (= pos (length (text textbox)))
              lt)
         (and lt
-             (> (string-width textbox (subseq (text textbox) 0 (1+ pos)))
-                x-pos)))))
+             (>= (string-width textbox (subseq (text textbox) 0 (1+ pos)))
+                 x-pos)))))
 
-(defun char-hit-test (textbox x-pos)
+(defun find-char (textbox x-pos)
   (let ((txtlen (length (text textbox))))
     (if (= 0 txtlen)
         0
@@ -222,6 +222,16 @@
                  return pos2
                  until (and (> pos1 txtlen)
                             (< pos2 0))))))))
+
+(defun char-hit-test (textbox x-pos)
+  (let ((pos (find-char textbox x-pos)))
+    (when pos
+      (let ((pos-left (string-width textbox (subseq (text textbox) 0 pos)))
+            (pos-right (string-width textbox (subseq (text textbox) 0 (1+ pos)))))
+        (if (< (abs (- x-pos pos-left))
+               (abs (- x-pos pos-right)))
+            pos
+            (1+ pos))))))
 
 (defmethod paint ((object textbox))
   (prepare-text object)
