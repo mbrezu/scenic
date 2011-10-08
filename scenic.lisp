@@ -199,6 +199,9 @@
 (defvar *thread-counter*)
 (setf *thread-counter* 0)
 
+(defvar *scenic-threads*)
+(setf *scenic-threads* (make-hash-table))
+
 (defun check-ui-thread ()
   (unless (on-ui-thread)
     (error "Not on UI thread")))
@@ -206,9 +209,12 @@
 (defun on-ui-thread ()
   (eq (bt:current-thread) *ui-thread*))
 
-(defun allocate-thread (code)
+(defun allocate-thread (code &optional name)
   (check-ui-thread)
-  (bt:make-thread code :name (format nil "scenic-thread-~a" (incf *thread-counter*))))
+  (bt:with-recursive-lock-held (*task-queue-lock*)
+    (let ((new-thread (bt:make-thread code :name name)))
+      (setf (gethash new-thread *scenic-threads*) (incf *thread-counter*))
+      new-thread)))
 
 (defclass task ()
   ((number :accessor task-number :initarg :number :initform nil)
@@ -244,21 +250,23 @@
                      (cons task task-list)
                      (cons (car task-list) (add-sorted task (cdr task-list)))))))
     (bt:with-recursive-lock-held (*task-queue-lock*)
-      (when (null (gethash (bt:current-thread) *task-counters-per-thread*))
-        (setf (gethash (bt:current-thread) *task-counters-per-thread*) 0))
-      (let ((task (make-instance 'task
-                                 :number (format nil "~a-~a"
-                                                 (if (on-ui-thread)
-                                                     "0"
-                                                     (bt:thread-name (bt:current-thread)))
-                                                 (incf (gethash (bt:current-thread)
-                                                                *task-counters-per-thread*)))
-                                 :name task-name
-                                 :code task-code
-                                 :time (+ (get-internal-real-time)
-                                          (* (/ after-ms 1000)
-                                             internal-time-units-per-second)))))
-        (setf *task-list* (add-sorted task *task-list*))))))
+      (let ((thread-id (gethash (bt:current-thread) *scenic-threads*)))
+        (unless thread-id
+          (error
+           "Cannot add a task from a thread that wasn't created using scenic:allocate-thread."))
+        (when (null (gethash (bt:current-thread) *task-counters-per-thread*))
+          (setf (gethash (bt:current-thread) *task-counters-per-thread*) 0))
+        (let ((task (make-instance 'task
+                                   :number (format nil "~a-~a"
+                                                   thread-id
+                                                   (incf (gethash (bt:current-thread)
+                                                                  *task-counters-per-thread*)))
+                                   :name task-name
+                                   :code task-code
+                                   :time (+ (get-internal-real-time)
+                                            (* (/ after-ms 1000)
+                                               internal-time-units-per-second)))))
+          (setf *task-list* (add-sorted task *task-list*)))))))
 
 (defmacro as-ui-task (&body body)
   `(add-task (lambda ()
@@ -287,10 +295,16 @@
   (setf *thread-counter* 0)
   (setf *ui-thread* (bt:current-thread)))
 
+(defun reset-threads ()
+  (setf *scenic-threads* (make-hash-table))
+  (setf (gethash (bt:current-thread) *scenic-threads*)
+        0))
+
 (defun init-scene (scene renderer)
   (calculate-focusables scene)
   (reset-session-record)
   (reset-tasks)
+  (reset-threads)
   (funcall renderer scene t)
   (when (on-scene-init scene)
     (funcall (on-scene-init scene))))

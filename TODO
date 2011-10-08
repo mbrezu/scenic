@@ -155,16 +155,16 @@
 *** TODO must be on the UI thread to allocate new threads
 ** TODO use a hash to map threads to our thread-ids
 *** TODO periodically clean the hash (remove dead threads from it)
-*** TODO throw an error if add-task is called from a thread that is not in the hash
-*** TODO put the ui thread in the hash as thread 0
-*** TODO now we no longer need to control the thread names
+*** DONE throw an error if add-task is called from a thread that is not in the hash
+*** DONE put the ui thread in the hash as thread 0
+*** DONE now we no longer need to control the thread names
     - (make turn allocate-thread accept a name for created threads into
       register-thread or; alternatively, turn it into register-thread
       that takes an existing thread and adds it to our hash)
     - nope, registering can't work (we can't let threads decide when
       to register, they might decide to register in another order in
       the test run)
-*** TODO the hash is protected by the same lock we're using for the rest
+*** DONE the hash is protected by the same lock we're using for the rest
     of the data structures
 * DONE visibility for widgets
   - t or nil, if t the widget is measured and painted, if nil the
