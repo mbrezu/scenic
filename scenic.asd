@@ -5,6 +5,7 @@
                #:cl-cairo2
                #:gzip-stream
                #:bordeaux-threads
+               #:mbrezu-utils
                #:trivial-backtrace)
   :components ((:file "packages")
                (:file "scenic-utils")

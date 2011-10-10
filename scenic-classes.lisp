@@ -25,8 +25,8 @@
 
 ;;; EVENTFUL class.
 
-(defclass eventful ()
-  ((event-handlers :accessor event-handlers :initarg event-handlers :initform nil)))
+(mabu:defclassf eventful ()
+  (event-handlers))
 
 (defmethod add-event-handler ((object eventful) event propagation handler)
   (let ((handler-list (assoc event (event-handlers object))))
@@ -53,23 +53,16 @@
 
 ;;; WIDGET class.
 
-(defclass widget (eventful)
-  ((measured-width :accessor measured-width :initarg measured-width :initform nil)
-   (measured-height :accessor measured-height :initarg measured-height :initform nil)
-   (layout-left :accessor layout-left :initarg :layout-left :initform 0)
-   (layout-top :accessor layout-top :initarg :layout-top :initform 0)
-   (layout-width :accessor layout-width :initarg :layout-width :initform nil)
-   (layout-height :accessor layout-height :initarg :layout-height :initform nil)
-   (parent :accessor parent :initarg :parent :initform nil)
-   (name :accessor name :initarg :name :initform nil)
-   (auto-name :accessor auto-name :initarg :auto-name :initform nil)
-   (paint-order-number :accessor paint-order-number
-                       :initarg :paint-order-number
-                       :initform -1)
-   (affected-rect :accessor affected-rect
-                  :initarg :affected-rect
-                  :initform nil)
-   (visible :accessor visible :initarg :visible :initform t)))
+(mabu:defclassf widget (eventful)
+  (measured-width
+   measured-height
+   layout-left layout-top layout-width layout-height parent name
+   auto-name paint-order-number affected-rect visible)
+  ;; (parent :dont-serialize)
+  (layout-left :initform 0)
+  (layout-top :initform 0)
+  (paint-order-number :initform -1)
+  (visible :initform t))
 
 (defmethod measure :around ((object widget) available-width available-height)
   (if (visible object)
