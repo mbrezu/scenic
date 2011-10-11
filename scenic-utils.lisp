@@ -5,17 +5,6 @@
   (list (apply #'max (mapcar #'first boxes))
         (apply #'max (mapcar #'second boxes))))
 
-(defmacro print-all (stream &rest exprs)
-  (let ((format-string (with-output-to-string (str)
-                         (dolist (expr exprs)
-                           (cond ((stringp expr)
-                                  (format str "~~a"))
-                                 (t
-                                  (format str "~a: " expr)
-                                  (format str "~~s")
-                                  (format str "~%")))))))
-    `(format ,stream ,format-string ,@exprs)))
-
 (defun draw-button-raw (left top width height pressed)
   ;; draw the inner borders (for the 3d illusion)
   ;; left border
@@ -66,22 +55,6 @@
   `(if (eq (scenic:orientation ,instance) :horizontal)
        ,horizontal-body
        ,vertical-body))
-
-(defmacro aif (test then &optional (else nil))
-  `(let ((it ,test))
-     (if it ,then ,else)))
-
-(defmacro awhen (test &body body)
-  `(let ((it ,test))
-     (when it ,@body)))
-
-(defmacro bif ((var test) then &optional (else nil))
-  `(let ((,var ,test))
-     (if ,var ,then ,else)))
-
-(defmacro bwhen ((var test) &body body)
-  `(let ((,var ,test))
-     (when ,var ,@body)))
 
 (defun make-keyword (str)
   (intern (string-upcase str) "KEYWORD"))

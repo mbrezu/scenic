@@ -155,7 +155,7 @@
                (eq :ESCAPE (key event))))
           ((unicode event)
            (handle-insert-char instance event lbl))
-          (t ;; (print-all t
+          (t ;; (mabu:print-all t
            ;;            (key event)
            ;;            (modifiers event))
            ))))

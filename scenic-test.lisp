@@ -148,11 +148,11 @@
                               (lambda (object event)
                                 (declare (ignore event))
                                 (when *manual-test-run*
-                                  (print-all t
-                                             (scenic:current-min-position object)
-                                             (scenic:page-size object)
-                                             (scenic:min-value object)
-                                             (scenic:max-value object)))
+                                  (mabu:print-all t
+                                                  (scenic:current-min-position object)
+                                                  (scenic:page-size object)
+                                                  (scenic:min-value object)
+                                                  (scenic:max-value object)))
                                 (scenic:test-channel-write
                                  (list (scenic:current-min-position object)
                                        (scenic:page-size object)
@@ -189,11 +189,11 @@
                               (lambda (object event)
                                 (declare (ignore event))
                                 (when *manual-test-run*
-                                  (print-all t
-                                             (scenic:current-min-position object)
-                                             (scenic:page-size object)
-                                             (scenic:min-value object)
-                                             (scenic:max-value object)))
+                                  (mabu:print-all t
+                                                  (scenic:current-min-position object)
+                                                  (scenic:page-size object)
+                                                  (scenic:min-value object)
+                                                  (scenic:max-value object)))
                                 (scenic:test-channel-write
                                  (list (scenic:current-min-position object)
                                        (scenic:page-size object)
@@ -203,11 +203,11 @@
                               (lambda (object event)
                                 (declare (ignore event))
                                 (when *manual-test-run*
-                                  (print-all t
-                                             (scenic:current-min-position object)
-                                             (scenic:page-size object)
-                                             (scenic:min-value object)
-                                             (scenic:max-value object)))
+                                  (mabu:print-all t
+                                                  (scenic:current-min-position object)
+                                                  (scenic:page-size object)
+                                                  (scenic:min-value object)
+                                                  (scenic:max-value object)))
                                 (scenic:test-channel-write
                                  (list (scenic:current-min-position object)
                                        (scenic:page-size object)
@@ -705,7 +705,7 @@
                               (lambda (o e)
                                 (declare (ignore o e))
                                 (when *manual-test-run*
-                                  (print-all t (scenic:text textbox)))
+                                  (mabu:print-all t (scenic:text textbox)))
                                 (scenic:test-channel-write (list :text (scenic:text textbox)))))
     scene))
 
@@ -744,19 +744,19 @@
                               (lambda (o e)
                                 (declare (ignore o e))
                                 (when *manual-test-run*
-                                  (print-all t (scenic:text text1)))
+                                  (mabu:print-all t (scenic:text text1)))
                                 (scenic:test-channel-write (list :text1 (scenic:text text1)))))
     (scenic:add-event-handler text2 :text-changed nil
                               (lambda (o e)
                                 (declare (ignore o e))
                                 (when *manual-test-run*
-                                  (print-all t (scenic:text text2)))
+                                  (mabu:print-all t (scenic:text text2)))
                                 (scenic:test-channel-write (list :text2 (scenic:text text2)))))
     (scenic:add-event-handler text3 :text-changed nil
                               (lambda (o e)
                                 (declare (ignore o e))
                                 (when *manual-test-run*
-                                  (print-all t (scenic:text text3)))
+                                  (mabu:print-all t (scenic:text text3)))
                                 (scenic:test-channel-write (list :text3 (scenic:text text3)))))
     scene))
 
@@ -768,7 +768,7 @@
                 (lambda (o e)
                   (declare (ignore o e))
                   (when *manual-test-run*
-                    (print-all t text))
+                    (mabu:print-all t text))
                   (scenic:test-channel-write (list text "clicked"))))
                btn)))
     (multiple-value-bind (sva sv)
@@ -803,7 +803,7 @@
                                          (lambda (o e)
                                            (declare (ignore o))
                                            (when *manual-test-run*
-                                             (print-all t e))))
+                                             (mabu:print-all t e))))
                btn)))
     (multiple-value-bind (sva sv)
         (scroll-view-auto (sizer

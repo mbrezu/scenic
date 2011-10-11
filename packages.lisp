@@ -1,16 +1,16 @@
 
 (defpackage :scenic-utils
   (:use :cl)
-  (:export max-box print-all draw-button-raw pass-to-child
-           ifhorizontal aif awhen let-from-options
-           fill-list it groups bif bwhen
+  (:export max-box  draw-button-raw pass-to-child
+           ifhorizontal let-from-options
+           fill-list groups
            gen-print-object gen-serializer
-           yes-no-query -> set2val1
+           yes-no-query set2val1
            validate-layout-spec is-auto sorted-auto-indices
            intersperse))
 
 (defpackage :scenic
-  (:use :cl :scenic-utils)
+  (:use :cl :scenic-utils :mabu)
   (:export run-scene
            eventful add-event-handler remove-event-handler on-event
            widget measured-width measured-height visible
@@ -71,11 +71,11 @@
            on-scene-init as-ui-task as-delayed-ui-task))
 
 (defpackage :scenic-grid
-  (:use :cl :scenic :scenic-utils)
+  (:use :cl :scenic :scenic-utils :mabu)
   (:export grid))
 
 (defpackage :scenic-helpers
-  (:use :cl :scenic :scenic-grid :scenic-utils)
+  (:use :cl :scenic :scenic-grid :scenic-utils :mabu)
   (:export scene background border
            placeholder
            padding uniform-padding
