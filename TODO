@@ -153,8 +153,8 @@
 ** DONE so we can serialize thread based scenarios for automated testing
 ** TODO thread allocation scheme
 *** TODO must be on the UI thread to allocate new threads
-** TODO use a hash to map threads to our thread-ids
-*** TODO periodically clean the hash (remove dead threads from it)
+** DONE use a hash to map threads to our thread-ids
+*** DONE periodically clean the hash (remove dead threads from it)
 *** DONE throw an error if add-task is called from a thread that is not in the hash
 *** DONE put the ui thread in the hash as thread 0
 *** DONE now we no longer need to control the thread names

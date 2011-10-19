@@ -209,9 +209,18 @@
 (defun on-ui-thread ()
   (eq (bt:current-thread) *ui-thread*))
 
-(defun allocate-thread (code &optional name)
+(defun cleanup-dead-threads ()
+  (maphash (lambda (key value)
+             (declare (ignore value))
+             (unless (bt:thread-alive-p key)
+               (remhash key *scenic-threads*)))
+           *scenic-threads*))
+
+(defun allocate-thread (code &key name fast)
   (check-ui-thread)
   (bt:with-recursive-lock-held (*task-queue-lock*)
+    (unless fast
+      (cleanup-dead-threads))
     (let ((new-thread (bt:make-thread code :name name)))
       (setf (gethash new-thread *scenic-threads*) (incf *thread-counter*))
       new-thread)))
